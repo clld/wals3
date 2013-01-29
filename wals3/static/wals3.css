@@ -10,4 +10,54 @@
   filter: none;
   border: none !important;
   margin-top: 5px;
+  padding-left: 5px !important;
+  padding-right: 5px !important;
+  margin-left: 20px !important;
+  margin-right: 20px !important;
 }
+
+.navbar .nav > li > a {
+  color: white !important;
+  float: none;
+  padding: 10px 15px;
+  text-decoration: none;
+  text-shadow: none !important;
+}
+
+/* color coded typed links  */
+a.Parameter { color: #a81eaf; }
+a.Parameter:hover { color: #d38ed7; }
+a.Parameter:visited { color: #400044; }
+
+a.Contribution { color: #a81eaf; }
+a.Contribution:hover { color: #400044; }
+a.Contribution:visited { color: #d38ed7; }
+
+a.Supplement { color: #a81eaf; }
+a.Supplement:hover { color: #400044; }
+a.Supplement:visited { color: #d38ed7; }
+
+a.Reference  { color: #782a07; }
+a.Reference:hover { color: #ab3a05; }
+a.Reference:visited { color: #4a1c08; }
+
+a.Country  { color: #782a07; }
+a.Country:hover { color: #ab3a05; }
+a.Country:visited { color: #4a1c08; }
+
+a.Language { color: #80a532; }
+a.Language:hover { text-decoration: underline; }
+a.Language:visited { color: #2d4007; }
+
+.Genus { font-style: italic; }
+a.Genus { color: #80a532; }
+a.Genus:hover { text-decoration: underline; }
+a.Genus:visited { color: #2d4007; }
+
+a.Family { color: #80a532; }
+a.Family:hover { text-decoration: underline; }
+a.Family:visited { color: #2d4007; }
+
+a.Contributor { color: #782a07; }
+a.Contributor:hover { color: #ab3a05; }
+a.Contributor:visited { color: #4a1c08; }

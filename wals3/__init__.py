@@ -5,39 +5,18 @@ from mako.template import Template
 from markupsafe import Markup
 
 from clld import interfaces
-from clld.web import datatables
-from clld.web.datatables.base import Col
 from clld.web.adapters import GeoJson
 
 from wals3.models import WalsLanguage, Genus, Family
 from wals3.adapters import GeoJsonFeature
 from wals3.maps import FeatureMap
+from wals3.datatables import Languages, Features
 
 
 def _(s, *args, **kw):
     return s
 
 _('Languages')
-
-
-class GenusCol(Col):
-    def order(self, direction):
-        return desc(Genus.name) if direction == 'desc' else Genus.name
-
-    def search(self, qs):
-        return Genus.name.contains(qs)
-
-    def format(self, item):
-        return item.genus.name
-
-
-class Languages(datatables.Languages):
-    def base_query(self, query):
-        return query.join(Genus).join(Family).options(joinedload(WalsLanguage.genus))
-
-    def col_defs(self):
-        cols = datatables.Languages.col_defs(self)
-        return cols[:2] + [GenusCol(self, 'genus')] + cols[2:]
 
 
 def main(global_config, **settings):
@@ -59,6 +38,7 @@ def main(global_config, **settings):
     config.include('clld.web.app')
 
     config.register_datatable('languages', Languages)
+    config.register_datatable('parameters', Features)
     config.register_map('parameter', FeatureMap)
 
     config.override_asset(

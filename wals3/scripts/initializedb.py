@@ -3,6 +3,7 @@ import os
 import sys
 import transaction
 from collections import defaultdict
+from itertools import groupby
 
 from sqlalchemy import engine_from_config, create_engine
 
@@ -31,11 +32,9 @@ def usage(argv):
     sys.exit(1)
 
 
-def main(argv=sys.argv):
-    if len(argv) != 2:
+def setup_session(argv=sys.argv):
+    if len(argv) < 2:
         usage(argv)
-
-    old_db = create_engine(DB)
 
     config_uri = argv[1]
     setup_logging(config_uri)
@@ -44,6 +43,11 @@ def main(argv=sys.argv):
     DBSession.configure(bind=engine)
     Base.metadata.create_all(engine)
     VersionedDBSession.configure(bind=engine)
+
+
+def main():
+    setup_session()
+    old_db = create_engine(DB)
 
     data = defaultdict(dict)
 
@@ -113,8 +117,48 @@ def main(argv=sys.argv):
                 contribution_pk=data['contribution'][row['chapter_id']].pk)
             VersionedDBSession.add(new)
 
+        # cache number of languages for a parameter:
+        for parameter, values in groupby(
+            VersionedDBSession.query(common.Value).order_by(common.Value.parameter_pk),
+            lambda v: v.parameter):
+            d = common.Parameter_data(
+                key='representation',
+                value=str(len(set(v.language_pk for v in values))),
+                object_pk=parameter.pk)
+            VersionedDBSession.add(d)
+
+        VersionedDBSession.flush()
         lang.name = 'SPECIAL--' + lang.name
 
 
+def prime_cache():
+    setup_session()
+
+    with transaction.manager:
+        # cache number of languages for a parameter:
+        for parameter, values in groupby(
+            DBSession.query(common.Value).order_by(common.Value.parameter_pk),
+            lambda v: v.parameter):
+
+            representation = str(len(set(v.language_pk for v in values)))
+
+            d = None
+            for _d in parameter.data:
+                if _d.key == 'representation':
+                    d = _d
+                    break
+
+            if d:
+                d.value = representation
+            else:
+                d = common.Parameter_data(
+                    key='representation',
+                    value=representation,
+                    object_pk=parameter.pk)
+                DBSession.add(d)
+
+
 if __name__ == '__main__':
-    main()
+    if len(sys.argv) == 2:
+        main()
+    prime_cache()
