@@ -14,6 +14,8 @@ requires = [
     'pyramid_debugtoolbar',
     'zope.sqlalchemy',
     'waitress',
+    'gunicorn',
+    'psycopg2',
     ]
 
 setup(name='wals3',
@@ -42,4 +44,3 @@ setup(name='wals3',
       initialize_wals3_db = wals3.scripts.initializedb:main
       """,
       )
-
