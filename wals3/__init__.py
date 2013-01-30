@@ -1,16 +1,12 @@
 from pyramid.config import Configurator
-from sqlalchemy import engine_from_config, desc
-from sqlalchemy.orm import joinedload
-from mako.template import Template
-from markupsafe import Markup
 
 from clld import interfaces
 from clld.web.adapters import GeoJson
 
-from wals3.models import WalsLanguage, Genus, Family
 from wals3.adapters import GeoJsonFeature
 from wals3.maps import FeatureMap
 from wals3.datatables import Languages, Features
+from wals3 import views
 
 
 def _(s, *args, **kw):
@@ -53,5 +49,5 @@ def main(global_config, **settings):
 
     config.add_static_view('static', 'static', cache_max_age=3600)
     config.add_route('home', '/')
-    config.scan()
+    config.scan(views)
     return config.make_wsgi_app()
