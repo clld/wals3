@@ -4,7 +4,7 @@ from sqlalchemy.sql.expression import cast
 from sqlalchemy.types import Integer
 
 from clld.web import datatables
-from clld.web.datatables.base import Col, filter_number, LinkCol
+from clld.web.datatables.base import Col, filter_number, LinkCol, DetailsRowLinkCol
 from clld.db.models import common
 from clld.web.util.helpers import linked_contributors
 from clld.web.util.htmllib import HTML
@@ -45,6 +45,7 @@ class Features(datatables.Parameters):
 
     def col_defs(self):
         return [
+            DetailsRowLinkCol(self),
             IdCol(self, 'id', sClass='right'),
             LinkCol(self, 'name'),
             ContributorsCol(self, 'Authors', bSearchable=False, bSortable=False),
