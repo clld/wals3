@@ -22,16 +22,8 @@ def main(global_config, **settings):
     settings['clld.app_template'] = "wals3.mako"
 
     config = Configurator(settings=settings)
-
-    #
-    # must add project specific translation dir first
-    #
-    config.add_translation_dirs('wals3:locale')
-
-    #
-    # then include clld, thereby adding the default translations
-    #
     config.include('clld.web.app')
+    config.register_app('wals3')
 
     config.register_datatable('languages', Languages)
     config.register_datatable('parameters', Features)
@@ -47,7 +39,4 @@ def main(global_config, **settings):
         interfaces.IRepresentation,
         GeoJson.mimetype)
 
-    config.add_static_view('static', 'static', cache_max_age=3600)
-    config.add_route('home', '/')
-    config.scan(views)
     return config.make_wsgi_app()

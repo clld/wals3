@@ -1,9 +1,9 @@
 <%inherit file="wals3.mako"/>
 
 <%def name="sidebar()">
-  <div id="wals_news" class="well">
+  <div id="wals_news" class="well well-small">
   </div>
-  <div id="latest_comments" class="well">
+  <div id="latest_comments" class="well well-small">
   </div>
   <script>
 $(document).ready(function() {
