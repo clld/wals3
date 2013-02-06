@@ -1,12 +1,13 @@
 from functools import partial
+import re
 
+from path import path
 from pyramid.config import Configurator
 
 from clld.interfaces import IParameter
-from clld.web.app import ctx_factory
-from clld.web.views import resource_view
 from clld.web.adapters import GeoJson, Representation
 
+import wals3
 from wals3.adapters import GeoJsonFeature
 from wals3.maps import FeatureMap, FamilyMap
 from wals3.datatables import Languages, Features
@@ -47,8 +48,7 @@ def main(global_config, **settings):
     config.register_datatable('parameters', Features)
     config.register_map('parameter', FeatureMap)
 
-    config.add_route_and_view(
-        'family', '/family/{id:[^/\.]+}', resource_view, factory=partial(ctx_factory, Family, 'rsc'))
+    config.register_resource('family', Family, IFamily)
     config.register_adapter(adapter_factory('family/detail_html.mako'), IFamily)
     config.register_map('family', FamilyMap)
 
@@ -56,9 +56,6 @@ def main(global_config, **settings):
         to_override='clld:web/templates/language/rdf.pt',
         override_with='wals3:templates/language/rdf.pt')
 
-    config.register_adapter(GeoJsonFeature, IParameter,
-        #interfaces.IRepresentation,
-        #GeoJson.mimetype
-    )
+    config.register_adapter(GeoJsonFeature, IParameter)
 
     return config.make_wsgi_app()

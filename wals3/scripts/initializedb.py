@@ -3,10 +3,11 @@ import os
 import sys
 import transaction
 from collections import defaultdict
-from itertools import groupby
+from itertools import groupby, cycle
+import re
 
 from sqlalchemy import engine_from_config, create_engine
-
+from path import path
 from pyramid.paster import (
     get_appsettings,
     setup_logging,
@@ -19,6 +20,7 @@ from clld.db.meta import (
 )
 from clld.db.models import common
 
+import wals3
 from wals3 import models
 from wals3.scripts import uncited
 
@@ -30,6 +32,20 @@ for k, v in uncited.MAP.items():
 #DB = 'sqlite:////home/robert/old_projects/legacy/wals_pylons/trunk/wals2/db.sqlite'
 DB = create_engine('postgresql://robert@/wals')
 REFDB = create_engine('postgresql://robert@/walsrefs')
+
+
+class Icons(object):
+    filename_pattern = re.compile('(?P<spec>(c|d|s|f|t)[0-9a-f]{3})\.png')
+
+    def __init__(self):
+        self._icons = []
+        for name in sorted(path(wals3.__file__).dirname().joinpath('static', 'icons').files()):
+            m = self.filename_pattern.match(name.splitall()[-1])
+            if m:
+                self._icons.append(m.group('spec'))
+
+    def __iter__(self):
+        return iter(self._icons)
 
 
 def usage(argv):
@@ -90,6 +106,7 @@ def get_source(id):
 
 
 def main():
+    icons = Icons()
     setup_session()
     old_db = DB
 
@@ -133,9 +150,10 @@ def main():
         for row in old_db.execute("select * from family"):
             add(models.Family, 'family', row['id'], id=row['id'], name=row['name'], description=row['comment'])
 
-        for row in old_db.execute("select * from genus"):
-            genus = add(models.Genus, 'genus', row['id'], name=row['name'])
+        for row, icon in zip(list(old_db.execute("select * from genus order by family_id")), cycle(iter(icons))):
+            genus = add(models.Genus, 'genus', row['id'], name=row['name'], icon_id=icon)
             genus.family = data['family'][row['family_id']]
+        VersionedDBSession.flush()
 
         for row in old_db.execute("select * from language"):
             kw = dict((key, row[key]) for key in ['id', 'name', 'latitude', 'longitude'])
@@ -196,7 +214,7 @@ def main():
                 contribution_pk=data['contribution'][row['chapter_id']].pk)
             VersionedDBSession.add(new)
 
-         lang.name = 'SPECIAL--' + lang.name
+        lang.name = 'SPECIAL--' + lang.name
 
 
 def prime_cache():

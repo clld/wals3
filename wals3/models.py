@@ -32,7 +32,8 @@ class Family(Base, IdNameDescriptionMixin):
 class Genus(Base, IdNameDescriptionMixin):
     family_pk = Column(Integer, ForeignKey('family.pk'))
     subfamily = Column(Unicode)
-    family = relationship(Family, backref="genera")
+    family = relationship(Family, backref=backref("genera", order_by="Genus.name"))
+    icon_id = Column(String(4))
 
 
 class Area(Base, IdNameDescriptionMixin):
@@ -51,7 +52,7 @@ class WalsLanguage(Language, CustomModelMixin):
     samples_100 = Column(Boolean, default=False)
     samples_200 = Column(Boolean, default=False)
 
-    genus = relationship(Genus, backref="languages")
+    genus = relationship(Genus, backref=backref("languages", order_by="Language.name"))
 
 
 @implementer(interfaces.IContribution)

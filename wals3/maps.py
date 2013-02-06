@@ -16,16 +16,27 @@ class FeatureMap(ParameterMap):
 
 
 class _GeoJson(GeoJsonLanguages):
+    #
+    # TODO: cycle through icons to use for genera
+    #
     def feature_iterator(self, ctx, req):
-        for genus in ctx.genera:
-            for language in genus.languages:
-                yield language
+        for language in ctx.languages:
+            yield language
+
+    def feature_properties(self, ctx, req, language):
+        return {
+            'name': language.name,
+            'id': language.id,
+            'icon_type': language.genus.icon_id[:1],
+            'icon_color': '#%s' % ''.join(2 * c for c in language.genus.icon_id[1:]),
+        }
 
 
 class FamilyMap(Map):
     def get_layers(self):
         geojson = _GeoJson(self.ctx)
-        return [{
-            'name': self.ctx.name,
-            'data': geojson.render(self.ctx, self.req, dump=False),
-        }]
+        return [{'name': genus.name, 'data': geojson.render(genus, self.req, dump=False)}
+                for genus in self.ctx.genera]
+
+    def options(self):
+        return {'style_map': 'wals_feature'}

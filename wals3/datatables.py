@@ -1,12 +1,14 @@
 from sqlalchemy import and_, desc
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload, joinedload_all
 from sqlalchemy.sql.expression import cast
 from sqlalchemy.types import Integer
 
 from clld.web import datatables
-from clld.web.datatables.base import Col, filter_number, LinkCol, DetailsRowLinkCol
+from clld.web.datatables.base import (
+    Col, filter_number, LinkCol, DetailsRowLinkCol, LinkToMapCol,
+)
 from clld.db.models import common
-from clld.web.util.helpers import linked_contributors
+from clld.web.util.helpers import linked_contributors, link
 from clld.web.util.htmllib import HTML
 from clld.db.meta import DBSession
 
@@ -64,10 +66,25 @@ class GenusCol(Col):
         return item.genus.name
 
 
+class FamilyCol(Col):
+    def order(self):
+        return Family.name
+
+    def search(self, qs):
+        return Family.name.contains(qs)
+
+    def format(self, item):
+        return link(self.dt.req, item.genus.family)
+
+
 class Languages(datatables.Languages):
     def base_query(self, query):
-        return query.join(Genus).join(Family).options(joinedload(WalsLanguage.genus))
+        return query.join(Genus).join(Family).options(joinedload_all(WalsLanguage.genus, Genus.family))
 
     def col_defs(self):
         cols = datatables.Languages.col_defs(self)
-        return cols[:2] + [GenusCol(self, 'genus')] + cols[2:]
+        return cols[:2] + [
+            GenusCol(self, 'genus'),
+            FamilyCol(self, 'family'),
+            LinkToMapCol(self),
+        ]
