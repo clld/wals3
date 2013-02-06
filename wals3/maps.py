@@ -1,5 +1,6 @@
 from clld.web.maps import ParameterMap, Map
 from clld.web.util.htmllib import HTML
+from clld.web.adapters import GeoJsonLanguages
 
 
 class FeatureMap(ParameterMap):
@@ -11,4 +12,20 @@ class FeatureMap(ParameterMap):
         return res
 
     def options(self):
-        return {'style_map': 'wals_feature'}
+        return {'style_map': 'wals_feature', 'info_query': {'parameter': self.ctx.pk}}
+
+
+class _GeoJson(GeoJsonLanguages):
+    def feature_iterator(self, ctx, req):
+        for genus in ctx.genera:
+            for language in genus.languages:
+                yield language
+
+
+class FamilyMap(Map):
+    def get_layers(self):
+        geojson = _GeoJson(self.ctx)
+        return [{
+            'name': self.ctx.name,
+            'data': geojson.render(self.ctx, self.req, dump=False),
+        }]

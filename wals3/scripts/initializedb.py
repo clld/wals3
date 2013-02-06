@@ -20,9 +20,16 @@ from clld.db.meta import (
 from clld.db.models import common
 
 from wals3 import models
+from wals3.scripts import uncited
 
 
-DB = 'sqlite:////home/robert/old_projects/legacy/wals_pylons/trunk/wals2/db.sqlite'
+UNCITED_MAP = {}
+for k, v in uncited.MAP.items():
+    UNCITED_MAP[k.lower()] = v
+
+#DB = 'sqlite:////home/robert/old_projects/legacy/wals_pylons/trunk/wals2/db.sqlite'
+DB = create_engine('postgresql://robert@/wals')
+REFDB = create_engine('postgresql://robert@/walsrefs')
 
 
 def usage(argv):
@@ -45,9 +52,46 @@ def setup_session(argv=sys.argv):
     VersionedDBSession.configure(bind=engine)
 
 
+def get_source(id):
+    """retrieve a source record from wals_refdb
+    """
+    res = {'id': id}
+    refdb_id = UNCITED_MAP.get(id.lower())
+    if not refdb_id:
+        for row in REFDB.execute("select id, genre from ref_record, ref_recordofdocument where id = id_r_ref and citekey = '%s'" % id):
+            res['genre'] = row['genre']
+            refdb_id = row['id']
+            break
+
+        if not refdb_id:
+            if id[-1] in ['a', 'b', 'c', 'd']:
+                refdb_id = UNCITED_MAP.get(id[:-1].lower())
+            if not refdb_id:
+                return {}
+
+    for row in REFDB.execute("select * from ref_recfields where id_r_ref = %s" % refdb_id):
+        res[row['id_name']] = row['id_value']
+
+    authors = ''
+    for row in REFDB.execute("select * from ref_recauthors where id_r_ref = %s order by ord" % refdb_id):
+        if row['type'] == 'etal':
+            authors += ' et al.'
+        else:
+            if authors:
+                authors += ' and '
+            authors += row['value']
+    res['authors'] = authors
+
+    for row in REFDB.execute("select * from ref_recjournal where id_r_ref = %s" % refdb_id):
+        res['journal'] = row['name']
+        break
+
+    return res
+
+
 def main():
     setup_session()
-    old_db = create_engine(DB)
+    old_db = DB
 
     data = defaultdict(dict)
 
@@ -57,7 +101,35 @@ def main():
         VersionedDBSession.add(new)
         return new
 
+    missing_sources = []
     with transaction.manager:
+        with open('/home/robert/venvs/clld/data/wals-data/missing_source.py', 'w') as fp:
+            for row in old_db.execute("select * from reference"):
+                try:
+                    author, year = row['id'].split('-')
+                except:
+                    author, year = None, None
+                bibdata = get_source(row['id'])
+                if not bibdata:
+                    fp.write('"%s",\n' % row['id'])
+                    missing_sources.append(row['id'])
+
+                kw = {
+                    'id': row['id'],
+                    'name': row['name'],
+                    'description': bibdata.get('title', bibdata.get('booktitle')),
+                    'authors': bibdata.get('authors', author),
+                    'year': bibdata.get('year', year),
+                    'google_book_search_id': row['gbs_id'] or None,
+                }
+                add(common.Source, 'source', row['id'], **kw)
+
+            #
+            # TODO: add additional bibdata as data items
+            #
+
+        print('sources missing for %s refs' % len(missing_sources))
+
         for row in old_db.execute("select * from family"):
             add(models.Family, 'family', row['id'], id=row['id'], name=row['name'], description=row['comment'])
 
@@ -108,6 +180,13 @@ def main():
 
         VersionedDBSession.flush()
 
+        for row in old_db.execute("select * from datapoint_reference"):
+            common.ValueReference(
+                value=data['value'][row['datapoint_id']],
+                source=data['source'][row['reference_id']],
+                description=row['note'],
+            )
+
         for row in old_db.execute("select * from author_chapter"):
 
             new = common.ContributionContributor(
@@ -117,18 +196,7 @@ def main():
                 contribution_pk=data['contribution'][row['chapter_id']].pk)
             VersionedDBSession.add(new)
 
-        # cache number of languages for a parameter:
-        for parameter, values in groupby(
-            VersionedDBSession.query(common.Value).order_by(common.Value.parameter_pk),
-            lambda v: v.parameter):
-            d = common.Parameter_data(
-                key='representation',
-                value=str(len(set(v.language_pk for v in values))),
-                object_pk=parameter.pk)
-            VersionedDBSession.add(d)
-
-        VersionedDBSession.flush()
-        lang.name = 'SPECIAL--' + lang.name
+         lang.name = 'SPECIAL--' + lang.name
 
 
 def prime_cache():

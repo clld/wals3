@@ -1,18 +1,36 @@
+from functools import partial
+
 from pyramid.config import Configurator
 
-from clld import interfaces
-from clld.web.adapters import GeoJson
+from clld.interfaces import IParameter
+from clld.web.app import ctx_factory
+from clld.web.views import resource_view
+from clld.web.adapters import GeoJson, Representation
 
 from wals3.adapters import GeoJsonFeature
-from wals3.maps import FeatureMap
+from wals3.maps import FeatureMap, FamilyMap
 from wals3.datatables import Languages, Features
 from wals3 import views
+from wals3.models import Family
+from wals3.interfaces import IFamily
 
 
 def _(s, *args, **kw):
     return s
 
 _('Languages')
+
+
+ADAPTER_COUNTER = 0
+
+
+def adapter_factory(template, mimetype='text/html', extension='html', base=None):
+    global ADAPTER_COUNTER
+    base = base or Representation
+    extra = dict(mimetype=mimetype, extension=extension, template=template)
+    cls = type('WALSRenderer%s' % ADAPTER_COUNTER, (base,), extra)
+    ADAPTER_COUNTER += 1
+    return cls
 
 
 def main(global_config, **settings):
@@ -29,14 +47,18 @@ def main(global_config, **settings):
     config.register_datatable('parameters', Features)
     config.register_map('parameter', FeatureMap)
 
+    config.add_route_and_view(
+        'family', '/family/{id:[^/\.]+}', resource_view, factory=partial(ctx_factory, Family, 'rsc'))
+    config.register_adapter(adapter_factory('family/detail_html.mako'), IFamily)
+    config.register_map('family', FamilyMap)
+
     config.override_asset(
         to_override='clld:web/templates/language/rdf.pt',
         override_with='wals3:templates/language/rdf.pt')
 
-    config.register_adapter(
-        GeoJsonFeature,
-        interfaces.IParameter,
-        interfaces.IRepresentation,
-        GeoJson.mimetype)
+    config.register_adapter(GeoJsonFeature, IParameter,
+        #interfaces.IRepresentation,
+        #GeoJson.mimetype
+    )
 
     return config.make_wsgi_app()
