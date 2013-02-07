@@ -57,5 +57,5 @@ def main(global_config, **settings):
         override_with='wals3:templates/language/rdf.pt')
 
     config.register_adapter(GeoJsonFeature, IParameter)
-
+    config.add_route('feature_info', '/feature-info/{id}')
     return config.make_wsgi_app()
