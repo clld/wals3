@@ -32,7 +32,7 @@ class Family(Base, IdNameDescriptionMixin):
 class Genus(Base, IdNameDescriptionMixin):
     family_pk = Column(Integer, ForeignKey('family.pk'))
     subfamily = Column(Unicode)
-    family = relationship(Family, backref=backref("genera", order_by="Genus.name"))
+    family = relationship(Family, backref=backref("genera", order_by="Genus.subfamily, Genus.name"))
     icon_id = Column(String(4))
 
 

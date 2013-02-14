@@ -58,4 +58,5 @@ def main(global_config, **settings):
 
     config.register_adapter(GeoJsonFeature, IParameter)
     config.add_route('feature_info', '/feature-info/{id}')
+    config.add_route('genealogy', '/languoid/genealogy')
     return config.make_wsgi_app()

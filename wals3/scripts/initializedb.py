@@ -151,7 +151,7 @@ def main():
             add(models.Family, 'family', row['id'], id=row['id'], name=row['name'], description=row['comment'])
 
         for row, icon in zip(list(old_db.execute("select * from genus order by family_id")), cycle(iter(icons))):
-            genus = add(models.Genus, 'genus', row['id'], name=row['name'], icon_id=icon)
+            genus = add(models.Genus, 'genus', row['id'], id=row['id'], name=row['name'], icon_id=icon, subfamily=row['subfamily'])
             genus.family = data['family'][row['family_id']]
         VersionedDBSession.flush()
 

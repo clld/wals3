@@ -7,8 +7,8 @@
   </div>
   <script>
 $(document).ready(function() {
-    CLLD.Feed.init(${h.dumps(dict(eid="wals_news", url="http://blog.wals.info/category/news/feed/", title="WALS News"))|n});
-    CLLD.Feed.init(${h.dumps(dict(eid="latest_comments", url="http://blog.wals.info/comments/feed/", title="Latest Comments"))|n});
+  ${h.JSFeed.init(dict(eid="wals_news", url="http://blog.wals.info/category/news/feed/", title="WALS News"))|n};
+  ${h.JSFeed.init(dict(eid="latest_comments", url="http://blog.wals.info/comments/feed/", title="Latest Comments"))|n}
 });
   </script>
 </%def>
