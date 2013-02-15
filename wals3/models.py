@@ -64,7 +64,7 @@ class Chapter(Contribution, CustomModelMixin):
     #id = Column(Integer, unique=True)
     blog_title = Column(Unicode)
     area_pk = Column(Integer, ForeignKey('area.pk'))
-    area = relationship(Area)
+    area = relationship(Area, lazy='joined')
 
 
 @implementer(interfaces.IParameter)
@@ -77,7 +77,7 @@ class Feature(Parameter, CustomModelMixin):
     contribution_pk = Column(Integer, ForeignKey('contribution.pk'))
     id = Column(String(5), unique=True)
     blog_title = Column(String(50), unique=True)
-    chapter = relationship(Chapter)
+    chapter = relationship(Chapter, lazy='joined')
     ordinal_qualifier = Column(String)
 
     @property

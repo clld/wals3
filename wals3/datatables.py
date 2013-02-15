@@ -12,7 +12,82 @@ from clld.web.util.helpers import linked_contributors, link
 from clld.web.util.htmllib import HTML
 from clld.db.meta import DBSession
 
-from wals3.models import WalsLanguage, Genus, Family, Chapter, Feature
+from wals3.models import WalsLanguage, Genus, Family, Chapter, Feature, Area
+
+
+class FeatureIdCol(LinkCol):
+    def order(self):
+        return Feature.contribution_pk, Feature.ordinal_qualifier
+
+
+class FeatureIdCol2(FeatureIdCol):
+    def get_attrs(self, item):
+        return {'label': item.parameter.id}
+
+    def get_obj(self, item):
+        return item.parameter
+
+
+class AreaCol(Col):
+    #def __init__(self, *args, **kw):
+    #    super(AreaCol, self).__init__(*args, **kw)
+    #    self.choices = [a.name for a in DBSession.query(Area).order_by(Area.id)]
+
+    def format(self, item):
+        return item.parameter.chapter.area.name
+
+    def order(self):
+        return Area.name
+
+    def search(self, qs):
+        return Area.name.contains(qs)
+
+
+class RefCol(Col):
+    def format(self, item):
+        res = ''
+        for i, ref in enumerate(item.references):
+            if i > 0:
+                res += ', '
+            res += link(self.dt.req, ref.source)
+            if ref.description:
+                res += ' (%s)' % ref.description
+        return HTML.small(res)
+
+
+class Datapoints(datatables.Values):
+    def base_query(self, query):
+        query = super(Datapoints, self).base_query(query)
+        query = query.options(joinedload_all(common.Value.references, common.ValueReference.source))
+        if self.language:
+            query = query.join(Feature, Feature.pk == common.Value.parameter_pk)\
+                .join(Chapter, Area)\
+                .options(joinedload_all(common.Value.parameter, Feature.chapter))
+        return query
+
+    #
+    # TODO: add columns:
+    # - parameter id (if not self.parameter)
+    # - feature area (if not self.parameter)
+    # - references
+    #
+    def col_defs(self):
+        cols = super(Datapoints, self).col_defs()
+        if not self.parameter:
+            cols = [FeatureIdCol2(self, 'fid', sClass='right', bSearchable=False)]\
+                + cols\
+                + [AreaCol(self, 'area', bSearchable=False)]
+        return cols + [RefCol(self, 'references', bSearchable=False, bSortable=False)]
+
+    def get_options(self):
+        opts = super(Datapoints, self).get_options()
+        if self.language:
+            # if the table is restricted to the values for one language, the number of
+            # features is an upper bound for the number of values; thus, we do not
+            # paginate.
+            opts['bLengthChange'] = False
+            opts['bPaginate'] = False
+        return opts
 
 
 class ContributorsCol(Col):
@@ -31,11 +106,6 @@ class RepresentationCol(Col):
         return item.datadict()['representation']
 
 
-class IdCol(Col):
-    def order(self):
-        return Feature.contribution_pk, Feature.ordinal_qualifier
-
-
 class Features(datatables.Parameters):
     def base_query(self, query):
         return query.join(Chapter)\
@@ -48,7 +118,7 @@ class Features(datatables.Parameters):
     def col_defs(self):
         return [
             DetailsRowLinkCol(self),
-            IdCol(self, 'id', sClass='right'),
+            FeatureIdCol(self, 'id', sClass='right'),
             LinkCol(self, 'name'),
             ContributorsCol(self, 'Authors', bSearchable=False, bSortable=False),
             RepresentationCol(self, 'Languages', sClass='right'),

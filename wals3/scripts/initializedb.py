@@ -165,8 +165,13 @@ def main():
             add(common.Contributor, 'contributor', row['id'], name=row['name'], url=row['www'], id=row['id'], description=row['note'])
         VersionedDBSession.flush()
 
+        for row in old_db.execute("select * from area"):
+            add(models.Area, 'area', row['id'], name=row['name'], dbpedia_url=row['dbpedia_url'], id=str(row['id']))
+        VersionedDBSession.flush()
+
         for row in old_db.execute("select * from chapter"):
-            add(models.Chapter, 'contribution', row['id'], id=row['id'], name=row['name'])
+            c = add(models.Chapter, 'contribution', row['id'], id=row['id'], name=row['name'])
+            c.area = data['area'][row['area_id']]
         VersionedDBSession.flush()
 
         for row in old_db.execute("select * from feature"):
@@ -242,6 +247,31 @@ def prime_cache():
                     value=representation,
                     object_pk=parameter.pk)
                 DBSession.add(d)
+
+        #
+        # TODO: compute language-source relations from the various reference tables!
+        #
+        old_sl = {}
+        for pair in DBSession.add(common.LanguageSource):
+            old_sl[(pair.source_pk, pair.language_pk)] = True
+
+        sl = {}
+
+        for ref in DBSession.query(common.ValueReference):
+            sl[(ref.source_pk, ref.value.language_pk)] = True
+
+        for ref in DBSession.query(common.SentenceReference):
+            sl[(ref.source_pk, ref.sentence.language_pk)] = True
+
+        for ref in DBSession.query(common.ContributionReference):
+            sl[(ref.source_pk, ref.contribution.language_pk)] = True
+
+        #
+        # TODO: do the following conditionally to make it possible to be called on primed db!
+        #
+        for s, l in sl:
+            if (s, l) not in old_sl:
+                DBSession.add(common.LanguageSource(language_pk=l, source_pk=s))
 
 
 if __name__ == '__main__':

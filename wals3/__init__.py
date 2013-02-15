@@ -10,7 +10,7 @@ from clld.web.adapters import GeoJson, Representation
 import wals3
 from wals3.adapters import GeoJsonFeature
 from wals3.maps import FeatureMap, FamilyMap
-from wals3.datatables import Languages, Features
+from wals3.datatables import Languages, Features, Datapoints
 from wals3 import views
 from wals3.models import Family
 from wals3.interfaces import IFamily
@@ -44,6 +44,7 @@ def main(global_config, **settings):
     config.include('clld.web.app')
     config.register_app('wals3')
 
+    config.register_datatable('values', Datapoints)
     config.register_datatable('languages', Languages)
     config.register_datatable('parameters', Features)
     config.register_map('parameter', FeatureMap)
