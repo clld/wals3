@@ -12,28 +12,36 @@
 
 <h2>${_('Language')} ${ctx.name}</h2>
 
-<ul>
-% for identifier in ctx.identifiers:
-<li>${identifier.id}</li>
-% endfor
-</ul>
-
 <div>
     <% dt = request.registry.getUtility(h.interfaces.IDataTable, 'values'); dt = dt(request, h.models.Value, language=ctx) %>
     ${dt.render()}
 </div>
 
 <%def name="sidebar()">
-    % if request.map:
-    ${request.map.render()}
-    % endif
-    <div class="well well-small">
-        <h3>Sources</h3>
-        <ul>
-            % for source in ctx.sources:
-            <li>${h.link(request, source, label=source.description)}<br />
-            <small>${h.link(request, source)}</small></li>
-            % endfor
-        </ul>
+    <div class="accordion" id="sidebar-accordion">
+        % if request.map:
+        <%util:accordion_group eid="acc-map" parent="sidebar-accordion" title="Map" open="${True}">
+            ${request.map.render()}
+            <p>Coordinates: ${ctx.latitude}, ${ctx.longitude}</p>
+            <p>Spoken in: TODO: countries</p>
+        </%util:accordion_group>
+        % endif
+        % if ctx.sources:
+        <%util:accordion_group eid="sources" parent="sidebar-accordion" title="Sources">
+            <ul>
+                % for source in ctx.sources:
+                <li>${h.link(request, source, label=source.description)}<br />
+                <small>${h.link(request, source)}</small></li>
+                % endfor
+            </ul>
+        </%util:accordion_group>
+        % endif
+        <%util:accordion_group eid="acc-names" parent="sidebar-accordion" title="Alternative names">
+            <ul>
+                % for identifier in ctx.identifiers:
+                <li>${identifier.type} ${identifier.id or identifier.name}</li>
+                % endfor
+            </ul>
+        </%util:accordion_group>
     </div>
 </%def>

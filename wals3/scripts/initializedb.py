@@ -112,10 +112,10 @@ def main():
 
     data = defaultdict(dict)
 
-    def add(model, type, key, **kw):
+    def add(model, _type, key, **kw):
         new = model(**kw)
-        data[type][key] = new
-        VersionedDBSession.add(new)
+        data[_type][key] = new
+        DBSession.add(new)
         return new
 
     missing_sources = []
@@ -153,7 +153,17 @@ def main():
         for row, icon in zip(list(old_db.execute("select * from genus order by family_id")), cycle(iter(icons))):
             genus = add(models.Genus, 'genus', row['id'], id=row['id'], name=row['name'], icon_id=icon, subfamily=row['subfamily'])
             genus.family = data['family'][row['family_id']]
-        VersionedDBSession.flush()
+        DBSession.flush()
+
+        for row in old_db.execute("select * from altname"):
+            add(common.Identifier, 'identifier', (row['name'], row['type']),
+                name=row['name'], type='%s_name' % row['type'])
+        DBSession.flush()
+
+        for row in old_db.execute("select * from isolanguage"):
+            add(common.Identifier, 'identifier', row['id'],
+                id=row['id'], name=row['name'], type='iso639-3', description=row['dbpedia_url'])
+        DBSession.flush()
 
         for row in old_db.execute("select * from language"):
             kw = dict((key, row[key]) for key in ['id', 'name', 'latitude', 'longitude'])
@@ -163,21 +173,35 @@ def main():
 
         for row in old_db.execute("select * from author"):
             add(common.Contributor, 'contributor', row['id'], name=row['name'], url=row['www'], id=row['id'], description=row['note'])
-        VersionedDBSession.flush()
+        DBSession.flush()
+
+        for row in old_db.execute("select * from altname_language"):
+            DBSession.add(common.LanguageIdentifier(
+                language=data['language'][row['language_id']],
+                identifier=data['identifier'][(row['altname_name'], row['altname_type'])],
+                description=row['relation']))
+        DBSession.flush()
+
+        for row in old_db.execute("select * from isolanguage_language"):
+            DBSession.add(common.LanguageIdentifier(
+                language=data['language'][row['language_id']],
+                identifier=data['identifier'][row['isolanguage_id']],
+                description=row['relation']))
+        DBSession.flush()
 
         for row in old_db.execute("select * from area"):
             add(models.Area, 'area', row['id'], name=row['name'], dbpedia_url=row['dbpedia_url'], id=str(row['id']))
-        VersionedDBSession.flush()
+        DBSession.flush()
 
         for row in old_db.execute("select * from chapter"):
             c = add(models.Chapter, 'contribution', row['id'], id=row['id'], name=row['name'])
             c.area = data['area'][row['area_id']]
-        VersionedDBSession.flush()
+        DBSession.flush()
 
         for row in old_db.execute("select * from feature"):
             param = add(models.Feature, 'parameter', row['id'], id=row['id'], name=row['name'], ordinal_qualifier=row['id'][-1])
             param.chapter = data['contribution'][row['chapter_id']]
-        VersionedDBSession.flush()
+        DBSession.flush()
 
         for row in old_db.execute("select * from value"):
             desc = row['description']
@@ -192,16 +216,22 @@ def main():
                 id='%s-%s' % (row['feature_id'], row['numeric']),
                 name=desc, description=row['long_description'], icon_id=row['icon_id'], numeric=row['numeric'])
             domainelement.parameter = data['parameter'][row['feature_id']]
-        VersionedDBSession.flush()
+        DBSession.flush()
 
         for row in old_db.execute("select * from datapoint"):
-            value = add(common.Value, 'value', row['id'], id=row['id'])
-            value.language = data['language'][row['language_id']]
+            #
+            # TODO: row['id'] -> pk, use 'param-lang-code' as datapoint id!
+            #
+            parameter = data['parameter'][row['feature_id']]
+            language = data['language'][row['language_id']]
+            id_ = '%s-%s' % (parameter.id, language.id)
+            value = add(common.Value, 'value', row['id'], id=id_)
+            value.language = language
             value.domainelement = data['domainelement'][(row['feature_id'], row['value_numeric'])]
-            value.parameter = data['parameter'][row['feature_id']]
-            value.contribution = data['parameter'][row['feature_id']].chapter
+            value.parameter = parameter
+            value.contribution = parameter.chapter
 
-        VersionedDBSession.flush()
+        DBSession.flush()
 
         for row in old_db.execute("select * from datapoint_reference"):
             common.ValueReference(
@@ -217,15 +247,32 @@ def main():
                 primary=row['primary'] != 0,
                 contributor_pk=data['contributor'][row['author_id']].pk,
                 contribution_pk=data['contribution'][row['chapter_id']].pk)
-            VersionedDBSession.add(new)
+            DBSession.add(new)
 
         lang.name = 'SPECIAL--' + lang.name
 
 
 def prime_cache():
+    #from sqlalchemy.orm import object_mapper
+
     setup_session()
 
     with transaction.manager:
+        #param = VersionedDBSession.query(common.Parameter).filter(common.Parameter.id == '1A').one()
+        #param.description = '%s (%s)' % (param.description, param.version)
+        #param.blog_title = '%s (%s)' % (param.description, param.version)
+        #
+        ##print dir(object_mapper(param).class_)
+        ##return
+        #domain = list(param.domain)
+        #value_map = dict(zip(domain, domain[1:] + domain[:1]))
+        #for value in param.values:
+        #    value.domainelement = value_map[value.domainelement]
+        #return
+
+
+
+
         # cache number of languages for a parameter:
         for parameter, values in groupby(
             DBSession.query(common.Value).order_by(common.Value.parameter_pk),
@@ -252,7 +299,7 @@ def prime_cache():
         # TODO: compute language-source relations from the various reference tables!
         #
         old_sl = {}
-        for pair in DBSession.add(common.LanguageSource):
+        for pair in DBSession.query(common.LanguageSource):
             old_sl[(pair.source_pk, pair.language_pk)] = True
 
         sl = {}

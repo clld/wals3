@@ -14,6 +14,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 
 from clld import interfaces
 from clld.db.meta import Base, CustomModelMixin
+from clld.db.versioned import Versioned
 from clld.db.models.common import (
     Language,
     Parameter,
@@ -44,7 +45,7 @@ class Area(Base, IdNameDescriptionMixin):
 # specialized common mapper classes
 #-----------------------------------------------------------------------------
 @implementer(interfaces.ILanguage)
-class WalsLanguage(Language, CustomModelMixin):
+class WalsLanguage(Language, CustomModelMixin, Versioned):
     pk = Column(Integer, ForeignKey('language.pk'), primary_key=True)
 
     ascii_name = Column(String)
@@ -56,7 +57,7 @@ class WalsLanguage(Language, CustomModelMixin):
 
 
 @implementer(interfaces.IContribution)
-class Chapter(Contribution, CustomModelMixin):
+class Chapter(Contribution, CustomModelMixin, Versioned):
     """Contributions in WALS are chapters chapters. These comprise a set of features with
     corresponding values and a descriptive text.
     """
@@ -68,7 +69,7 @@ class Chapter(Contribution, CustomModelMixin):
 
 
 @implementer(interfaces.IParameter)
-class Feature(Parameter, CustomModelMixin):
+class Feature(Parameter, CustomModelMixin, Versioned):
     """Parameters in WALS are called feature. They are always related to one chapter.
     """
     __table_args__ = (UniqueConstraint('contribution_pk', 'ordinal_qualifier'),)

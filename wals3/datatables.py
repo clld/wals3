@@ -16,6 +16,9 @@ from wals3.models import WalsLanguage, Genus, Family, Chapter, Feature, Area
 
 
 class FeatureIdCol(LinkCol):
+    def get_attrs(self, item):
+        return {'label': item.id}
+
     def order(self):
         return Feature.contribution_pk, Feature.ordinal_qualifier
 
@@ -72,12 +75,15 @@ class Datapoints(datatables.Values):
     # - references
     #
     def col_defs(self):
-        cols = super(Datapoints, self).col_defs()
+        cols = list(reversed(super(Datapoints, self).col_defs()))
         if not self.parameter:
             cols = [FeatureIdCol2(self, 'fid', sClass='right', bSearchable=False)]\
                 + cols\
                 + [AreaCol(self, 'area', bSearchable=False)]
-        return cols + [RefCol(self, 'references', bSearchable=False, bSortable=False)]
+        return cols + [
+            RefCol(self, 'references', bSearchable=False, bSortable=False),
+            Col(self, 'version'),
+            ]
 
     def get_options(self):
         opts = super(Datapoints, self).get_options()
