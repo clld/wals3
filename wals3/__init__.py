@@ -39,10 +39,13 @@ def main(global_config, **settings):
     """
     settings['mako.directories'] = ['wals3:templates', 'clld:web/templates']
     settings['clld.app_template'] = "wals3.mako"
+    settings['clld.menuitems_list'] = 'parameters contributions languages sources contributors'.split()
 
     config = Configurator(settings=settings)
     config.include('clld.web.app')
     config.register_app('wals3')
+
+    config.add_menu_item('blog', lambda ctx, req: ('http://blog.wals.info/news/', 'Newsblog'))
 
     config.register_datatable('values', Datapoints)
     config.register_datatable('languages', Languages)

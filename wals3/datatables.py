@@ -82,7 +82,6 @@ class Datapoints(datatables.Values):
                 + [AreaCol(self, 'area', bSearchable=False)]
         return cols + [
             RefCol(self, 'references', bSearchable=False, bSortable=False),
-            Col(self, 'version'),
             ]
 
     def get_options(self):
@@ -93,6 +92,7 @@ class Datapoints(datatables.Values):
             # paginate.
             opts['bLengthChange'] = False
             opts['bPaginate'] = False
+            #opts['iDisplayLength'] = 200
         return opts
 
 

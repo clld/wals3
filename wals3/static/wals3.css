@@ -13,7 +13,7 @@
   background-repeat: repeat-x;
 
  /* IE8-9 gradient filter */
- filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#80a532',    endColorstr='#222222', GradientType=0);
+ filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff80a532',    endColorstr='#ff222222', GradientType=0);
 /*
   background-image: none;
   background-image: none;
@@ -40,6 +40,19 @@
   text-shadow: none !important;
 }
 
+.dropdown-menu li > a:hover,
+.dropdown-menu li > a:focus,
+.dropdown-submenu:hover > a {
+  background-color: #80a532 !important;
+  background-image: none;
+  background-image: none;
+  background-image: none;
+  background-image: none;
+  background-image: none;
+  background-image: none;
+  background-repeat: no-repeat;
+  filter: none;
+}
 
 /* color coded typed links  */
 a.Parameter { color: #a81eaf; }

@@ -1,22 +1,21 @@
 <%inherit file="../${context.get('request').registry.settings.get('clld.app_template', 'app.mako')}"/>
 <%namespace name="util" file="../util.mako"/>
 
-<%def name="contextnav()">
-<li>${h.HTML.a('cite', onclick=h.JSModal.show(ctx.parameter.name, request.resource_url(ctx.parameter.chapter, ext='md.html')))}</li>
-</%def>
 
-<h2>${_('Datapoint')} ${ctx.domainelement.name}</h2>
+<h2>${_('Datapoint')} ${h.link(request, ctx.language)} / ${h.link(request, ctx.parameter)}</h2>
+
+<div class="btn-group">
+    ${h.button('cite', onclick=h.JSModal.show(ctx.parameter.name, request.resource_url(ctx.parameter.chapter, ext='md.html')))}
+    <button class="btn">Comment</button>
+</div>
 
 <dl>
-    % for attr in ['parameter', 'language', 'contribution']:
-    <dt>${attr.capitalize()}:</dt>
-    <dd>
-        ${h.link(request, getattr(ctx, attr))}
-        % if attr == 'contribution':
-        by ${h.linked_contributors(request, getattr(ctx, attr))}
-        % endif
-    </dd>
-    % endfor
+    <dt>Language:</dt>
+    <dd>${h.link(request, ctx.language)}</dd>
+    <dt>Feature:</dt>
+    <dd>${h.link(request, ctx.parameter)} by ${h.linked_contributors(request, ctx.contribution)}</dd>
+    <dt>Value:</dt>
+    <dd>${ctx.domainelement.name}</dd>
 </dl>
 
 % if ctx.references:
@@ -30,29 +29,26 @@
 </ul>
 % endif
 
-<% history = ctx.history() %>
-% if history:
-<h3>History</h3>
-<ul>
-    % for v in history:
-    <li>
-        ${v.updated} ${h.models.DomainElement.get(v.domainelement_pk).name}
-    </li>
-    % endfor
-</ul>
-% endif
-
 <%def name="sidebar()">
-  <div class="well well-small">
-    <div class="btn-group pull-right">
-        <button class="btn">Comment</button>
+    <div class="well well-small">
+        <div id="comments">
+            No comments have been posted.
+        </div>
     </div>
-    <div id="comments">
-    </div>
-  </div>
-  <script>
+    <script>
 $(document).ready(function() {
   ${h.JSFeed.init(dict(eid="comments", url="http://blog.wals.info/datapoint-"+ctx.parameter.id.lower()+"-wals_code_"+ctx.language.id+"/feed/", title="Comments"))|n}
 });
-  </script>
+    </script>
+    <div class="well well-small">
+        <h3>History</h3>
+        <p>Current version from ${str(ctx.updated).split('.')[0]}.</p>
+        <ul>
+            % for v in ctx.history():
+            <li>
+                ${str(v.updated).split('.')[0]} ${h.models.DomainElement.get(v.domainelement_pk).name}
+            </li>
+            % endfor
+        </ul>
+    </div>
 </%def>
