@@ -30,6 +30,25 @@ class Family(Base, IdNameDescriptionMixin):
     pass
 
 
+@implementer(wals_interfaces.ICountry)
+class Country(Base, IdNameDescriptionMixin):
+    continent = Column(Unicode)
+
+    @property
+    def languages(self):
+        return [assoc.language for assoc in self.language_assocs]
+
+
+class CountryLanguage(Base):
+    __table_args__ = (UniqueConstraint('country_pk', 'language_pk'),)
+
+    country_pk = Column(Integer, ForeignKey('country.pk'))
+    language_pk = Column(Integer, ForeignKey('language.pk'))
+
+    country = relationship(Country, backref='language_assocs')
+    language = relationship(Language, backref='country_assocs')
+
+
 class Genus(Base, IdNameDescriptionMixin):
     family_pk = Column(Integer, ForeignKey('family.pk'))
     subfamily = Column(Unicode)

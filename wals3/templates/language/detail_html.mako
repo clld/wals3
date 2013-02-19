@@ -23,7 +23,7 @@
         <%util:accordion_group eid="acc-map" parent="sidebar-accordion" title="Map" open="${True}">
             ${request.map.render()}
             <p>Coordinates: ${ctx.latitude}, ${ctx.longitude}</p>
-            <p>Spoken in: TODO: countries</p>
+            <p>Spoken in: ${', '.join(h.link(request, c) for c in [a.country for a in ctx.country_assocs])|n}</p>
         </%util:accordion_group>
         % endif
         % if ctx.sources:

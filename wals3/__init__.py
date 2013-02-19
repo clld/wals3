@@ -9,11 +9,11 @@ from clld.web.adapters import GeoJson, Representation
 
 import wals3
 from wals3.adapters import GeoJsonFeature
-from wals3.maps import FeatureMap, FamilyMap
+from wals3.maps import FeatureMap, FamilyMap, CountryMap
 from wals3.datatables import Languages, Features, Datapoints
 from wals3 import views
-from wals3.models import Family
-from wals3.interfaces import IFamily
+from wals3.models import Family, Country
+from wals3.interfaces import IFamily, ICountry
 
 
 def _(s, *args, **kw):
@@ -45,7 +45,7 @@ def main(global_config, **settings):
     config.include('clld.web.app')
     config.register_app('wals3')
 
-    config.add_menu_item('blog', lambda ctx, req: ('http://blog.wals.info/news/', 'Newsblog'))
+    config.add_menu_item('blog', lambda ctx, req: ('http://blog.wals.info/category/news/', 'Newsblog'))
 
     config.register_datatable('values', Datapoints)
     config.register_datatable('languages', Languages)
@@ -55,6 +55,10 @@ def main(global_config, **settings):
     config.register_resource('family', Family, IFamily)
     config.register_adapter(adapter_factory('family/detail_html.mako'), IFamily)
     config.register_map('family', FamilyMap)
+
+    config.register_resource('country', Country, ICountry)
+    config.register_adapter(adapter_factory('country/detail_html.mako'), ICountry)
+    config.register_map('country', CountryMap)
 
     config.override_asset(
         to_override='clld:web/templates/language/rdf.pt',

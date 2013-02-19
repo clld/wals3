@@ -147,6 +147,9 @@ def main():
 
         print('sources missing for %s refs' % len(missing_sources))
 
+        for row in old_db.execute("select * from country"):
+            add(models.Country, 'country', row['id'], id=row['id'], name=row['name'], continent=row['continent'])
+
         for row in old_db.execute("select * from family"):
             add(models.Family, 'family', row['id'], id=row['id'], name=row['name'], description=row['comment'])
 
@@ -174,6 +177,11 @@ def main():
         for row in old_db.execute("select * from author"):
             add(common.Contributor, 'contributor', row['id'], name=row['name'], url=row['www'], id=row['id'], description=row['note'])
         DBSession.flush()
+
+        for row in old_db.execute("select * from country_language"):
+            DBSession.add(models.CountryLanguage(
+                language=data['language'][row['language_id']],
+                country=data['country'][row['country_id']]))
 
         for row in old_db.execute("select * from altname_language"):
             DBSession.add(common.LanguageIdentifier(
@@ -219,9 +227,6 @@ def main():
         DBSession.flush()
 
         for row in old_db.execute("select * from datapoint"):
-            #
-            # TODO: row['id'] -> pk, use 'param-lang-code' as datapoint id!
-            #
             parameter = data['parameter'][row['feature_id']]
             language = data['language'][row['language_id']]
             id_ = '%s-%s' % (parameter.id, language.id)
@@ -272,7 +277,6 @@ def prime_cache():
 
 
 
-
         # cache number of languages for a parameter:
         for parameter, values in groupby(
             DBSession.query(common.Value).order_by(common.Value.parameter_pk),
@@ -295,9 +299,6 @@ def prime_cache():
                     object_pk=parameter.pk)
                 DBSession.add(d)
 
-        #
-        # TODO: compute language-source relations from the various reference tables!
-        #
         old_sl = {}
         for pair in DBSession.query(common.LanguageSource):
             old_sl[(pair.source_pk, pair.language_pk)] = True
@@ -313,9 +314,6 @@ def prime_cache():
         for ref in DBSession.query(common.ContributionReference):
             sl[(ref.source_pk, ref.contribution.language_pk)] = True
 
-        #
-        # TODO: do the following conditionally to make it possible to be called on primed db!
-        #
         for s, l in sl:
             if (s, l) not in old_sl:
                 DBSession.add(common.LanguageSource(language_pk=l, source_pk=s))

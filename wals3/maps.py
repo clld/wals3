@@ -40,3 +40,12 @@ class FamilyMap(Map):
 
     def options(self):
         return {'style_map': 'wals_feature'}
+
+
+class CountryMap(Map):
+    def get_layers(self):
+        geojson = _GeoJson(self.ctx)
+        return [{'name': self.ctx.name, 'data': geojson.render(self.ctx, self.req, dump=False)}]
+
+    def options(self):
+        return {'style_map': 'wals_feature'}

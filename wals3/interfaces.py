@@ -7,3 +7,8 @@ from zope.interface import (
 class IFamily(Interface):
     """marker
     """
+
+
+class ICountry(Interface):
+    """marker
+    """
