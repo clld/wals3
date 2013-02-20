@@ -16,6 +16,7 @@ requires = [
     'waitress',
     'gunicorn',
     'psycopg2',
+    'BeautifulSoup4',
     ]
 
 setup(name='wals3',
