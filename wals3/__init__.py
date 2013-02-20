@@ -21,7 +21,10 @@ from wals3.interfaces import IFamily, ICountry
 def _(s, *args, **kw):
     return s
 
-_('Languages')
+_('Contributions')
+_('Contributors')
+_('Sources')
+_('Parameters')
 
 
 ADAPTER_COUNTER = 0
