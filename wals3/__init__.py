@@ -1,18 +1,20 @@
 from functools import partial
 import re
 
+from sqlalchemy.orm import joinedload_all
 from path import path
 from pyramid.config import Configurator
+from pyramid.httpexceptions import HTTPNotFound
 
 from clld.interfaces import IParameter
 from clld.web.adapters import GeoJson, Representation
 
 import wals3
 from wals3.adapters import GeoJsonFeature
-from wals3.maps import FeatureMap, FamilyMap, CountryMap
+from wals3.maps import FeatureMap, FamilyMap, CountryMap, SampleMap
 from wals3.datatables import Languages, Features, Datapoints
 from wals3 import views
-from wals3.models import Family, Country
+from wals3.models import Family, Country, WalsLanguage, Genus
 from wals3.interfaces import IFamily, ICountry
 
 
@@ -32,6 +34,23 @@ def adapter_factory(template, mimetype='text/html', extension='html', base=None)
     cls = type('WALSRenderer%s' % ADAPTER_COUNTER, (base,), extra)
     ADAPTER_COUNTER += 1
     return cls
+
+
+def sample_factory(req):
+    try:
+        col = {
+            '100': WalsLanguage.samples_100,
+            '200': WalsLanguage.samples_200}[req.matchdict['count']]
+    except KeyError:
+        raise HTTPNotFound()
+
+    class Sample(object):
+        name = '%s-language sample' % req.matchdict['count']
+        languages = req.db.query(WalsLanguage).filter(col == True)\
+            .options(joinedload_all(WalsLanguage.genus, Genus.family))\
+            .order_by(WalsLanguage.name)
+
+    return Sample()
 
 
 def main(global_config, **settings):
@@ -59,6 +78,9 @@ def main(global_config, **settings):
     config.register_resource('country', Country, ICountry)
     config.register_adapter(adapter_factory('country/detail_html.mako'), ICountry)
     config.register_map('country', CountryMap)
+
+    config.add_route('sample', '/languoid/samples/{count}', factory=sample_factory)
+    config.register_map('sample', SampleMap)
 
     config.override_asset(
         to_override='clld:web/templates/language/rdf.pt',

@@ -1,5 +1,8 @@
 <%inherit file="wals3.mako"/>
 <%namespace name="util" file="util.mako"/>
+<%namespace name="lib" file="lib.mako"/>
+
+<%! active_menu_item = "languages" %>
 
 <%def name="sidebar()">
   <div class="well well-small">
@@ -87,6 +90,8 @@
       </p>
   </div>
 </%def>
+
+${lib.languages_contextnav()}
 
 <h2>Genealogical Language List</h2>
 ##

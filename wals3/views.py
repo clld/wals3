@@ -25,3 +25,8 @@ def info(request):
 def genealogy(request):
     return dict(families=DBSession.query(Family).order_by(Family.id)\
         .options(joinedload_all(Family.genera, Genus.languages)))
+
+
+@view_config(route_name='sample', renderer='sample.mako')
+def sample(ctx, request):
+    return {'ctx': ctx}

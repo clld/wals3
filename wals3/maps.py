@@ -32,20 +32,25 @@ class _GeoJson(GeoJsonLanguages):
         }
 
 
-class FamilyMap(Map):
+class _Map(Map):
+    def options(self):
+        return {'style_map': 'wals_feature'}
+
+
+class FamilyMap(_Map):
     def get_layers(self):
         geojson = _GeoJson(self.ctx)
         return [{'name': genus.name, 'data': geojson.render(genus, self.req, dump=False)}
                 for genus in self.ctx.genera]
 
-    def options(self):
-        return {'style_map': 'wals_feature'}
 
-
-class CountryMap(Map):
+class CountryMap(_Map):
     def get_layers(self):
         geojson = _GeoJson(self.ctx)
         return [{'name': self.ctx.name, 'data': geojson.render(self.ctx, self.req, dump=False)}]
 
-    def options(self):
-        return {'style_map': 'wals_feature'}
+
+class SampleMap(Map):
+    def get_layers(self):
+        geojson = _GeoJson(self.ctx)
+        return [{'name': '100 Sample', 'data': geojson.render(self.ctx, self.req, dump=False)}]

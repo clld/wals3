@@ -1,4 +1,5 @@
 <%inherit file="wals3.mako"/>
+<%! active_menu_item = "home" %>
 
 <%def name="sidebar()">
   <div id="wals_news" class="well well-small">

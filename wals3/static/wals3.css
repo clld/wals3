@@ -40,6 +40,10 @@
   text-shadow: none !important;
 }
 
+.navbar .nav > li.active > a {
+  color: #333333 !important;
+}
+
 .dropdown-menu li > a:hover,
 .dropdown-menu li > a:focus,
 .dropdown-submenu:hover > a {
