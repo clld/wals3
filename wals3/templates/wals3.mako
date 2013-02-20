@@ -7,6 +7,7 @@
 <%block name="head">
     <link href="${request.static_url('wals3:static/wals3.css')}" rel="stylesheet"/>
     <script src="${request.static_url('wals3:static/wals3.js')}"></script>
+    <link href="${request.static_url('wals3:static/descriptions/style.css')}" rel="stylesheet"/>
 </%block>
 
 ##<%block name="header">WALS</%block>

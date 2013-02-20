@@ -32,9 +32,13 @@ URL_PATTERNS = {
         re.compile('http\:\/\/wals\.info\/refdb\/record\/(?P<id>.+)$'),
         lambda m: 'http://wals.info/source/%s' % m.group('id'),
     ),
+    'contribution': (
+        re.compile('http\:\/\/wals\.info\/feature\/(description\/)?(?P<id>[0-9]+)(?P<fragment>\#.*)?$'),
+        lambda m: 'http://wals.info/contribution/%s%s' % (m.group('id'), m.group('fragment') or ''),
+    ),
     'parameter': (
-        re.compile('http\:\/\/wals\.info\/feature\/(?P<id>[0-9]+(?P<letter>[A-Z])?)'),
-        lambda m: 'http://wals.info/parameter/%s%s' % (m.group('id'), '' if m.group('letter') else 'A'),
+        re.compile('http\:\/\/wals\.info\/feature\/(?P<id>[0-9]+[A-Z])'),
+        lambda m: 'http://wals.info/parameter/%s' % m.group('id'),
     ),
     'language': (
         re.compile('http\:\/\/wals\.info\/languoid\/lect\/wals_code_(?P<id>[a-z]{2,3})$'),
@@ -52,8 +56,12 @@ def fix(id_):
     p = path(wals3.__file__).dirname().joinpath('static', 'descriptions', str(id_), 'body.html')
     assert p.exists()
     r = codecs.open(p, encoding='utf8').read()
+    et.fromstring(r.encode('utf8'))
     s = soup(r)
 
+    #
+    # fix URLs
+    #
     for attrname, tagname in [('href', 'a'), ('src', 'img')]:
         for tag in s.find_all(tagname, **{attrname: True}):
             replaced = False
@@ -69,6 +77,9 @@ def fix(id_):
             if not replaced:
                 print(attr)
 
+    #
+    # fix examples
+    #
     in_example = False
     for tag in s.find_all('p', class_=True):
         if 'example-start' in tag.attrs['class']:
@@ -80,15 +91,106 @@ def fix(id_):
 
     assert not in_example
 
-    c = s.prettify()
+    #
+    # handle value tables
+    #
+    for tag in s.find_all('div', class_='value-table'):
+        tag.name = 'table'
+        tag['class'] = ['table', 'table-hover', 'values']
+        tag['style'] = 'width: auto;'
+        tag.string = '__values_%s__' % tag['id'].split('-')[-1]
+
+        for sibling in tag.parent.previous_siblings:
+            if getattr(sibling, 'name', None) == 'p':
+                if 'captionValueTable' in sibling.get('class', []):
+                    sibling.name = 'caption'
+                    del sibling['class']
+                    tag.insert(0, sibling.extract())
+                break
+
+    for tag in s.find_all('div', id=True):
+        if re.match('values\_[A-Z]$', tag['id']):
+            tag.extract()
+
+    for tag in s.find_all('span', class_='close'):
+        if 'onclick' in tag.attrs:
+            tag.extract()
+
+    for tag in s.find_all('li', style=True):
+        del tag['style']
+
+    for tag in s.find_all('ul', id='tableofcontent'):
+        tag['class'] = 'nav nav-tabs nav-stacked'.split()
+
+    #
+    # cleanup tables
+    #
+    for tag in s.find_all('table', class_="Table1"):
+        if tag.find('td', class_="tableBox"):
+            tag['class'] = "table table-bordered".split()
+        else:
+            tag['class'] = "table table-hover".split()
+        for attr in 'cellpadding border cellspacing'.split():
+            del tag[attr]
+
+    for tag in s.find_all('td', class_="tableHeader"):
+        tag.name = 'th'
+        del tag['class']
+
+    for class_ in ["tableTopRow", "tableInside", "tableBottomRow", "tableBox"]:
+        for tag in s.find_all('td', class_=class_):
+            del tag['class']
+            if class_ == 'tableBox':
+                for _t in tag.find_all('p', style=True):
+                    del _t['style']
+                for _t in tag.find_all('ul', style=True):
+                    del _t['style']
+
+    #
+    # put captions inside the table
+    #
+    for tag in s.find_all('p', class_="captionTable"):
+        div = None
+        table = None
+        for sibling in tag.next_siblings:
+            if getattr(sibling, 'name', None) == 'div':
+                div = sibling
+                break
+            if getattr(sibling, 'name', None) == 'table':
+                table = sibling
+                break
+        if div:
+            table = div.find('table')
+        if table:
+            caption = tag.extract()
+            caption.name = 'caption'
+            del caption['class']
+            table.insert(0, caption)
+
+    #
+    # figures
+    #
+    for class_ in ["figureChapter", "figureExample"]:
+        for tag in s.find_all('div', class_=class_):
+            tag.name = 'figure'
+            del tag['class']
+
+    for tag in s.find_all('p', class_="captionFigure"):
+        tag.name = 'figcaption'
+        for attr in tag.attrs.keys():
+            del tag[attr]
+
+    #c = s.prettify()
+    c = unicode(s)
     c = c.replace('<?xml version="1.0"?>\n', '').strip()
-    c = c.replace('<p class="example-start">', '<blockquote>\n<p class="example-start">')
-    c = re.sub('\<p class\=\"example\-end\"\>\s*</p>', '<p class="example-end">\n</p>\n</blockquote>', c, flags=re.M)
+    c = re.sub('\<p\s+class\=\"example\-start\"\>', '<blockquote class="example"><p class="example-start">', c, flags=re.M)
+    c = re.sub(u'\<p\s+class\=\"example\-end\"\>[\s\xa0]*\<\/p\>', '<p class="example-end"></p></blockquote>', c, flags=re.M)
 
-    et.fromstring(c.encode('utf8'))
-
-    with open(p.dirname().joinpath('body.xhtml'), 'w') as fp:
-        fp.write(c.encode('utf8'))
+    try:
+        et.fromstring(c.encode('utf8'))
+    finally:
+        with open(p.dirname().joinpath('body.xhtml'), 'w') as fp:
+            fp.write(c.encode('utf8'))
 
 
 if __name__ == '__main__':

@@ -97,7 +97,7 @@ class Feature(Parameter, CustomModelMixin, Versioned):
     contribution_pk = Column(Integer, ForeignKey('contribution.pk'))
     id = Column(String(5), unique=True)
     blog_title = Column(String(50), unique=True)
-    chapter = relationship(Chapter, lazy='joined')
+    chapter = relationship(Chapter, lazy='joined', backref="features")
     ordinal_qualifier = Column(String)
 
     @property

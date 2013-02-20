@@ -1,0 +1,41 @@
+@page { size: 8.5inch 11inch; margin-top: 0.7874inch; margin-bottom: 0.7874inch; margin-left: 0.7874inch; margin-right: 0.7874inch }
+table { border-collapse:collapse; border-spacing:0; empty-cells:show }
+td, th { vertical-align:top; }
+
+#description ol { list-style-type:lower-roman; }
+
+blockquote.example { font-family:'Charis SIL','Lucida Sans Unicode','Lucida Grande','Arial Unicode MS'; }
+blockquote.example p {font-size: 14px; line-height: 24px;}
+blockquote.example table {width: auto;}
+blockquote.example table td {border: none !important; padding: 3px;}
+blockquote.example table th {border: none !important; padding: 3px;}
+
+/* Text deco and font styles
+   -------------------------
+   T3 is the only class left in examples, all others styles are given as
+   style declarations within examples, so that exaples are mostly self-contained.
+   Within paragraphs all style classes are being used.                         */
+*.T3 { font-variant: small-caps; }
+*.T5 { text-decoration: underline; }
+*.T57_80 { vertical-align: sub; text-decoration: underline; font-size: 80%;}
+*.T7_80 { vertical-align: sub; font-size: 80%; }
+*.T8_80 { vertical-align: super; font-size: 80%; }
+*.T12_126 { font-style:italic; font-weight:bold; font-size:126%; }
+
+*.figureHelp { margin-left: 3em; border: 1px solid #71AE8B; }
+*.arrowBuild { background-image:url(142/images/fig2.png); background-repeat:repeat-y; background-position:center;}
+
+dl.terminology dt {
+   font-weight:bold;
+   margin-left: 1em;
+}
+
+dl.terminology dd {
+   margin-bottom: 1em;
+   margin-left: 2em;
+   width: 70%;
+}
+
+dl.table dt { width: 20em; }
+
+table.values caption {white-space: nowrap;}

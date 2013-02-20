@@ -263,17 +263,17 @@ def prime_cache():
     setup_session()
 
     with transaction.manager:
-        param = VersionedDBSession.query(common.Parameter).filter(common.Parameter.id == '1A').one()
-        param.description = '%s (%s)' % (param.description, param.version)
-        param.blog_title = '%s (%s)' % (param.description, param.version)
-
-        #print dir(object_mapper(param).class_)
+        #param = VersionedDBSession.query(common.Parameter).filter(common.Parameter.id == '1A').one()
+        #param.description = '%s (%s)' % (param.description, param.version)
+        #param.blog_title = '%s (%s)' % (param.description, param.version)
+        #
+        ##print dir(object_mapper(param).class_)
+        ##return
+        #domain = list(param.domain)
+        #value_map = dict(zip(domain, domain[1:] + domain[:1]))
+        #for value in param.values:
+        #    value.domainelement = value_map[value.domainelement]
         #return
-        domain = list(param.domain)
-        value_map = dict(zip(domain, domain[1:] + domain[:1]))
-        for value in param.values:
-            value.domainelement = value_map[value.domainelement]
-        return
 
 
 
