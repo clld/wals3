@@ -92,6 +92,11 @@ def fix(id_):
     assert not in_example
 
     #
+    # TODO: replace span class="T3" with tooltip showing the meaning of the gloss part!
+    # use css and javascript from valency!
+    #
+
+    #
     # handle value tables
     #
     for tag in s.find_all('div', class_='value-table'):
