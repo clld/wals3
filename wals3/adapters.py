@@ -18,7 +18,7 @@ class GeoJsonFeature(GeoJsonParameter):
         language = value.language
         return {
             'name': language.name,
-            'id': language.id,
+            'language_id': language.id,
             'icon_type': value.domainelement.icon_id[:1],
             'icon_color': '#%s' % ''.join(2 * c for c in value.domainelement.icon_id[1:]),
             'value_numeric': value.domainelement.numeric,
