@@ -19,6 +19,7 @@ from clld.db.meta import (
     Base,
 )
 from clld.db.models import common
+from clld.db.util import compute_language_sources
 
 import wals3
 from wals3 import models
@@ -330,7 +331,7 @@ def main():
 
         for row in old_db.execute("select * from altname"):
             add(common.Identifier, 'identifier', (row['name'], row['type']),
-                name=row['name'], type='%s_name' % row['type'])
+                name=row['name'], type='name-%s' % row['type'])
         DBSession.flush()
 
         for row in old_db.execute("select * from isolanguage"):
@@ -469,24 +470,7 @@ def prime_cache():
                     object_pk=parameter.pk)
                 DBSession.add(d)
 
-        old_sl = {}
-        for pair in DBSession.query(common.LanguageSource):
-            old_sl[(pair.source_pk, pair.language_pk)] = True
-
-        sl = {}
-
-        for ref in DBSession.query(common.ValueReference):
-            sl[(ref.source_pk, ref.value.language_pk)] = True
-
-        for ref in DBSession.query(common.SentenceReference):
-            sl[(ref.source_pk, ref.sentence.language_pk)] = True
-
-        for ref in DBSession.query(common.ContributionReference):
-            sl[(ref.source_pk, ref.contribution.language_pk)] = True
-
-        for s, l in sl:
-            if (s, l) not in old_sl:
-                DBSession.add(common.LanguageSource(language_pk=l, source_pk=s))
+        compute_language_sources()
 
 
 if __name__ == '__main__':

@@ -6,7 +6,7 @@ from path import path
 from pyramid.config import Configurator
 from pyramid.httpexceptions import HTTPNotFound
 
-from clld.interfaces import IParameter
+from clld.interfaces import IParameter, IMapMarker
 from clld.web.adapters import GeoJson, Representation
 
 import wals3
@@ -28,6 +28,11 @@ _('Parameters')
 
 
 ADAPTER_COUNTER = 0
+
+
+def map_marker(ctx, req):
+    if hasattr(ctx, 'icon_id'):
+        return req.static_url('wals3:static/icons/' + ctx.icon_id + '.png')
 
 
 def adapter_factory(template, mimetype='text/html', extension='html', base=None):
@@ -66,6 +71,7 @@ def main(global_config, **settings):
     config = Configurator(settings=settings)
     config.include('clld.web.app')
     config.register_app('wals3')
+    config.registry.registerUtility(map_marker, IMapMarker)
 
     config.add_menu_item('blog', lambda ctx, req: ('http://blog.wals.info/category/news/', 'Newsblog'))
 

@@ -11,26 +11,12 @@ ${req.map.render()}
 
 ##${ctx.render()}
 
-<table id="languages" class="table table-hover">
-    <thead>
-        <tr>
-            <th>Code</th><th>Name</th>
-            <th>Genus</th><th>Family</th>
-        </tr>
-    </thead>
-    <tbody>
-        % for language in ctx.languages:
-        <tr>
-            <td>${h.link(request, language, label=language.id)}</td>
-            <td>${h.link(request, language)}</td>
-            <td>${language.genus.name}</td>
-            <td>${h.link(request, language.genus.family)}</td>
-        </tr>
-        % endfor
-    </tbody>
-</table>
-<script>
-$(document).ready(function() {
-    $('#languages').dataTable({bLengthChange: false, bPaginate: false, bInfo: false});
-});
-</script>
+<%util:table items="${ctx.languages}" args="item">\
+    <%def name="head()">
+        <th>Code</th><th>Name</th><th>Genus</th><th>Family</th>
+    </%def>
+    <td>${h.link(request, item, label=item.id)}</td>
+    <td>${h.link(request, item)}</td>
+    <td>${item.genus.name}</td>
+    <td>${h.link(request, item.genus.family)}</td>
+</%util:table>
