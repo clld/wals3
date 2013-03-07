@@ -99,16 +99,3 @@ class Feature(Parameter, CustomModelMixin, Versioned):
     blog_title = Column(String(50), unique=True)
     chapter = relationship(Chapter, lazy='joined', backref="features")
     ordinal_qualifier = Column(String)
-
-    @property
-    def sortkey(self):
-        return self.contribution_pk, self.ordinal_qualifier
-
-
-@implementer(interfaces.IDomainElement)
-class WalsValue(DomainElement, CustomModelMixin):
-    """All features in WALS have fixed lists of admissible values.
-    """
-    pk = Column(Integer, ForeignKey('domainelement.pk'), primary_key=True)
-    icon_id = Column(String(4))
-    numeric = Column(Integer)

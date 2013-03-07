@@ -15,6 +15,11 @@ class Tests(TestWithApp):
     def test_genealogy(self):
         res = self.app.get('/languoid/genealogy', status=200)
 
+    def test_samples(self):
+        for count in [100, 200]:
+            res = self.app.get('/languoid/samples/%s' % count, status=200)
+        res = self.app.get('/languoid/samples/x', status=404)
+
     def test_resources(self):
         for rsc, id_, index in [
             ('language', 'apk', True),
@@ -25,7 +30,7 @@ class Tests(TestWithApp):
             ('country', 'ID', False),
         ]:
             if id_:
-                res = self.app.get('/%s/%s' % (rsc, id_), headers={'accept': 'text/html'}, status=200)
+                res = self.app.get('/%ss/%s' % (rsc, id_), headers={'accept': 'text/html'}, status=200)
             if index:
                 res = self.app.get('/%ss' % rsc, headers={'accept': 'text/html'}, status=200)
 

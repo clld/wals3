@@ -8,7 +8,7 @@ from clld.web.datatables.base import (
     Col, filter_number, LinkCol, DetailsRowLinkCol, LinkToMapCol,
 )
 from clld.db.models import common
-from clld.web.util.helpers import linked_contributors, link
+from clld.web.util.helpers import linked_contributors, link, linked_references
 from clld.web.util.htmllib import HTML
 from clld.db.meta import DBSession
 
@@ -25,10 +25,10 @@ class FeatureIdCol(LinkCol):
 
 class FeatureIdCol2(FeatureIdCol):
     def get_attrs(self, item):
-        return {'label': item.parameter.id}
+        return {'label': item.valueset.parameter.id}
 
     def get_obj(self, item):
-        return item.parameter
+        return item.valueset.parameter
 
 
 class AreaCol(Col):
@@ -37,7 +37,7 @@ class AreaCol(Col):
     #    self.choices = [a.name for a in DBSession.query(Area).order_by(Area.id)]
 
     def format(self, item):
-        return item.parameter.chapter.area.name
+        return item.valueset.parameter.chapter.area.name
 
     def order(self):
         return Area.name
@@ -48,24 +48,15 @@ class AreaCol(Col):
 
 class RefCol(Col):
     def format(self, item):
-        res = ''
-        for i, ref in enumerate(item.references):
-            if i > 0:
-                res += ', '
-            res += link(self.dt.req, ref.source)
-            if ref.description:
-                res += ' (%s)' % ref.description
-        return HTML.small(res)
+        return HTML.small(linked_references(self.dt.req, item.valueset))
 
 
 class Datapoints(datatables.Values):
     def base_query(self, query):
         query = super(Datapoints, self).base_query(query)
-        query = query.options(joinedload_all(common.Value.references, common.ValueReference.source))
         if self.language:
-            query = query.join(Feature, Feature.pk == common.Value.parameter_pk)\
-                .join(Chapter, Area)\
-                .options(joinedload_all(common.Value.parameter, Feature.chapter))
+            query = query.join(Feature, Feature.pk == common.ValueSet.parameter_pk)\
+                .join(Chapter, Area)
         return query
 
     #
@@ -75,14 +66,13 @@ class Datapoints(datatables.Values):
     # - references
     #
     def col_defs(self):
-        cols = list(reversed(super(Datapoints, self).col_defs()))
+        # remove the details link.
+        cols = super(Datapoints, self).col_defs()[1:]
         if not self.parameter:
             cols = [FeatureIdCol2(self, 'fid', sClass='right', bSearchable=False)]\
                 + cols\
                 + [AreaCol(self, 'area', bSearchable=False)]
-        return cols + [
-            RefCol(self, 'references', bSearchable=False, bSortable=False),
-            ]
+        return cols
 
     def get_options(self):
         opts = super(Datapoints, self).get_options()
@@ -155,7 +145,8 @@ class FamilyCol(Col):
 
 class Languages(datatables.Languages):
     def base_query(self, query):
-        return query.join(Genus).join(Family).options(joinedload_all(WalsLanguage.genus, Genus.family))
+        return query.join(Genus).join(Family).options(
+            joinedload_all(WalsLanguage.genus, Genus.family))
 
     def col_defs(self):
         cols = datatables.Languages.col_defs(self)
