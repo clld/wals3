@@ -4,7 +4,7 @@ from sqlalchemy.orm import joinedload_all
 from path import path
 from bs4 import BeautifulSoup as soup
 
-from clld.interfaces import IRepresentation, IIndex
+from clld.interfaces import IRepresentation
 from clld.web.adapters import get_adapter
 from clld.db.meta import DBSession
 from clld.db.models.common import DomainElement

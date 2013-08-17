@@ -9,8 +9,6 @@ from sqlalchemy import (
     UniqueConstraint,
 )
 from sqlalchemy.orm import relationship, backref
-from sqlalchemy.ext.declarative import declared_attr
-from sqlalchemy.ext.hybrid import hybrid_property
 
 from clld import interfaces
 from clld.db.meta import Base, CustomModelMixin
@@ -18,7 +16,6 @@ from clld.db.versioned import Versioned
 from clld.db.models.common import (
     Language,
     Parameter,
-    DomainElement,
     Contribution,
     IdNameDescriptionMixin,
 )
@@ -30,30 +27,24 @@ class Family(Base, IdNameDescriptionMixin):
     pass
 
 
-@implementer(wals_interfaces.ICountry)
-class Country(Base, IdNameDescriptionMixin):
-    continent = Column(Unicode)
-
-    @property
-    def languages(self):
-        return [assoc.language for assoc in self.language_assocs]
-
-
 class CountryLanguage(Base):
     __table_args__ = (UniqueConstraint('country_pk', 'language_pk'),)
 
     country_pk = Column(Integer, ForeignKey('country.pk'))
     language_pk = Column(Integer, ForeignKey('language.pk'))
 
-    country = relationship(Country, backref='language_assocs')
-    language = relationship(Language, backref='country_assocs')
+
+@implementer(wals_interfaces.ICountry)
+class Country(Base, IdNameDescriptionMixin):
+    continent = Column(Unicode)
+    languages = relationship(Language, secondary=CountryLanguage.__table__)
 
 
 class Genus(Base, IdNameDescriptionMixin):
     family_pk = Column(Integer, ForeignKey('family.pk'))
     subfamily = Column(Unicode)
     family = relationship(Family, backref=backref("genera", order_by="Genus.subfamily, Genus.name"))
-    icon_id = Column(String(4))
+    icon = Column(String(7))
 
 
 class Area(Base, IdNameDescriptionMixin):

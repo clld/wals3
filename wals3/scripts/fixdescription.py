@@ -3,7 +3,6 @@ import re
 from xml.etree import ElementTree as et
 from sqlite3.dbapi2 import connect
 
-from purl import URL
 from path import path
 from bs4 import BeautifulSoup as soup
 
@@ -15,45 +14,52 @@ cu.execute('select id, family_id from genus')
 GENUS_MAP = dict(cu.fetchall())
 
 
+def pattern(path):
+    return re.compile('http\:\/\/wals\.info' + path)
+
+def url(path):
+    return 'http://wals.info' + path
+
 URL_PATTERNS = {
     'country': (
-        re.compile('http\:\/\/wals\.info\/languoid\/by_geography\?country\=(?P<id>[A-Z]{2})$'),
-        lambda m: 'http://wals.info/country/%s' % m.group('id'),
+        pattern('\/languoid\/by_geography\?country\=(?P<id>[A-Z]{2})$'),
+        lambda m: url('/country/%s' % m.group('id')),
     ),
     'genus': (
-        re.compile('http\:\/\/wals\.info\/languoid\/genus\/(?P<id>[a-z]+)$'),
-        lambda m: 'http://wals.info/family/%s#%s' % (GENUS_MAP[m.group('id')], m.group('id')),
+        pattern('\/languoid\/genus\/(?P<id>[a-z]+)$'),
+        lambda m: url('/family/%s#%s' % (GENUS_MAP[m.group('id')], m.group('id'))),
     ),
     'family': (
-        re.compile('http\:\/\/wals\.info\/languoid\/family\/(?P<id>[a-z]+)$'),
-        lambda m: 'http://wals.info/family/%s' % m.group('id'),
+        pattern('\/languoid\/family\/(?P<id>[a-z]+)$'),
+        lambda m: url('/family/%s' % m.group('id')),
     ),
     'source': (
-        re.compile('http\:\/\/wals\.info\/refdb\/record\/(?P<id>.+)$'),
-        lambda m: 'http://wals.info/source/%s' % m.group('id'),
+        pattern('\/refdb\/record\/(?P<id>.+)$'),
+        lambda m: url('/source/%s' % m.group('id')),
     ),
     'contribution': (
-        re.compile('http\:\/\/wals\.info\/feature\/(description\/)?(?P<id>[0-9]+)(?P<fragment>\#.*)?$'),
-        lambda m: 'http://wals.info/contribution/%s%s' % (m.group('id'), m.group('fragment') or ''),
+        pattern('\/feature\/(description\/)?(?P<id>[0-9]+)(?P<fragment>\#.*)?$'),
+        lambda m: url('/contribution/%s%s' % (m.group('id'), m.group('fragment') or '')),
     ),
     'parameter': (
-        re.compile('http\:\/\/wals\.info\/feature\/(?P<id>[0-9]+[A-Z])'),
-        lambda m: 'http://wals.info/parameter/%s' % m.group('id'),
+        pattern('\/feature\/(?P<id>[0-9]+[A-Z])'),
+        lambda m: url('/parameter/%s' % m.group('id')),
     ),
     'language': (
-        re.compile('http\:\/\/wals\.info\/languoid\/lect\/wals_code_(?P<id>[a-z]{2,3})$'),
-        lambda m: 'http://wals.info/language/%s' % m.group('id'),
+        pattern('\/languoid\/lect\/wals_code_(?P<id>[a-z]{2,3})$'),
+        lambda m: url('/language/%s' % m.group('id')),
     ),
     'image': (
         re.compile('\.\/(?P<id>.+)\/images\/(?P<path>.+)$'),
-        lambda m: 'http://wals.info/static/descriptions/%(id)s/images/%(path)s' % m.groupdict(),
+        lambda m: url('/static/descriptions/%(id)s/images/%(path)s' % m.groupdict()),
     ),
 }
 
 
 def fix(id_):
     print('chapter %s' % id_)
-    p = path(wals3.__file__).dirname().joinpath('static', 'descriptions', str(id_), 'body.html')
+    p = path(wals3.__file__).dirname().joinpath(
+        'static', 'descriptions', str(id_), 'body.html')
     assert p.exists()
     r = codecs.open(p, encoding='utf8').read()
     et.fromstring(r.encode('utf8'))
@@ -188,8 +194,16 @@ def fix(id_):
     #c = s.prettify()
     c = unicode(s)
     c = c.replace('<?xml version="1.0"?>\n', '').strip()
-    c = re.sub('\<p\s+class\=\"example\-start\"\>', '<blockquote class="example"><p class="example-start">', c, flags=re.M)
-    c = re.sub(u'\<p\s+class\=\"example\-end\"\>[\s\xa0]*\<\/p\>', '<p class="example-end"></p></blockquote>', c, flags=re.M)
+    c = re.sub(
+        '\<p\s+class\=\"example\-start\"\>',
+        '<blockquote class="example"><p class="example-start">',
+        c,
+        flags=re.M)
+    c = re.sub(
+        u'\<p\s+class\=\"example\-end\"\>[\s\xa0]*\<\/p\>',
+        '<p class="example-end"></p></blockquote>',
+        c,
+        flags=re.M)
 
     try:
         et.fromstring(c.encode('utf8'))

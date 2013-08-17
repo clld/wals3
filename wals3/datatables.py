@@ -1,4 +1,4 @@
-from sqlalchemy import and_, desc
+from sqlalchemy import and_
 from sqlalchemy.orm import joinedload, joinedload_all
 from sqlalchemy.sql.expression import cast
 from sqlalchemy.types import Integer
@@ -10,7 +10,6 @@ from clld.web.datatables.base import (
 from clld.db.models import common
 from clld.web.util.helpers import linked_contributors, link, linked_references
 from clld.web.util.htmllib import HTML
-from clld.db.meta import DBSession
 
 from wals3.models import WalsLanguage, Genus, Family, Chapter, Feature, Area
 

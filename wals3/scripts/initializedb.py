@@ -1,25 +1,19 @@
 from __future__ import unicode_literals
-import os
 import sys
 import transaction
 from itertools import groupby, cycle
+from collections import OrderedDict
 import re
+from datetime import date
 
-from sqlalchemy import engine_from_config, create_engine
+from sqlalchemy import create_engine
 from path import path
-from pyramid.paster import (
-    get_appsettings,
-    setup_logging,
-    )
 
-from clld.db.meta import (
-    DBSession,
-    VersionedDBSession,
-    Base,
-)
+from clld.db.meta import DBSession
 from clld.db.models import common
 from clld.db.util import compute_language_sources
-from clld.scripts.util import setup_session, Data
+from clld.scripts.util import initializedb, Data
+from clld.lib.bibtex import EntryType
 
 import wals3
 from wals3 import models
@@ -33,7 +27,6 @@ for k, v in uncited.MAP.items():
 #DB = 'sqlite:////home/robert/old_projects/legacy/wals_pylons/trunk/wals2/db.sqlite'
 DB = create_engine('postgresql://robert@/wals')
 REFDB = create_engine('postgresql://robert@/walsrefs')
-
 
 ABBRS = {
     "A": "agent-like argument",
@@ -205,12 +198,18 @@ ABBRS = {
 class Icons(object):
     filename_pattern = re.compile('(?P<spec>(c|d|s|f|t)[0-9a-f]{3})\.png')
 
+    @staticmethod
+    def id(spec):
+        return ''.join(c if i == 0 else c + c for i, c in enumerate(spec))
+
     def __init__(self):
         self._icons = []
-        for name in sorted(path(wals3.__file__).dirname().joinpath('static', 'icons').files()):
+        for name in sorted(
+            path(wals3.__file__).dirname().joinpath('static', 'icons').files()
+        ):
             m = self.filename_pattern.match(name.splitall()[-1])
             if m:
-                self._icons.append(m.group('spec'))
+                self._icons.append(Icons.id(m.group('spec')))
 
     def __iter__(self):
         return iter(self._icons)
@@ -219,11 +218,25 @@ class Icons(object):
 def get_source(id):
     """retrieve a source record from wals_refdb
     """
-    res = {'id': id}
+    field_map = {
+        'onlineversion': 'url',
+        'gbs_id': 'google_book_search_id',
+        'doi': 'jsondata',
+        'cited': 'jsondata',
+        'conference': 'jsondata',
+        'iso_code': 'jsondata',
+        'olac_field': 'jsondata',
+        'wals_code': 'jsondata',
+    }
+
+    res = {'id': id, 'jsondata': {'iso_code': [], 'olac_field': [], 'wals_code': []}}
     refdb_id = UNCITED_MAP.get(id.lower())
     if not refdb_id:
-        for row in REFDB.execute("select id, genre from ref_record, ref_recordofdocument where id = id_r_ref and citekey = '%s'" % id):
-            res['genre'] = row['genre']
+        for row in REFDB.execute("""\
+select id, genre from ref_record, ref_recordofdocument
+where id = id_r_ref and citekey = '%s'""" % id
+        ):
+            res['bibtex_type'] = row['genre']
             refdb_id = row['id']
             break
 
@@ -231,231 +244,307 @@ def get_source(id):
             if id[-1] in ['a', 'b', 'c', 'd']:
                 refdb_id = UNCITED_MAP.get(id[:-1].lower())
             if not refdb_id:
+                print 'missing ref', id
                 return {}
 
-    for row in REFDB.execute("select * from ref_recfields where id_r_ref = %s" % refdb_id):
-        res[row['id_name']] = row['id_value']
+    if 'bibtex_type' not in res:
+        for row in REFDB.execute("select genre from ref_record where id = %s" % refdb_id):
+            res['bibtex_type'] = row['genre']
+            break
+
+    for row in REFDB.execute(
+        "select * from ref_recfields where id_r_ref = %s" % refdb_id
+    ):
+        field = field_map.get(row['id_name'], row['id_name'])
+        if field == 'jsondata':
+            if row['id_name'] in ['iso_code', 'olac_field', 'wals_code']:
+                res['jsondata'][row['id_name']].append(row['id_value'])
+            else:
+                res['jsondata'][row['id_name']] = row['id_value']
+        else:
+            res[field] = row['id_value']
+
+    if res['bibtex_type'] == 'thesis':
+        if res['format'] == 'phd':
+            res['bibtex_type'] == 'phdthesis'
+            del res['format']
+        elif res['format'] == 'ma':
+            res['bibtex_type'] == 'mastersthesis'
+            del res['format']
+        else:
+            res['bibtex_type'] == 'misc'
+
+    if res['bibtex_type'] == 'online':
+        res['howpublished'] = 'online'
+
+    res['bibtex_type'] = getattr(EntryType, res['bibtex_type'], EntryType.misc)
+    if 'format' in res:
+        res['type'] = res['format']
+        del res['format']
 
     authors = ''
-    for row in REFDB.execute("select * from ref_recauthors where id_r_ref = %s order by ord" % refdb_id):
+    for row in REFDB.execute(
+        "select * from ref_recauthors where id_r_ref = %s order by ord" % refdb_id
+    ):
         if row['type'] == 'etal':
             authors += ' et al.'
         else:
             if authors:
                 authors += ' and '
             authors += row['value']
-    res['authors'] = authors
+    res['author'] = authors
 
-    for row in REFDB.execute("select * from ref_recjournal where id_r_ref = %s" % refdb_id):
+    for row in REFDB.execute(
+        "select * from ref_recjournal where id_r_ref = %s" % refdb_id
+    ):
         res['journal'] = row['name']
         break
 
     return res
 
 
-def main():
+def main(args):
     icons = Icons()
-    setup_session(sys.argv[1])
     old_db = DB
 
     data = Data()
 
     missing_sources = []
-    with transaction.manager:
-        with open('/home/robert/venvs/clld/data/wals-data/missing_source.py', 'w') as fp:
-            for row in old_db.execute("select * from reference"):
-                try:
-                    author, year = row['id'].split('-')
-                except:
-                    author, year = None, None
-                bibdata = get_source(row['id'])
-                if not bibdata:
-                    fp.write('"%s",\n' % row['id'])
-                    missing_sources.append(row['id'])
+    with open('/home/robert/venvs/clld/data/wals-data/missing_source.py', 'w') as fp:
+        for row in old_db.execute("select * from reference"):
+            try:
+                author, year = row['id'].split('-')
+            except:
+                author, year = None, None
+            bibdata = get_source(row['id'])
+            if not bibdata:
+                fp.write('"%s",\n' % row['id'])
+                missing_sources.append(row['id'])
 
-                kw = {
-                    'id': row['id'],
-                    'name': row['name'],
-                    'description': bibdata.get('title', bibdata.get('booktitle')),
-                    'authors': bibdata.get('authors', author),
-                    'year': bibdata.get('year', year),
-                    'google_book_search_id': row['gbs_id'] or None,
-                }
-                data.add(common.Source, row['id'], **kw)
+            bibdata.update({
+                'id': row['id'],
+                'name': row['name'],
+                'description': bibdata.get('title', bibdata.get('booktitle')),
+                'google_book_search_id': row['gbs_id'] or None,
+            })
+            data.add(common.Source, row['id'], **bibdata)
 
-            #
-            # TODO: add additional bibdata as data items
-            #
-
-        print('sources missing for %s refs' % len(missing_sources))
-
-        for id, name in ABBRS.items():
-            DBSession.add(common.GlossAbbreviation(id=id, name=name))
-
-        for row in old_db.execute("select * from country"):
-            data.add(models.Country, row['id'], id=row['id'], name=row['name'], continent=row['continent'])
-
-        for row in old_db.execute("select * from family"):
-            data.add(models.Family, row['id'], id=row['id'], name=row['name'], description=row['comment'])
-
-        for row, icon in zip(list(old_db.execute("select * from genus order by family_id")), cycle(iter(icons))):
-            genus = data.add(models.Genus, row['id'], id=row['id'], name=row['name'], icon_id=icon, subfamily=row['subfamily'])
-            genus.family = data['Family'][row['family_id']]
-        DBSession.flush()
-
-        for row in old_db.execute("select * from altname"):
-            data.add(common.Identifier, (row['name'], row['type']),
-                     name=row['name'], type='name-%s' % row['type'])
-        DBSession.flush()
-
-        for row in old_db.execute("select * from isolanguage"):
-            data.add(common.Identifier, row['id'],
-                     id=row['id'], name=row['name'], type='iso639-3', description=row['dbpedia_url'])
-        DBSession.flush()
-
-        for row in old_db.execute("select * from language"):
-            kw = dict((key, row[key]) for key in ['id', 'name', 'latitude', 'longitude'])
-            lang = data.add(models.WalsLanguage, row['id'],
-                            samples_100=row['samples_100'] != 0, samples_200=row['samples_200'] != 0, **kw)
-            lang.genus = data['Genus'][row['genus_id']]
-
-        for row in old_db.execute("select * from author"):
-            data.add(common.Contributor, row['id'], name=row['name'], url=row['www'], id=row['id'], description=row['note'])
-        DBSession.flush()
-
-        for row in old_db.execute("select * from country_language"):
-            DBSession.add(models.CountryLanguage(
-                language=data['WalsLanguage'][row['language_id']],
-                country=data['Country'][row['country_id']]))
-
-        for row in old_db.execute("select * from altname_language"):
-            DBSession.add(common.LanguageIdentifier(
-                language=data['WalsLanguage'][row['language_id']],
-                identifier=data['Identifier'][(row['altname_name'], row['altname_type'])],
-                description=row['relation']))
-        DBSession.flush()
-
-        for row in old_db.execute("select * from isolanguage_language"):
-            DBSession.add(common.LanguageIdentifier(
-                language=data['WalsLanguage'][row['language_id']],
-                identifier=data['Identifier'][row['isolanguage_id']],
-                description=row['relation']))
-        DBSession.flush()
-
-        for row in old_db.execute("select * from area"):
-            data.add(models.Area, row['id'], name=row['name'], dbpedia_url=row['dbpedia_url'], id=str(row['id']))
-        DBSession.flush()
-
-        for row in old_db.execute("select * from chapter"):
-            c = data.add(models.Chapter, row['id'], id=row['id'], name=row['name'])
-            c.area = data['Area'][row['area_id']]
-        DBSession.flush()
-
-        for row in old_db.execute("select * from feature"):
-            param = data.add(models.Feature, row['id'], id=row['id'], name=row['name'], ordinal_qualifier=row['id'][-1])
-            param.chapter = data['Chapter'][row['chapter_id']]
-        DBSession.flush()
-
-        for row in old_db.execute("select * from value"):
-            desc = row['description']
-            if desc == 'SOV & NegV/VNeg':
-                if row['icon_id'] != 's9ff':
-                    desc += ' (a)'
-                else:
-                    desc += ' (b)'
-
-            data.add(
-                common.DomainElement, (row['feature_id'], row['numeric']),
-                id='%s-%s' % (row['feature_id'], row['numeric']),
-                name=desc,
-                description=row['long_description'],
-                jsondata=dict(icon_id=row['icon_id']),
-                number=row['numeric'],
-                parameter=data['Feature'][row['feature_id']])
-        DBSession.flush()
-
-        for row in old_db.execute("select * from datapoint"):
-            parameter = data['Feature'][row['feature_id']]
-            language = data['WalsLanguage'][row['language_id']]
-            id_ = '%s-%s' % (parameter.id, language.id)
-
-            valueset = data.add(
-                common.ValueSet, row['id'],
-                id=id_,
-                language=language,
-                parameter=parameter,
-                contribution=parameter.chapter,
-            )
-            data.add(
-                common.Value, row['id'],
-                id=id_,
-                domainelement=data['DomainElement'][(row['feature_id'], row['value_numeric'])],
-                valueset=valueset,
-            )
-
-        DBSession.flush()
-
-        for row in old_db.execute("select * from datapoint_reference"):
-            common.ValueSetReference(
-                valueset=data['ValueSet'][row['datapoint_id']],
-                source=data['Source'][row['reference_id']],
-                description=row['note'],
-            )
-
-        for row in old_db.execute("select * from author_chapter"):
-            DBSession.add(common.ContributionContributor(
-                ord=row['order'],
-                primary=row['primary'] != 0,
-                contributor_pk=data['Contributor'][row['author_id']].pk,
-                contribution_pk=data['Chapter'][row['chapter_id']].pk))
-
-        lang.name = 'SPECIAL--' + lang.name
-
-
-def prime_cache():
-    #from sqlalchemy.orm import object_mapper
-
-    setup_session(sys.argv[1])
-
-    with transaction.manager:
-        #param = VersionedDBSession.query(common.Parameter).filter(common.Parameter.id == '1A').one()
-        #param.description = '%s (%s)' % (param.description, param.version)
-        #param.blog_title = '%s (%s)' % (param.description, param.version)
         #
-        ##print dir(object_mapper(param).class_)
-        ##return
-        #domain = list(param.domain)
-        #value_map = dict(zip(domain, domain[1:] + domain[:1]))
-        #for value in param.values:
-        #    value.domainelement = value_map[value.domainelement]
-        #return
+        # TODO: add additional bibdata as data items
+        #
 
-        # cache number of languages for a parameter:
-        for parameter, valuesets in groupby(
-            DBSession.query(common.ValueSet).order_by(common.ValueSet.parameter_pk),
-            lambda vs: vs.parameter):
+    print('sources missing for %s refs' % len(missing_sources))
 
-            representation = str(len(set(v.language_pk for v in valuesets)))
+    for id, name in ABBRS.items():
+        DBSession.add(common.GlossAbbreviation(id=id, name=name))
 
-            d = None
-            for _d in parameter.data:
-                if _d.key == 'representation':
-                    d = _d
-                    break
+    for row in old_db.execute("select * from country"):
+        data.add(
+            models.Country, row['id'],
+            id=row['id'], name=row['name'], continent=row['continent'])
 
-            if d:
-                d.value = representation
+    for row in old_db.execute("select * from family"):
+        data.add(
+            models.Family, row['id'],
+            id=row['id'], name=row['name'], description=row['comment'])
+
+    for row, icon in zip(
+        list(old_db.execute("select * from genus order by family_id")),
+        cycle(iter(icons))
+    ):
+        genus = data.add(
+            models.Genus, row['id'],
+            id=row['id'], name=row['name'], icon=icon, subfamily=row['subfamily'])
+        genus.family = data['Family'][row['family_id']]
+    DBSession.flush()
+
+    for row in old_db.execute("select * from altname"):
+        data.add(common.Identifier, (row['name'], row['type']),
+                 name=row['name'], type='name-%s' % row['type'])
+    DBSession.flush()
+
+    for row in old_db.execute("select * from isolanguage"):
+        data.add(
+            common.Identifier, row['id'],
+            id=row['id'],
+            name=row['name'],
+            type=common.IdentifierType.iso.value,
+            description=row['dbpedia_url'])
+    DBSession.flush()
+
+    for row in old_db.execute("select * from language"):
+        kw = dict((key, row[key]) for key in ['id', 'name', 'latitude', 'longitude'])
+        lang = data.add(
+            models.WalsLanguage, row['id'],
+            samples_100=row['samples_100'] != 0,
+            samples_200=row['samples_200'] != 0,
+            **kw)
+        lang.genus = data['Genus'][row['genus_id']]
+
+    editors = OrderedDict()
+    editors['dryerms'] = None
+    editors['hapelmathm'] = None
+
+    for row in old_db.execute("select * from author"):
+        a = data.add(
+            common.Contributor, row['id'],
+            name=row['name'],
+            url=row['www'],
+            id=row['id'],
+            description=row['note'])
+        if row['id'] in editors:
+            editors[row['id']] = a
+    DBSession.flush()
+
+    dataset = common.Dataset(
+        id='wals',
+        name='WALS Online',
+        description='The World Atlas of Language Structures Online',
+        domain='wals.info',
+        published=date(2013, 8, 15),
+        #license='http://creativecommons.org/licenses/by-sa/3.0/',
+        license='http://creativecommons.org/licenses/by-nc-nd/2.0/de/deed.en',
+        contact='wals@eva.mpg.de',
+        jsondata={
+            #'license_icon': 'http://i.creativecommons.org/l/by-sa/3.0/88x31.png',
+            #'license_name': 'Creative Commons Attribution-ShareAlike 3.0 Unported License'})
+            'license_icon': 'http://wals.info/static/images/cc_by_nc_nd.png',
+            'license_name': 'Creative Commons Attribution-NonCommercial-NoDerivs 2.0 Germany'})
+    DBSession.add(dataset)
+    for i, editor in enumerate(editors.values()):
+        common.Editor(dataset=dataset, contributor=editor, ord=i + 1)
+
+    for row in old_db.execute("select * from country_language"):
+        DBSession.add(models.CountryLanguage(
+            language_pk=data['WalsLanguage'][row['language_id']].pk,
+            country_pk=data['Country'][row['country_id']].pk))
+
+    for row in old_db.execute("select * from altname_language"):
+        DBSession.add(common.LanguageIdentifier(
+            language=data['WalsLanguage'][row['language_id']],
+            identifier=data['Identifier'][(row['altname_name'], row['altname_type'])],
+            description=row['relation']))
+    DBSession.flush()
+
+    for row in old_db.execute("select * from isolanguage_language"):
+        DBSession.add(common.LanguageIdentifier(
+            language=data['WalsLanguage'][row['language_id']],
+            identifier=data['Identifier'][row['isolanguage_id']],
+            description=row['relation']))
+    DBSession.flush()
+
+    for row in old_db.execute("select * from area"):
+        data.add(
+            models.Area, row['id'],
+            name=row['name'], dbpedia_url=row['dbpedia_url'], id=str(row['id']))
+    DBSession.flush()
+
+    for row in old_db.execute("select * from chapter"):
+        c = data.add(models.Chapter, row['id'], id=row['id'], name=row['name'])
+        c.area = data['Area'][row['area_id']]
+    DBSession.flush()
+
+    for row in old_db.execute("select * from feature"):
+        param = data.add(
+            models.Feature, row['id'],
+            id=row['id'], name=row['name'], ordinal_qualifier=row['id'][-1])
+        param.chapter = data['Chapter'][row['chapter_id']]
+    DBSession.flush()
+
+    for row in old_db.execute("select * from value"):
+        desc = row['description']
+        if desc == 'SOV & NegV/VNeg':
+            if row['icon_id'] != 's9ff':
+                desc += ' (a)'
             else:
-                d = common.Parameter_data(
-                    key='representation',
-                    value=representation,
-                    object_pk=parameter.pk)
-                DBSession.add(d)
+                desc += ' (b)'
 
-        compute_language_sources()
+        data.add(
+            common.DomainElement, (row['feature_id'], row['numeric']),
+            id='%s-%s' % (row['feature_id'], row['numeric']),
+            name=desc,
+            description=row['long_description'],
+            jsondata=dict(icon=Icons.id(row['icon_id'])),
+            number=row['numeric'],
+            parameter=data['Feature'][row['feature_id']])
+    DBSession.flush()
+
+    for row in old_db.execute("select * from datapoint"):
+        parameter = data['Feature'][row['feature_id']]
+        language = data['WalsLanguage'][row['language_id']]
+        id_ = '%s-%s' % (parameter.id, language.id)
+
+        valueset = data.add(
+            common.ValueSet, row['id'],
+            id=id_,
+            language=language,
+            parameter=parameter,
+            contribution=parameter.chapter,
+        )
+        data.add(
+            common.Value, row['id'],
+            id=id_,
+            domainelement=data['DomainElement'][(
+                row['feature_id'], row['value_numeric'])],
+            valueset=valueset,
+        )
+
+    DBSession.flush()
+
+    for row in old_db.execute("select * from datapoint_reference"):
+        common.ValueSetReference(
+            valueset=data['ValueSet'][row['datapoint_id']],
+            source=data['Source'][row['reference_id']],
+            description=row['note'],
+        )
+
+    for row in old_db.execute("select * from author_chapter"):
+        DBSession.add(common.ContributionContributor(
+            ord=row['order'],
+            primary=row['primary'] != 0,
+            contributor_pk=data['Contributor'][row['author_id']].pk,
+            contribution_pk=data['Chapter'][row['chapter_id']].pk))
+
+    lang.name = 'SPECIAL--' + lang.name
+
+
+def prime_cache(args):
+    #param = VersionedDBSession.query(common.Parameter).filter(common.Parameter.id == '1A').one()
+    #param.description = '%s (%s)' % (param.description, param.version)
+    #param.blog_title = '%s (%s)' % (param.description, param.version)
+    #
+    ##print dir(object_mapper(param).class_)
+    ##return
+    #domain = list(param.domain)
+    #value_map = dict(zip(domain, domain[1:] + domain[:1]))
+    #for value in param.values:
+    #    value.domainelement = value_map[value.domainelement]
+    #return
+
+    # cache number of languages for a parameter:
+    for parameter, valuesets in groupby(
+        DBSession.query(common.ValueSet).order_by(common.ValueSet.parameter_pk),
+        lambda vs: vs.parameter):
+
+        representation = str(len(set(v.language_pk for v in valuesets)))
+
+        d = None
+        for _d in parameter.data:
+            if _d.key == 'representation':
+                d = _d
+                break
+
+        if d:
+            d.value = representation
+        else:
+            d = common.Parameter_data(
+                key='representation',
+                value=representation,
+                object_pk=parameter.pk)
+            DBSession.add(d)
+
+    compute_language_sources()
 
 
 if __name__ == '__main__':
-    if len(sys.argv) == 2:
-        main()
-    prime_cache()
+    initializedb(create=main, prime_cache=prime_cache)

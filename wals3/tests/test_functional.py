@@ -10,15 +10,15 @@ class Tests(TestWithApp):
     __setup_db__ = False
 
     def test_home(self):
-        res = self.app.get('/', status=200)
+        self.app.get('/', status=200)
 
     def test_genealogy(self):
-        res = self.app.get('/languoid/genealogy', status=200)
+        self.app.get('/languoid/genealogy', status=200)
 
     def test_samples(self):
         for count in [100, 200]:
-            res = self.app.get('/languoid/samples/%s' % count, status=200)
-        res = self.app.get('/languoid/samples/x', status=404)
+            self.app.get('/languoid/samples/%s' % count, status=200)
+        self.app.get('/languoid/samples/x', status=404)
 
     def test_resources(self):
         for rsc, id_, index in [
@@ -30,14 +30,14 @@ class Tests(TestWithApp):
             ('country', 'ID', False),
         ]:
             if id_:
-                res = self.app.get('/%ss/%s' % (rsc, id_), headers={'accept': 'text/html'}, status=200)
+                self.app.get('/%ss/%s' % (rsc, id_), headers={'accept': 'text/html'}, status=200)
             if index:
-                res = self.app.get('/%ss' % rsc, headers={'accept': 'text/html'}, status=200)
+                self.app.get('/%ss' % rsc, headers={'accept': 'text/html'}, status=200)
 
                 headers = {'x-requested-with': 'XMLHttpRequest'}
                 _path = '/%ss?sEcho=1&iSortingCols=1&iSortCol_0=1&sSortDir_0=desc' % rsc
-                res = self.app.get(_path, headers=headers, status=200)
+                self.app.get(_path, headers=headers, status=200)
 
         headers = {'x-requested-with': 'XMLHttpRequest'}
         _path = '/values?sEcho=1&iSortingCols=1&iSortCol_0=1&sSortDir_0=desc'
-        res = self.app.get(_path, headers=headers, status=200)
+        self.app.get(_path, headers=headers, status=200)

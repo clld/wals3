@@ -1,7 +1,4 @@
-from zope.interface import (
-    Interface,
-    Attribute,
-)
+from zope.interface import Interface
 
 
 class IFamily(Interface):
@@ -12,3 +9,4 @@ class IFamily(Interface):
 class ICountry(Interface):
     """marker
     """
+

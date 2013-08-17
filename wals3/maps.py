@@ -1,5 +1,4 @@
 from clld.web.maps import ParameterMap, Map
-from clld.web.util.htmllib import HTML
 from clld.web.adapters import GeoJsonLanguages
 
 

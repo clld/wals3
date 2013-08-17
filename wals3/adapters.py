@@ -14,15 +14,12 @@ class GeoJsonFeature(GeoJsonParameter):
                 joinedload(Value.domainelement),
             )
 
-    def feature_coordinates(self, ctx, req, value):
-        return [value.valueset.language.longitude, value.valueset.language.latitude]
+    def get_language(self, ctx, req, value):
+        return value.valueset.language
 
     def feature_properties(self, ctx, req, value):
-        language = value.valueset.language
         return {
-            'name': language.name,
-            'language_id': language.id,
-            'icon_type': value.domainelement.jsondata['icon_id'][:1],
-            'icon_color': '#%s' % ''.join(2 * c for c in value.domainelement.jsondata['icon_id'][1:]),
+            'icon_type': value.domainelement.jsondata['icon'][:1],
+            'icon_color': '#%s' % ''.join(2 * c for c in value.domainelement.jsondata['icon'][1:]),
             'value_numeric': value.domainelement.number,
             'value_name': value.domainelement.name}

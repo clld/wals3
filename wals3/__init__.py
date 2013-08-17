@@ -1,19 +1,16 @@
 from functools import partial
-import re
 
 from sqlalchemy.orm import joinedload_all
-from path import path
 from pyramid.config import Configurator
 from pyramid.httpexceptions import HTTPNotFound
 
-from clld.interfaces import IParameter, IMapMarker, IDomainElement
-from clld.web.adapters import GeoJson, Representation
+from clld.interfaces import IParameter, IMapMarker, IDomainElement, IMapMarker, IValue
+from clld.web.adapters.base import Representation, adapter_factory
+from clld.web.app import get_configurator, menu_item
 
-import wals3
 from wals3.adapters import GeoJsonFeature
 from wals3.maps import FeatureMap, FamilyMap, CountryMap, SampleMap
 from wals3.datatables import Languages, Features, Datapoints
-from wals3 import views
 from wals3.models import Family, Country, WalsLanguage, Genus
 from wals3.interfaces import IFamily, ICountry
 
@@ -27,21 +24,14 @@ _('Sources')
 _('Parameters')
 
 
-ADAPTER_COUNTER = 0
-
-
 def map_marker(ctx, req):
+    de = None
+    if IValue.providedBy(ctx):
+        de = ctx.domainelement
     if IDomainElement.providedBy(ctx):
-        return req.static_url('wals3:static/icons/' + ctx.jsondata['icon_id'] + '.png')
-
-
-def adapter_factory(template, mimetype='text/html', extension='html', base=None):
-    global ADAPTER_COUNTER
-    base = base or Representation
-    extra = dict(mimetype=mimetype, extension=extension, template=template)
-    cls = type('WALSRenderer%s' % ADAPTER_COUNTER, (base,), extra)
-    ADAPTER_COUNTER += 1
-    return cls
+        de = ctx
+    if de:
+        return req.static_url('clld:web/static/icons/' + de.jsondata['icon'] + '.png')
 
 
 def sample_factory(req):
@@ -64,16 +54,27 @@ def sample_factory(req):
 def main(global_config, **settings):
     """ This function returns a Pyramid WSGI application.
     """
-    settings['mako.directories'] = ['wals3:templates', 'clld:web/templates']
-    settings['clld.app_template'] = "wals3.mako"
-    settings['clld.menuitems_list'] = 'parameters contributions languages sources contributors'.split()
-
-    config = Configurator(settings=settings)
-    config.include('clld.web.app')
-    config.register_app('wals3')
-    config.registry.registerUtility(map_marker, IMapMarker)
-
-    config.add_menu_item('blog', lambda ctx, req: ('http://blog.wals.info/category/news/', 'Newsblog'))
+    settings['sitemaps'] = 'contribution parameter source sentence valueset'.split()
+    utilities = [
+        #(ApicsCtxFactoryQuery(), interfaces.ICtxFactoryQuery),
+        (map_marker, IMapMarker),
+        #(frequency_marker, interfaces.IFrequencyMarker),
+        #(link_attrs, interfaces.ILinkAttrs),
+    ]
+    config = get_configurator('wals3', *utilities, **dict(settings=settings))
+    config.register_menu(
+        ('dataset', partial(menu_item, 'dataset', label='Home')),
+        ('parameters', partial(menu_item, 'parameters')),
+        ('contributions', partial(menu_item, 'contributions')),
+        ('languages', partial(menu_item, 'languages')),
+        ('sources', partial(menu_item, 'sources')),
+        ('contributors', partial(menu_item, 'contributors')),
+        #newsblog
+        #contact?
+        #help?
+    )
+    #config.add_menu_item(
+    #    'blog', lambda ctx, req: ('http://blog.wals.info/category/news/', 'Newsblog'))
 
     config.register_datatable('values', Datapoints)
     config.register_datatable('languages', Languages)
@@ -90,10 +91,6 @@ def main(global_config, **settings):
 
     config.add_route('sample', '/languoid/samples/{count}', factory=sample_factory)
     config.register_map('sample', SampleMap)
-
-    config.override_asset(
-        to_override='clld:web/templates/language/rdf.pt',
-        override_with='wals3:templates/language/rdf.pt')
 
     config.register_adapter(GeoJsonFeature, IParameter)
     config.add_route('feature_info', '/feature-info/{id}')
