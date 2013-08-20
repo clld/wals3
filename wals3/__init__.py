@@ -4,7 +4,9 @@ from sqlalchemy.orm import joinedload_all
 from pyramid.config import Configurator
 from pyramid.httpexceptions import HTTPNotFound
 
-from clld.interfaces import IParameter, IMapMarker, IDomainElement, IMapMarker, IValue
+from clld.interfaces import (
+    IParameter, IMapMarker, IDomainElement, IMapMarker, IValue, ILanguage,
+)
 from clld.web.adapters.base import Representation, adapter_factory
 from clld.web.app import get_configurator, menu_item
 
@@ -25,13 +27,17 @@ _('Parameters')
 
 
 def map_marker(ctx, req):
-    de = None
+    icon = None
     if IValue.providedBy(ctx):
-        de = ctx.domainelement
-    if IDomainElement.providedBy(ctx):
-        de = ctx
-    if de:
-        return req.static_url('clld:web/static/icons/' + de.jsondata['icon'] + '.png')
+        icon = ctx.domainelement.jsondata['icon']
+    elif IDomainElement.providedBy(ctx):
+        icon = ctx.jsondata['icon']
+    elif ILanguage.providedBy(ctx):
+        icon = ctx.genus.icon
+    elif isinstance(ctx, Genus):
+        icon = ctx.icon
+    if icon:
+        return req.static_url('clld:web/static/icons/' + icon + '.png')
 
 
 def sample_factory(req):
@@ -54,6 +60,20 @@ def sample_factory(req):
 def main(global_config, **settings):
     """ This function returns a Pyramid WSGI application.
     """
+    settings['route_patterns'] = {
+        'languages': '/languoid',
+        'language': '/languoid/lect/wals_code_{id:[^/\.]+}',
+        #'source': '/resource/reference/id/{id:[^/\.]+}',
+        #'sources': '/langdoc',
+        'familys': '/languoid',
+        'family': '/languoid/family/{id:[^/\.]+}',
+        'parameters': '/feature',
+        'parameter': '/feature/{id:[^/\.]+}',
+        'contributions': '/chapter',
+        'contribution': '/chapter/{id:[^/\.]+}',
+        'countrys': '/country',
+        'country': '/country/{id:[^/\.]+}',
+    }
     settings['sitemaps'] = 'contribution parameter source sentence valueset'.split()
     utilities = [
         #(ApicsCtxFactoryQuery(), interfaces.ICtxFactoryQuery),

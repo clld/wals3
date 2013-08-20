@@ -1,4 +1,4 @@
-from clld.web.maps import ParameterMap, Map
+from clld.web.maps import ParameterMap, Map, Layer
 from clld.web.adapters import GeoJsonLanguages
 
 
@@ -17,10 +17,11 @@ class _GeoJson(GeoJsonLanguages):
 
     def feature_properties(self, ctx, req, language):
         return {
-            'name': language.name,
-            'id': language.id,
-            'icon_type': language.genus.icon_id[:1],
-            'icon_color': '#%s' % ''.join(2 * c for c in language.genus.icon_id[1:]),
+            #'name': language.name,
+            #'id': language.id,
+            #'icon': language.genus.icon,
+            #'icon_type': language.genus.icon_id[:1],
+            #'icon_color': '#%s' % ''.join(2 * c for c in language.genus.icon_id[1:]),
         }
 
 
@@ -32,17 +33,21 @@ class _Map(Map):
 class FamilyMap(_Map):
     def get_layers(self):
         geojson = _GeoJson(self.ctx)
-        return [{'name': genus.name, 'data': geojson.render(genus, self.req, dump=False)}
-                for genus in self.ctx.genera]
+        for genus in self.ctx.genera:
+            yield Layer(
+                genus.id,
+                genus.name,
+                geojson.render(genus, self.req, dump=False))
 
 
 class CountryMap(_Map):
     def get_layers(self):
         geojson = _GeoJson(self.ctx)
-        return [{'name': self.ctx.name, 'data': geojson.render(self.ctx, self.req, dump=False)}]
+        yield Layer(
+            self.ctx.id, self.ctx.name, geojson.render(self.ctx, self.req, dump=False))
 
 
 class SampleMap(Map):
     def get_layers(self):
         geojson = _GeoJson(self.ctx)
-        return [{'name': '100 Sample', 'data': geojson.render(self.ctx, self.req, dump=False)}]
+        yield Layer('sample', 'Sample', geojson.render(self.ctx, self.req, dump=False))

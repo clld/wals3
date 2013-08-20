@@ -21,23 +21,20 @@ class Tests(TestWithApp):
         self.app.get('/languoid/samples/x', status=404)
 
     def test_resources(self):
-        for rsc, id_, index in [
-            ('language', 'apk', True),
-            ('contributor', None, True),
-            ('contribution', '144', True),
-            ('parameter', '2A', True),
-            ('family', 'afroasiatic', False),
-            ('country', 'ID', False),
+        for path in [
+            '/languoid/lect/wals_code_apk',
+            '/chapter/144',
+            '/feature/2A',
+            '/languoid/family/afroasiatic',
+            '/country/ID',
         ]:
-            if id_:
-                self.app.get('/%ss/%s' % (rsc, id_), headers={'accept': 'text/html'}, status=200)
-            if index:
-                self.app.get('/%ss' % rsc, headers={'accept': 'text/html'}, status=200)
+            self.app.get(path, accept='text/html', status=200)
+            #if index:
+            #    self.app.get('/%ss' % rsc, headers={'accept': 'text/html'}, status=200)
 
-                headers = {'x-requested-with': 'XMLHttpRequest'}
-                _path = '/%ss?sEcho=1&iSortingCols=1&iSortCol_0=1&sSortDir_0=desc' % rsc
-                self.app.get(_path, headers=headers, status=200)
+            #    headers = {'x-requested-with': 'XMLHttpRequest'}
+            #    _path = '/%ss?sEcho=1&iSortingCols=1&iSortCol_0=1&sSortDir_0=desc' % rsc
+            #    self.app.get(_path, headers=headers, status=200)
 
-        headers = {'x-requested-with': 'XMLHttpRequest'}
         _path = '/values?sEcho=1&iSortingCols=1&iSortCol_0=1&sSortDir_0=desc'
-        self.app.get(_path, headers=headers, status=200)
+        self.app.get(_path, xhr=True, status=200)

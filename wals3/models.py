@@ -37,7 +37,8 @@ class CountryLanguage(Base):
 @implementer(wals_interfaces.ICountry)
 class Country(Base, IdNameDescriptionMixin):
     continent = Column(Unicode)
-    languages = relationship(Language, secondary=CountryLanguage.__table__)
+    languages = relationship(
+        Language, secondary=CountryLanguage.__table__, backref='countries')
 
 
 class Genus(Base, IdNameDescriptionMixin):
@@ -76,6 +77,9 @@ class Chapter(Contribution, CustomModelMixin, Versioned):
     blog_title = Column(Unicode)
     area_pk = Column(Integer, ForeignKey('area.pk'))
     area = relationship(Area, lazy='joined')
+
+    # TODO: support inclusion of supplements as contributions!!
+    # needed: a way to incorporate them in the correct order in the list of chapters!?
 
 
 @implementer(interfaces.IParameter)

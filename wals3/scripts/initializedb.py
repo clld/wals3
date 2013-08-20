@@ -2,18 +2,19 @@ from __future__ import unicode_literals
 import sys
 import transaction
 from itertools import groupby, cycle
-from collections import OrderedDict
 import re
-from datetime import date
+from datetime import date, datetime
 
+from pytz import utc
 from sqlalchemy import create_engine
 from path import path
 
-from clld.db.meta import DBSession
+from clld.db.meta import DBSession, VersionedDBSession
 from clld.db.models import common
 from clld.db.util import compute_language_sources
 from clld.scripts.util import initializedb, Data
 from clld.lib.bibtex import EntryType
+from clld.lib.dsv import rows
 
 import wals3
 from wals3 import models
@@ -24,8 +25,8 @@ UNCITED_MAP = {}
 for k, v in uncited.MAP.items():
     UNCITED_MAP[k.lower()] = v
 
-#DB = 'sqlite:////home/robert/old_projects/legacy/wals_pylons/trunk/wals2/db.sqlite'
-DB = create_engine('postgresql://robert@/wals')
+# start with what's online right now:
+DB = create_engine('postgresql://robert@/wals-vm42')
 REFDB = create_engine('postgresql://robert@/walsrefs')
 
 ABBRS = {
@@ -303,11 +304,24 @@ where id = id_r_ref and citekey = '%s'""" % id
     return res
 
 
+def get_vs2008(args):
+    vs2008 = {}
+    for row in rows(args.data_file('datapoints_2008.csv'), delimiter=','):
+        vs2008[(row[0], '%sA' % row[1])] = int(row[2])
+    return vs2008
+
+
+E2008 = utc.localize(datetime(2008, 4, 21))
+E2011 = utc.localize(datetime(2011, 4, 28))
+E2013 = utc.localize(datetime(2013, 8, 31))
+
+
 def main(args):
     icons = Icons()
     old_db = DB
 
-    data = Data()
+    data = Data(created=E2008, updated=E2008)
+    vs2008 = get_vs2008(args)
 
     missing_sources = []
     with open('/home/robert/venvs/clld/data/wals-data/missing_source.py', 'w') as fp:
@@ -381,19 +395,13 @@ def main(args):
             **kw)
         lang.genus = data['Genus'][row['genus_id']]
 
-    editors = OrderedDict()
-    editors['dryerms'] = None
-    editors['hapelmathm'] = None
-
     for row in old_db.execute("select * from author"):
-        a = data.add(
+        data.add(
             common.Contributor, row['id'],
             name=row['name'],
             url=row['www'],
             id=row['id'],
             description=row['note'])
-        if row['id'] in editors:
-            editors[row['id']] = a
     DBSession.flush()
 
     dataset = common.Dataset(
@@ -411,8 +419,9 @@ def main(args):
             'license_icon': 'http://wals.info/static/images/cc_by_nc_nd.png',
             'license_name': 'Creative Commons Attribution-NonCommercial-NoDerivs 2.0 Germany'})
     DBSession.add(dataset)
-    for i, editor in enumerate(editors.values()):
-        common.Editor(dataset=dataset, contributor=editor, ord=i + 1)
+
+    for i, editor in enumerate(['dryerms', 'haspelmathm']):
+        common.Editor(dataset=dataset, contributor=data['Contributor'][editor], ord=i + 1)
 
     for row in old_db.execute("select * from country_language"):
         DBSession.add(models.CountryLanguage(
@@ -439,15 +448,24 @@ def main(args):
             name=row['name'], dbpedia_url=row['dbpedia_url'], id=str(row['id']))
     DBSession.flush()
 
+    #
+    # turn supplements into contributions!!
+    #
     for row in old_db.execute("select * from chapter"):
-        c = data.add(models.Chapter, row['id'], id=row['id'], name=row['name'])
+        kw = dict(id=row['id'], name=row['name'])
+        if int(row['id']) in [143, 144]:
+            kw['created'] = E2011
+            kw['updated'] = E2011
+        c = data.add(models.Chapter, row['id'], **kw)
         c.area = data['Area'][row['area_id']]
     DBSession.flush()
 
     for row in old_db.execute("select * from feature"):
-        param = data.add(
-            models.Feature, row['id'],
-            id=row['id'], name=row['name'], ordinal_qualifier=row['id'][-1])
+        kw = dict(id=row['id'], name=row['name'], ordinal_qualifier=row['id'][-1])
+        if row['id'].startswith('143') or row['id'].startswith('144'):
+            kw['created'] = E2011
+            kw['updated'] = E2011
+        param = data.add(models.Feature, row['id'], **kw)
         param.chapter = data['Chapter'][row['chapter_id']]
     DBSession.flush()
 
@@ -469,25 +487,43 @@ def main(args):
             parameter=data['Feature'][row['feature_id']])
     DBSession.flush()
 
+    same = 0
+    added = 0
     for row in old_db.execute("select * from datapoint"):
         parameter = data['Feature'][row['feature_id']]
         language = data['WalsLanguage'][row['language_id']]
         id_ = '%s-%s' % (parameter.id, language.id)
+        created = E2008
+        updated = E2008
 
+        value_numeric = row['value_numeric']
+        if (language.id, parameter.id) in vs2008:
+            if vs2008[(language.id, parameter.id)] != row['value_numeric']:
+                print '~~~', id_, vs2008[(language.id, parameter.id)], '-->', row['value_numeric']
+                value_numeric = vs2008[(language.id, parameter.id)]
+            else:
+                same += 1
+        else:
+            updated = E2011
+            created = E2011
+            if parameter.id[-1] == 'A' and not (parameter.id.startswith('143') or parameter.id.startswith('144')):
+                added += 1
+
+        kw = dict(id=id_, updated=updated, created=created)
         valueset = data.add(
             common.ValueSet, row['id'],
-            id=id_,
             language=language,
             parameter=parameter,
             contribution=parameter.chapter,
-        )
+            **kw)
         data.add(
             common.Value, row['id'],
-            id=id_,
-            domainelement=data['DomainElement'][(
-                row['feature_id'], row['value_numeric'])],
+            domainelement=data['DomainElement'][(row['feature_id'], value_numeric)],
             valueset=valueset,
-        )
+            **kw)
+
+    print same, 'datapoints did not change'
+    print added, 'datapoints added to existing features'
 
     DBSession.flush()
 
@@ -509,23 +545,59 @@ def main(args):
 
 
 def prime_cache(args):
-    #param = VersionedDBSession.query(common.Parameter).filter(common.Parameter.id == '1A').one()
-    #param.description = '%s (%s)' % (param.description, param.version)
-    #param.blog_title = '%s (%s)' % (param.description, param.version)
+    """
+    we use a versioned session to insert the changes in value assignment
+    """
     #
-    ##print dir(object_mapper(param).class_)
-    ##return
-    #domain = list(param.domain)
-    #value_map = dict(zip(domain, domain[1:] + domain[:1]))
-    #for value in param.values:
-    #    value.domainelement = value_map[value.domainelement]
-    #return
+    # compute the changes from 2008 to 2011:
+    #
+    vs2008 = get_vs2008(args)
+    for row in DB.execute("select * from datapoint"):
+        key = (row['language_id'], row['feature_id'])
+        old_value = vs2008.get(key)
+        new_value = row['value_numeric']
+        if old_value and old_value != new_value:
+            valueset = VersionedDBSession.query(common.ValueSet)\
+                .join(common.Language)\
+                .join(common.Parameter)\
+                .filter(common.Parameter.id == row['feature_id'])\
+                .filter(common.Language.id == row['language_id'])\
+                .one()
+            value = valueset.values[0]
+            assert value.domainelement.number == old_value
+            for de in valueset.parameter.domain:
+                if de.number == new_value:
+                    value.domainelement = de
+                    break
+            assert value.domainelement.number == new_value
+            valueset.updated = E2011
+            value.updated = E2011
+            VersionedDBSession.flush()
+
+    for row in rows(args.data_file('corrections_2013.tab'), namedtuples=True, newline='\r'):
+        valueset = VersionedDBSession.query(common.ValueSet)\
+            .join(common.Language)\
+            .join(common.Parameter)\
+            .filter(common.Parameter.id == row.feature)\
+            .filter(common.Language.id == row.wals_code)\
+            .one()
+        value = valueset.values[0]
+
+        if value.domainelement.number != int(row.old):
+            print '--->', valueset.language.id, valueset.parameter.id, value.domainelement.number
+        for de in valueset.parameter.domain:
+            if de.number == int(row.new):
+                value.domainelement = de
+                break
+        assert value.domainelement.number == int(row.new)
+        valueset.updated = E2013
+        value.updated = E2013
+        VersionedDBSession.flush()
 
     # cache number of languages for a parameter:
     for parameter, valuesets in groupby(
-        DBSession.query(common.ValueSet).order_by(common.ValueSet.parameter_pk),
-        lambda vs: vs.parameter):
-
+            DBSession.query(common.ValueSet).order_by(common.ValueSet.parameter_pk),
+            lambda vs: vs.parameter):
         representation = str(len(set(v.language_pk for v in valuesets)))
 
         d = None
