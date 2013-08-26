@@ -1,0 +1,512 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta content="text/html; charset=utf-8" http-equiv="content-type"/>
+    <title>Numeral Base</title>
+    <meta content="StarOffice/OpenOffice.org XSLT (http://xml.openoffice.org/sx2ml)" name="generator"/>
+    <meta content="Trial User" name="author"/>
+    <meta content="2004-07-16T21:00:00" name="created"/>
+    <meta content="cschmidt" name="changedby"/>
+    <meta content="2004-07-21T22:31:00" name="changed"/>
+    <base href="."/>
+    <style xml:space="preserve" type="text/css">
+	@page { size: 8.2634inch 11.6925inch; margin-top: 0.5inch; margin-bottom: 1inch; margin-left: 1.248inch; margin-right: 1.7634inch }
+	table { border-collapse:collapse; border-spacing:0; empty-cells:show }
+	td, th { vertical-align:top; }
+	h1, h2, h3, h4, h5, h6
+	{
+	font-weight: bold;
+	font-family: Arial,Helvetica,Sans-serif;
+	color: #498261;
+	font-style: normal;
+	text-decoration : none;}
+	ol, ul { padding:0; }
+	* { margin:0; }
+        * {font-family: Arial,Helvetica,Sans-serif;}
+/******** throw out unneccessary stuff
+	*.fr1 { font-size:12pt; vertical-align:top; text-align:right; background-color:#ffffff; }
+	*.Frame { font-size:12pt; vertical-align:top; text-align:center; }
+	*.Graphics { font-size:12pt; vertical-align:top; text-align:center; }
+	*.OLE { font-size:12pt; vertical-align:top; text-align:center; }
+	*.Caption { font-family:Arial,Helvetica,Sans-serif; font-size:12pt; margin-top:0.0835in; margin-bottom:0.0835in; font-style:italic; }
+	*.Framecontents { font-family:Arial,Helvetica,Sans-serif; font-size:12pt; margin-left:0in; margin-right:0.0134in; text-indent:0inch; }
+	*.Header { font-family:Arial,Helvetica,Sans-serif; font-size:12pt; }
+	*.Heading { font-family:Helvetica; font-size:14pt; margin-top:0.1665in; margin-bottom:0.0835in; }
+	*.Index { font-family:Arial,Helvetica,Sans-serif; font-size:12pt; }
+	*.List { font-family:Arial,Helvetica,Sans-serif; font-size:12pt; margin-left:0in; margin-right:0.0134in; text-indent:0inch; }
+ 
+        *.P1 { font-family:Arial,Helvetica,Sans-serif; font-size:12pt; margin-left:0in; margin-right:0.25in; text-indent:0inch; }
+	*.P10 { font-family:Arial,Helvetica,Sans-serif; font-size:12pt; text-align:justify ! important; }
+	*.P11 { font-family:Arial,Helvetica,Sans-serif; font-size:12pt; text-align:justify ! important; }
+	*.author { font-family:Arial,Helvetica,Sans-serif; font-size:12pt; margin-left:0in; margin-right:0.0134in; text-align:center ! important; text-indent:0inch; }
+	*.P13 { font-family:'Lucida Sans Unicode'; font-size:12pt; margin-left:0in; margin-right:0.0134in; text-align:justify ! important; text-indent:0inch; }
+	*.P14 { font-family:'Lucida Sans Unicode'; font-size:12pt; margin-left:0in; margin-right:0.0134in; text-align:justify ! important; text-indent:0inch; }
+	*.P15 { font-family:'Lucida Sans Unicode'; font-size:12pt; margin-left:0in; margin-right:0.0134in; text-align:justify ! important; text-indent:0inch; }
+	*.P16 { font-family:'Lucida Sans Unicode'; font-size:12pt; margin-left:0in; margin-right:0.0134in; text-align:justify ! important; text-indent:0inch; }
+	*.P17 { font-family:'Lucida Sans Unicode'; font-size:12pt; margin-left:0in; margin-right:0.0134in; text-align:justify ! important; text-indent:0inch; }
+	*.P18 { font-family:'Lucida Sans Unicode'; font-size:12pt; margin-left:0in; margin-right:0.0134in; text-align:justify ! important; text-indent:0inch; font-weight:bold; }
+	*.P19 { font-family:Arial,Helvetica,Sans-serif; font-size:12pt; margin-left:0in; margin-right:0.0134in; text-align:justify ! important; text-indent:0inch; }
+	*.P2 { font-family:'Lucida Sans Unicode'; font-size:12pt; text-align:justify ! important; }
+	*.P20 { font-family:Arial,Helvetica,Sans-serif; font-size:12pt; margin-left:0in; margin-right:0.0134in; text-align:justify ! important; text-indent:0inch; }
+	*.P21 { font-family:Arial,Helvetica,Sans-serif; font-size:12pt; margin-left:0in; margin-right:0.0134in; text-align:justify ! important; text-indent:0inch; }
+	*.P22 { font-family:Arial,Helvetica,Sans-serif; font-size:12pt; margin-left:0in; margin-right:0.0134in; text-align:justify ! important; text-indent:0inch; }
+	*.P23 { font-family:Arial,Helvetica,Sans-serif; font-size:12pt; margin-left:0in; margin-right:0.0134in; text-align:justify ! important; text-indent:0inch; }
+	*.P24 { font-family:Arial,Helvetica,Sans-serif; font-size:12pt; margin-left:0in; margin-right:0.0134in; text-align:justify ! important; text-indent:0inch; }
+	*.P25 { font-family:'Lucida Sans Unicode'; font-size:14pt; margin-left:0in; margin-right:0.0134in; text-align:center ! important; text-indent:0inch; font-weight:bold; }
+	*.P26 { font-family:'Lucida Sans Unicode'; font-size:12pt; margin-left:-0.25in; margin-right:0.0134in; text-align:justify ! important; text-indent:0inch; font-weight:bold; }
+	*.P27 { font-family:Arial,Helvetica,Sans-serif; font-size:12pt; margin-left:0in; margin-right:0.0134in; text-align:justify ! important; text-indent:0.5inch; }
+	*.P28 { font-family:'Lucida Sans Unicode'; font-size:12pt; margin-left:0in; margin-right:0.0134in; text-align:justify ! important; text-indent:0.5inch; }
+	*.P29 { font-family:'Lucida Sans Unicode'; font-size:12pt; margin-left:0in; margin-right:0.0134in; text-align:justify ! important; text-indent:0.5inch; font-style:italic; }
+	*.P3 { font-family:'Lucida Sans Unicode'; font-size:12pt; text-align:justify ! important; }
+	*.P30 { font-family:'Lucida Sans Unicode'; font-size:12pt; margin-left:-0.75in; margin-right:0.0134in; text-align:justify ! important; text-indent:0inch; }
+	*.P31 { font-family:Arial,Helvetica,Sans-serif; font-size:12pt; margin-left:0in; margin-right:0.05in; text-align:right ! important; text-indent:0inch; }
+	*.P32 { font-family:'Lucida Sans Unicode'; font-size:12pt; margin-left:0in; margin-right:0.05in; text-align:right ! important; text-indent:0inch; }
+	*.P33 { font-family:'Lucida Sans Unicode'; font-size:12pt; margin-left:0in; margin-right:0.05in; text-align:right ! important; text-indent:0inch; }
+	*.P34 { font-family:Arial,Helvetica,Sans-serif; font-size:12pt; margin-left:0in; margin-right:0.0134in; text-indent:0inch; text-align:justify ! important; }
+	*.P35 { font-family:Arial,Helvetica,Sans-serif; font-size:12pt; margin-left:0in; margin-right:0.25in; text-indent:0inch; }
+	*.P36 { font-family:Arial,Helvetica,Sans-serif; font-size:12pt; margin-left:0in; margin-right:0.0134in; text-indent:0inch; text-align:justify ! important; }
+	*.P4 { font-family:'Lucida Sans Unicode'; font-size:12pt; text-align:justify ! important; }
+	*.P5 { font-family:'Lucida Sans Unicode'; font-size:12pt; text-align:justify ! important; }
+	*.P6 { font-family:'Lucida Sans Unicode'; font-size:12pt; text-align:justify ! important; }
+	*.P7 { font-family:'Lucida Sans Unicode'; font-size:12pt; text-align:justify ! important; }
+	*.P8 { font-family:Arial,Helvetica,Sans-serif; font-size:12pt; text-align:justify ! important; }
+	*.P9 { font-family:Arial,Helvetica,Sans-serif; font-size:12pt; text-align:justify ! important; }
+
+	******************************/
+
+
+	*.Standard { font-family:Arial,Helvetica,Sans-serif; font-size:12pt; }
+	*.TableContents { font-family:Arial,Helvetica,Sans-serif; font-size:12pt; }
+	*.TableHeading { font-family:Arial,Helvetica,Sans-serif; font-size:12pt; text-align:center ! important; font-weight:bold; }
+	*.Textbody { font-family:Arial,Helvetica,Sans-serif; font-size:12pt; margin-left:0in; margin-right:0.0134in; text-indent:0inch; }
+	*.Textbodyindent { font-family:Arial,Helvetica,Sans-serif; font-size:12pt; margin-left:0in; margin-right:0.0134in; text-indent:0.5inch; }
+	*.Table1 { width:4.7569in; }
+	*.Table1A1 { vertical-align:top; padding-left:0.075in; padding-right:0.075in; padding-top:0in; padding-bottom:0in; border-left-width:0.0175cm; border-left-style:solid; border-left-color:#000000; border-right-style:none; border-top-width:0.0175cm; border-top-style:solid; border-top-color:#000000; border-bottom-style:none; }
+	*.Table1A2 { vertical-align:top; padding-left:0.075in; padding-right:0.075in; padding-top:0in; padding-bottom:0in; border-left-width:0.0175cm; border-left-style:solid; border-left-color:#000000; border-right-style:none; border-top-style:none; border-bottom-style:none; }
+	*.Table1A7 { vertical-align:top; padding-left:0.075in; padding-right:0.075in; padding-top:0in; padding-bottom:0in; border-left-width:0.0175cm; border-left-style:solid; border-left-color:#000000; border-right-style:none; border-top-style:none; border-bottom-width:0.0175cm; border-bottom-style:solid; border-bottom-color:#000000; }
+	*.Table1B1 { vertical-align:top; padding-left:0.075in; padding-right:0.075in; padding-top:0in; padding-bottom:0in; border-left-style:none; border-right-style:none; border-top-width:0.0175cm; border-top-style:solid; border-top-color:#000000; border-bottom-style:none; }
+	*.Table1B2 { vertical-align:top; padding-left:0.075in; padding-right:0.075in; padding-top:0in; padding-bottom:0in; border-style:none; }
+	*.Table1B7 { vertical-align:top; padding-left:0.075in; padding-right:0.075in; padding-top:0in; padding-bottom:0in; border-left-style:none; border-right-style:none; border-top-style:none; border-bottom-width:0.0175cm; border-bottom-style:solid; border-bottom-color:#000000; }
+	*.Table1D1 { vertical-align:top; padding-left:0.075in; padding-right:0.075in; padding-top:0in; padding-bottom:0in; border-left-width:0.0175cm; border-left-style:solid; border-left-color:#000000; border-right-width:0.0175cm; border-right-style:solid; border-right-color:#000000; border-top-width:0.0175cm; border-top-style:solid; border-top-color:#000000; border-bottom-style:none; }
+	*.Table1D2 { vertical-align:top; padding-left:0.075in; padding-right:0.075in; padding-top:0in; padding-bottom:0in; border-left-width:0.0175cm; border-left-style:solid; border-left-color:#000000; border-right-width:0.0175cm; border-right-style:solid; border-right-color:#000000; border-top-style:none; border-bottom-style:none; }
+	*.Table1D7 { vertical-align:top; padding-left:0.075in; padding-right:0.075in; padding-top:0in; padding-bottom:0in; border-left-width:0.0175cm; border-left-style:solid; border-left-color:#000000; border-right-width:0.0175cm; border-right-style:solid; border-right-color:#000000; border-top-style:none; border-bottom-width:0.0175cm; border-bottom-style:solid; border-bottom-color:#000000; }
+	*.Table1A { width:0.375in; }
+	*.Table1C { width:2.5in; }
+	*.Table1D { width:1.5069in; }
+	*.Table11 { }
+	*.DefaultParagraphFont { }
+	*.Linenumbering { }
+	*.PageNumber { }
+	*.T1 { }
+	*.T10 { font-family:'Lucida Sans Unicode'; }
+	*.T2 { font-family:Arial,Helvetica,Sans-serif; }
+	*.T3 { font-family:'Lucida Sans Unicode'; font-weight:bold; }
+	*.T4 { font-family:'Lucida Sans Unicode'; font-style:italic; }
+	*.T5 { font-family:'Lucida Sans Unicode'; font-style:italic; }
+	*.T6 { font-family:'Lucida Sans Unicode'; font-style:italic; }
+	*.T7 { font-family:'Lucida Sans Unicode'; }
+	*.T8 { }
+	*.T9 { vertical-align:sup; font-family:'Lucida Sans Unicode'; }
+
+/* new styles */
+        #main {margin: 5em}
+        * .example {margin-left: 1em; margin-right:1em; padding: 0.5em; background-color: #719CAE;}
+        h1, .author {text-align: center;}
+        table {margin-left:1em;}
+	a  {font-weight: bold; text-decoration: none; color:#CC3328;}
+        a:hover {font-weight: bold; text-decoration: none; color:#EE8100;}
+	</style>
+  </head>
+  <body dir="ltr">
+    <div id="main">
+    <h1>131. Numeral Bases</h1>
+    <p class="author"><a href="http://wals.info/authors/comrie" class="authorLink">Bernard Comrie</a> </p>
+    <p class="P13"> </p>
+    <h2>Introduction </h2>
+    <p class="P13"> </p>
+    <p class="P19">
+      <span class="T2">This map is concerned with one aspect of the mathematical structure of linguistic expressions for numerals, namely the arithmetic base that is used in constructing numeral expressions. By the “</span>
+      <span class="T3">base</span>
+      <span class="T2">” of a numeral system we mean the value </span>
+      <span class="T5">n</span>
+      <span class="T2"> such that numeral expressions are constructed according to the pattern </span>
+      <span class="T5">... xn + y</span>
+      <span class="T2">, i.e. some numeral </span>
+      <span class="T5">x</span>
+      <span class="T2"> multiplied by the base plus some other numeral. (The order of elements is irrelevant, as are the particular conventions used in individual languages to indicate multiplication and addition.) A simple example is provided by Mandarin, with base 10, in which the numeral 26 is expressed as in (1).</span>
+    </p>
+    <p class="P28"> </p>
+    <div class="example">
+      <ol style="margin-left:1.25cm;list-style-type:none; ">
+	<li style="margin-left:-2cm;" class="P30">
+	  <ol style="margin-left:3.25cm;list-style-type:decimal; ">
+	    <li style="margin-left:-2cm;" class="P30">
+	      <p style="margin-left:0.75cm;" class="P30">Mandarin </p>
+	    </li>
+	  </ol>
+	</li>
+      </ol>
+      <p class="P29">èr-shí-lìu </p>
+      <p class="P28">two-ten-six </p>
+    </div>
+    <p class="P13"> </p>
+    <p class="P19">
+      <span class="T2">In Mandarin, the convention is that the numeral before the word for 10 is to be multiplied by 10, while that after the word for 10 is to be added to this product ([2 x 10] + 6). Using this concept of base, plus some additional concepts to be introduced below, six main numeral systems can be identified, of which the second and third in the feature value box can be viewed as subtypes of one superordinate type.</span>
+    </p>
+    <p class="P13"> </p>
+    <div style="text-align:left">
+      <table cellpadding="0" border="0" cellspacing="0" class="Table1">
+        <colgroup span="1">
+          <col width="42" span="1"/>
+          <col width="42" span="1"/>
+          <col width="278" span="1"/>
+          <col width="167" span="1"/>
+        </colgroup>
+        <tr class="Table11">
+          <td colspan="1" style="text-align:left;width:0.375in; " rowspan="1" class="Table1A1">
+            <p class="P14">@ </p>
+          </td>
+          <td colspan="1" style="text-align:left;width:0.375in; " rowspan="1" class="Table1B1">
+            <p class="P14">1. </p>
+          </td>
+          <td colspan="1" style="text-align:left;width:2.5in; " rowspan="1" class="Table1B1">
+            <p class="P16">Decimal </p>
+          </td>
+          <td colspan="1" style="text-align:left;width:1.5069in; " rowspan="1" class="Table1D1">
+            <p class="P33">125 </p>
+          </td>
+        </tr>
+        <tr class="Table11">
+          <td colspan="1" style="text-align:left;width:0.375in; " rowspan="1" class="Table1A2">
+            <p class="P14">@ </p>
+          </td>
+          <td colspan="1" style="text-align:left;width:0.375in; " rowspan="1" class="Table1B2">
+            <p class="P14">2. </p>
+          </td>
+          <td colspan="1" style="text-align:left;width:2.5in; " rowspan="1" class="Table1B2">
+            <p class="P16">Hybrid vigesimal–decimal </p>
+          </td>
+          <td colspan="1" style="text-align:left;width:1.5069in; " rowspan="1" class="Table1D2">
+            <p class="P31">
+              <span class="T2">22</span>
+            </p>
+          </td>
+        </tr>
+        <tr class="Table11">
+          <td colspan="1" style="text-align:left;width:0.375in; " rowspan="1" class="Table1A2">
+            <p class="P14">@ </p>
+          </td>
+          <td colspan="1" style="text-align:left;width:0.375in; " rowspan="1" class="Table1B2">
+            <p class="P14">3. </p>
+          </td>
+          <td colspan="1" style="text-align:left;width:2.5in; " rowspan="1" class="Table1B2">
+            <p class="P16">Pure vigesimal </p>
+          </td>
+          <td colspan="1" style="text-align:left;width:1.5069in; " rowspan="1" class="Table1D2">
+            <p class="P31">
+              <span class="T2">20</span>
+            </p>
+          </td>
+        </tr>
+        <tr class="Table11">
+          <td colspan="1" style="text-align:left;width:0.375in; " rowspan="1" class="Table1A2">
+            <p class="P14">@ </p>
+          </td>
+          <td colspan="1" style="text-align:left;width:0.375in; " rowspan="1" class="Table1B2">
+            <p class="P14">4. </p>
+          </td>
+          <td colspan="1" style="text-align:left;width:2.5in; " rowspan="1" class="Table1B2">
+            <p class="P14">Other base </p>
+          </td>
+          <td colspan="1" style="text-align:left;width:1.5069in; " rowspan="1" class="Table1D2">
+            <p class="P32">5 </p>
+          </td>
+        </tr>
+        <tr class="Table11">
+          <td colspan="1" style="text-align:left;width:0.375in; " rowspan="1" class="Table1A2">
+            <p class="P14">@ </p>
+          </td>
+          <td colspan="1" style="text-align:left;width:0.375in; " rowspan="1" class="Table1B2">
+            <p class="P14">5. </p>
+          </td>
+          <td colspan="1" style="text-align:left;width:2.5in; " rowspan="1" class="Table1B2">
+            <p class="P14">Extended body‑part </p>
+          </td>
+          <td colspan="1" style="text-align:left;width:1.5069in; " rowspan="1" class="Table1D2">
+            <p class="P32">4 </p>
+          </td>
+        </tr>
+        <tr class="Table11">
+          <td colspan="1" style="text-align:left;width:0.375in; " rowspan="1" class="Table1A2">
+            <p class="P14">@ </p>
+          </td>
+          <td colspan="1" style="text-align:left;width:0.375in; " rowspan="1" class="Table1B2">
+            <p class="P14">6. </p>
+          </td>
+          <td colspan="1" style="text-align:left;width:2.5in; " rowspan="1" class="Table1B2">
+            <p class="P14">Restricted </p>
+          </td>
+          <td colspan="1" style="text-align:left;width:1.5069in; " rowspan="1" class="Table1D2">
+            <p class="P32">20 </p>
+          </td>
+        </tr>
+        <tr class="Table11">
+          <td colspan="1" style="text-align:left;width:0.375in; " rowspan="1" class="Table1A7">
+            <p class="P14"> </p>
+          </td>
+          <td colspan="1" style="text-align:left;width:0.375in; " rowspan="1" class="Table1B7">
+            <p class="P14"> </p>
+          </td>
+          <td colspan="1" style="text-align:left;width:2.5in; " rowspan="1" class="Table1B7">
+            <p class="P14"> </p>
+          </td>
+          <td colspan="1" style="text-align:left;width:1.5069in; " rowspan="1" class="Table1D7">
+            <p class="P31">
+              <span class="T2">total           196</span>
+            </p>
+          </td>
+        </tr>
+      </table>
+    </div>
+    <p class="P13"> </p>
+    <p class="P19">
+      <span class="T2">        As the Mandarin example shows, the crucial concepts needed to demonstrate that a numeral system has a particular base are addition and multiplication. Beyond this, many numeral systems also make use of exponentiation of the base, i.e. expressions to denote the result of raising the base to various powers. Thus, English has a decimal system, and has a special term for 10</span>
+      <span class="T9">2</span>
+      <span class="T2">, namely </span>
+      <span class="T5">hundred</span>
+      <span class="T2">, as well as one for 10</span>
+      <span class="T9">3</span>
+      <span class="T2">, namely </span>
+      <span class="T5">thousand</span>
+      <span class="T2">. While the use of exponentiation often reinforces the identification of the base, it is not taken here as a defining feature, since some languages use addition and multiplication but without making use of exponentiation; an example is Chukchi (Chukchi-Kamchatkan; eastern Siberia), with a vigesimal (base 20) system, but no special expression for 20</span>
+      <span class="T9">2</span>
+      <span class="T2">, i.e. 400, which is simply expressed as 20 x 20. Moreover, the linguistic expression of exponentiation is often opaque — there is nothing in the form of the English words </span>
+      <span class="T5">hundred</span>
+      <span class="T2"> and </span>
+      <span class="T5">thousand</span>
+      <span class="T2"> to indicate that they are, respectively, the second and third powers of the base. Even the limited transparency provided by numerals like English </span>
+      <span class="T5">bi-llion</span>
+      <span class="T2">, </span>
+      <span class="T5">tri-llion</span>
+      <span class="T2">, with Latinate prefixes for 2 and 3 respectively, is only related by a quite complex formula to the corresponding power of the base 10: 10</span>
+      <span class="T9">3(n + 1)</span>
+      <span class="T2"> in American usage or 10</span>
+      <span class="T9">6n</span>
+      <span class="T2"> in traditional British usage. For further general discussion, see <a href="http://wals.info/reference/abc" class="refLink">Comrie (1997)</a>, <a href="http://wals.info/reference/abc" class="refLink">Greenberg (1978)</a>, and <a href="http://wals.info/reference/abc" class="refLink">Hurford (1975)</a>.</span>
+    </p>
+    <p class="P13"> </p>
+    <h2>The six types</h2>
+    <p class="P13"> </p>
+    <p class="P19">
+      <span class="T2">The </span>
+      <span class="T3">decimal</span>
+      <span class="T2"> system has already been introduced by means of the Mandarin Chinese example (1); the general structure of numerals in a decimal system is </span>
+      <span class="T5">x10 + y</span>
+      <span class="T2">.</span>
+    </p>
+    <p class="P19">
+      <span class="T2">        In a </span>
+      <span class="T3">pure vigesimal</span>
+      <span class="T2"> system, the base is consistently 20, i.e. the general formula for constructing numerals is </span>
+      <span class="T5">x20 + y</span>
+      <span class="T2">. An example is provided in (2) by Diola-Fogny (Atlantic, Niger-Congo; Senegal), in which the numeral 51 is expressed as ‘two twenties and eleven’.</span>
+    </p>
+    <p class="P13"> </p>
+    <div class="example">
+      <p class="P2">(2)        Diola-Fogny (Sapir 1965: 84–85)</p>
+      <p class="P8">
+	<span class="T2">        </span>
+	<span class="T4">bukan        ku-gaba        di        uɲɛn        di        b-əkɔn</span>
+      </p>
+      <p class="P8">
+	<span class="T2">        twenty        </span>
+	<span class="T10">cl</span>
+	<span class="T2">6-two        and        ten        and        </span>
+	<span class="T10">cl</span>
+	<span class="T2">9-one</span>
+      </p>
+    </div>
+    <p class="P13">        </p>
+    <p class="P34">
+      <span class="T2">        For practical reasons — in particular, the frequency of the type in the world’s languages — it is useful to distinguish a hybrid vigesimal–decimal system in which the numbers up to 99 are expressed vigesimally, but the system then shifts to being decimal for the expression of the hundreds, so that one ends up with expressions of the type </span>
+      <span class="T5">x100 + y20 + z</span>
+      <span class="T2">; this is illustrated in (3) by the Basque expression for 256:</span>
+    </p>
+    <p class="P13"> </p>
+    <div class="example">
+      <p class="P20">
+	<span class="T2">(3)        Basque (Oroitz Jauregi, p.c.)</span>
+      </p>
+      <p class="P21">
+	<span class="T2">        </span>
+	<span class="T6">berr-eun        eta        berr-ogei-ta-hama-sei</span>
+      </p>
+      <p class="P21">
+	<span class="T7">        </span>
+	<span class="T2">two-hundred        and        two-twenty-and-ten-six</span>
+      </p>
+    </div>
+    <p class="P13"> </p>
+    <p class="P19">
+      <span class="T2">        </span>
+      <span class="T3">Bases other than 10 and 20</span>
+      <span class="T2"> are also attested, albeit rarely, among the world’s languages. Ekari (Trans-New Guinea; Papua, Indonesia) makes use of a base of 60, as illustrated in the expression for 71 in (4); the base of 60 was also used in the ancient Near Eastern language Sumerian.</span>
+    </p>
+    <p class="P13"> </p>
+    <div class="example">
+      <p class="P17">(4)        Ekari (Drabbe 1952: 30)</p>
+      <p class="P22">
+	<span class="T7">        </span>
+	<span class="T6">èna        ma        gàati        dàimita        mutò</span>
+      </p>
+      <p class="P22">
+	<span class="T7">        </span>
+	<span class="T2">one        and        ten        and        sixty</span>
+      </p>
+    </div>
+    <p class="P13"> </p>
+    <p class="P19">
+      <span class="T2">        Some languages of the world have numeral systems that do not make use of an arithmetic base. One such system is the </span>
+      <span class="T3">extended body-part system</span>
+      <span class="T2">, here illustrated by a discussion of Kobon (Madang, Trans-New Guinea), which is quite typical of a number of languages of Highland New Guinea. Languages like Kobon make use of further body parts to extend the system beyond the ten fingers. In Kobon specifically, the names of the following body parts (on the left-hand side of the body) are used in order to count from 1 to 12: little finger, ring finger, middle finger, index finger, thumb, wrist, middle of forearm, inside of elbow, middle of upper arm, shoulder, collarbone, hole above breastbone. The count can then continue down the right-hand side of the body, from the collarbone to the (right) shoulder as 13 to the little finger as 23. It is then possible to reverse the count, starting from the little finger of the right hand as 24 back up to the hole above the breastbone as 35 and down again to the little finger of the left hand as 46. One effect of this is that the names of particular body parts when used as numerals are multiply ambiguous. For instance, </span>
+      <span class="T5">siduŋ</span>
+      <span class="T2"> ‘shoulder’ can denote either 10 (on the left-hand side of the first pass across the body), or 14 (on the right-hand side of that pass), or 33 (on the right-hand side of the return pass across the body), or 37 (on the left-hand side of that pass), or 56 on the left-hand side of the next pass across the body, etc. There are usually means, optional or obligatory depending on the language, to distinguish the second side of the body used in a count from the first, as well as to indicate which pass across the body is being used, but there is no productive means to identify other than a small number of passes across the body. Extended body-part systems are thus typically rather limited in the range of numbers that they can express, but can be used productively at least into the scores.</span>
+    </p>
+    <p class="P19">
+      <span class="T2">        Finally, some languages have </span>
+      <span class="T3">restricted</span>
+      <span class="T2"> numeral systems, by which I mean more specifically a numeral system that does not effectively go above around 20. The most restricted numeral system would of course be one lacking any numerals at all, and according to Dan Everett (personal communication) Pirahã (Mura; Brazil) is a language of just this type. A number of languages of the world have numeral systems that extend only as far as 3 (e.g. Mangarrayi (isolate; Northern Territory, Australia)), while others show slightly higher but nonetheless heavily restricted upper limits, such as 5 (Yidiny (Pama-Nyungan; Queensland, Australia)).</span>
+    </p>
+    <p class="P13"> </p>
+    <h2>Problem cases</h2>
+    <p class="P13"> </p>
+    <p class="P19">
+      <span class="T2">In many cases, the assignment of a language to one or another of the types identified is straightforward, but nonetheless a number of problems can arise, and the following paragraphs will note some of these and, where relevant, indicate the solutions that have been adopted in the data analysis underlying this chapter.</span>
+    </p>
+    <p class="P19">
+      <span class="T2">        First, it is essential to ascertain that the expressions in question are indeed numerals, since in many languages there are quantifying expressions, including some with quite specific denotations, other than numerals, such as </span>
+      <span class="T5">pair</span>
+      <span class="T2"> in English (necessarily denoting a set of 2). The general criterion to be used is that for an expression to qualify as a numeral, it must be the usual way of identifying that number of entities in the language in question within a noun phrase. In modern standard English, </span>
+      <span class="T5">seventy</span>
+      <span class="T2"> (as in </span>
+      <span class="T5">seventy years</span>
+      <span class="T2">) is thus a numeral, whereas </span>
+      <span class="T5">three score and ten</span>
+      <span class="T2"> is not, even if there may have been periods in the history of the English language, and may still be regional varieties, where the latter expression would qualify as a numeral. Note that it is probably not reasonable to require that numerals be used in counting — some cultures with low numeracy do not engage in counting, although they may nonetheless have a non-empty restricted numeral system.</span>
+    </p>
+    <p class="T2">        Some languages have two (or more) numeral systems satisfying the criterion of the previous paragraph. Where both are of the same type, as with the indigenous and Sino-Korean systems in Korean — both decimal — then there is no problem in assigning the language unequivocally to one type. Where the systems are of different types, preference has been given to the most productive, e.g. the extended body-part system in Kobon, which exists alongside a restricted system.</p>
+    <p class="P34">
+      <span class="T2">        Many languages combine different bases in the construction of their numeral system, and for the purposes of this chapter various decisions have been taken, some principled, some of a more practical nature, to limit the number of distinct types represented on the map. Only one mixed-base type has been given a separate representation, namely the type that is vigesimal in the range up to 99 and then decimal in the expression of the hundreds, because of its frequent occurrence among the languages of the world. In the case of other mixed systems, preference has been given to the base that is most productive in the construction of numerals in the range 20–400. In all numeral systems with a base of 20 or greater, and in several with a smaller base, numbers less than the base are constructed using smaller bases. For instance, in Igbo (Niger-Congo; Nigeria), with a base of 20, the numerals 1-19 are constructed using 10 as the base, as illustrated in (5) for 32:</span>
+    </p>
+    <p class="P13"> </p>
+    <div class="example">
+      <p class="P3">(5)        Igbo (Green and Igwe 1963: 37)</p>
+      <p class="P9">
+	<span class="T2">        </span>
+	<span class="T4">ohu        nà        ìri        nà        àbu̩ò̩</span>
+      </p>
+      <p class="P3">        twenty        and        ten        and        two</p>
+    </div>
+      <p class="P13"> </p>
+    <p class="P19">
+      <span class="T2">In Supyire (Gur, Niger-Congo; Mali), with a base of 80, the lower scores are expressed vigesimally, while numbers below 20 are expressed using a mixed quinary­–decimal system (base 5), as illustrated in (6), with 399 expressed as ’80 x 4 +  20 x 3 + 10 + 5 + 4’:</span>
+    </p>
+    <p class="P13"> </p>
+    <div class="example">
+      <p class="P4">(6)        Supyire (Carlson 1994: 169)</p>
+      <p class="P10">
+	<span class="T2">        </span>
+	<span class="T4">ŋ̀kwuu        sicyɛɛré        ˈná        béé-tàànre`</span>
+      </p>
+      <p class="P5">        eighty        four        and        twenty-three</p>
+      <p class="P11">
+	<span class="T2">        </span>
+	<span class="T4">ná        kɛ́        ˈná        báárì-cyɛ̀ɛ̀rè</span>
+      </p>
+      <p class="P6">        and        ten        and        five-four</p>
+    </div>
+    <p class="P7"> </p>
+    <p class="P19">
+      <span class="T2">In some cases, an alternative base is used only in the construction of a small proportion of relevant numerals, and in such cases this alternative is simply disregarded in assigning the numeral system overall to a particular type. In French, for instance, the numerals in the range 80–99 have a vigesimal structure, as in the expression for 97 in (7), but since the system is otherwise entirely or almost entirely decimal, French has been assigned to the decimal type.</span>
+    </p>
+    <p class="P13"> </p>
+    <div class="example">
+      <p class="P13">(7)        French</p>
+      <p class="P19">
+	<span class="T2">        </span>
+	<span class="T4">quatre-vingt-dix-sept</span>
+      </p>
+      <p class="P13">        four-twenty-ten-seven</p>
+    </div>
+    <p class="P13"> </p>
+    <p class="P19">
+      <span class="T2">        While some languages, like Mandarin illustrated in (1), have completely or almost completely transparent structures of the type </span>
+      <span class="T5">xn + y</span>
+      <span class="T2">, other languages have various departures from the ideal formula in their numeral expressions through the appearance of morphophonological idiosyncrasies or portmanteau forms, and it is clearly necessary to be able to distinguish such exceptions from an instantiation of a different numeral system type. Relatively minor morphophonological idiosyncrasies can usually be identified without difficulty, as in relating English </span>
+      <span class="T5">fif-ty</span>
+      <span class="T2"> to </span>
+      <span class="T5">five</span>
+      <span class="T2"> and </span>
+      <span class="T5">ten</span>
+      <span class="T2">, with the identification of the first morpheme more transparent than that of the second. In some cases, completely different phonological forms may be used in certain combinations, as in the expression of the tens in Spanish, where the suffix </span>
+      <span class="T5">–enta</span>
+      <span class="T2">, as in </span>
+      <span class="T5">och-enta</span>
+      <span class="T2"> 80 (eight-ten) bears no formal resemblance to </span>
+      <span class="T5">diez</span>
+      <span class="T2"> 10, but is nonetheless reasonably consistent in the expression of the tens. When only a handful of forms are portmanteau in an otherwise transparent system, they can be disregarded, as in the case of Russian monomorphemic </span>
+      <span class="T5">sorok</span>
+      <span class="T2"> 40 in comparison with </span>
+      <span class="T5">pjat´-desjat</span>
+      <span class="T2"> 50 (five-ten). In some languages most or all of the products of the base are portmanteau forms, but we still identify them as such in that there is a separate such form for each product of the base and intermediate numbers are expressed by adding to that form; thus, in Turkish (Turkic; Turkey) each of the tens in the range 20–50 is monomorphemic (</span>
+      <span class="T5">yirmi</span>
+      <span class="T2"> 20, </span>
+      <span class="T5">otuz</span>
+      <span class="T2"> 30, </span>
+      <span class="T5">kırk</span>
+      <span class="T2"> 40, </span>
+      <span class="T5">elli</span>
+      <span class="T2"> 50; cf. </span>
+      <span class="T5">iki</span>
+      <span class="T2"> 2, </span>
+      <span class="T5">üç</span>
+      <span class="T2"> 3, </span>
+      <span class="T5">dört</span>
+      <span class="T2"> 4, </span>
+      <span class="T5">beş</span>
+      <span class="T2"> 5), but numbers between the tens are expressed by addition of the remainder, as in (8), which express 21:</span>
+    </p>
+    <p class="P13"> </p>
+    <div class="example">
+      <p class="P23">
+	<span class="T2">(8)        Turkish (Kornfilt 1997: 428)</span>
+      </p>
+      <p class="P24">
+	<span class="T2">        </span>
+	<span class="T4">yirmi        bir</span>
+      </p>
+      <p class="P15">        twenty        one</p>
+    </div>
+    <p class="P13"> </p>
+    <h2>Geographical distribution</h2>
+    <p class="P18"> </p>
+    <p class="P36">
+      <span class="T2">Even a cursory perusal of the accompanying map serves to show that, at least as far as numeral systems are concerned, we live in a decimal world, with the decimal type dominant in nearly every part of the world. Some of the other types are highly restricted geographically, in particular the extended body-part type, found as a basic numeral system in Highland New Guinea, and the restricted system, largely confined to Australia and Amazonia. Bases other than 10 or 20 are extremely rare in the modern world, the examples in our sample being Supyire in West Africa and Ekari in Indonesian Papua.</span>
+    </p>
+    <p class="P27">
+      <span class="T2">However, the vigesimal system, whether pure or combined with the decimal system above 100, is still found in a number of different areas in the world, and is particularly frequent in some specific areas, such as Mesoamerica. Mesoamerica is in fact indicative of a worldwide historical trend for the dominant decimal system to encroach on and replace other systems. Pre-Conquest Mesoamerica was largely vigesimal, with the prototypical example being Classical Mayan. The influence of Spanish after the Conquest led to many indigenous languages adopting the Spanish numeral </span>
+      <span class="T5">ciento</span>
+      <span class="T2"> 100 and with it the decimal system for the expression of the hundreds. In many languages, replacement by Spanish forms has percolated even further down the system, and it is not infrequent in contemporary accounts of Mesoamerican languages to read that in practice Spanish numeral expressions are used for all but the lowest numbers. Non-decimal numeral systems are even more endangered than the languages in which they occur.</span>
+    </p>
+    <p class="P13"> </p>
+
+ <p>
+    <a href="http://validator.w3.org/check?uri=referer"><img
+        src="http://www.w3.org/Icons/valid-xhtml10-blue"
+        alt="Valid XHTML 1.0 Strict" height="31" width="88"/></a>
+  </p>
+  
+    </div></body>
+
+</html>
