@@ -22,6 +22,11 @@ def genealogy(request):
         .options(joinedload_all(Family.genera, Genus.languages)))
 
 
+@view_config(route_name="changes", renderer="changes.mako")
+def changes(request):
+    return {}
+
+
 @view_config(route_name='sample', renderer='sample.mako')
 def sample(ctx, request):
     return {'ctx': ctx}

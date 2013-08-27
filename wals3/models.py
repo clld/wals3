@@ -64,6 +64,7 @@ class WalsLanguage(Language, CustomModelMixin, Versioned):
     samples_100 = Column(Boolean, default=False)
     samples_200 = Column(Boolean, default=False)
 
+    iso_codes = Column(String)
     genus = relationship(Genus, backref=backref("languages", order_by="Language.name"))
 
 
@@ -74,12 +75,10 @@ class Chapter(Contribution, CustomModelMixin, Versioned):
     """
     pk = Column(Integer, ForeignKey('contribution.pk'), primary_key=True)
     #id = Column(Integer, unique=True)
+    sortkey = Column(Integer)
     blog_title = Column(Unicode)
     area_pk = Column(Integer, ForeignKey('area.pk'))
     area = relationship(Area, lazy='joined')
-
-    # TODO: support inclusion of supplements as contributions!!
-    # needed: a way to incorporate them in the correct order in the list of chapters!?
 
 
 @implementer(interfaces.IParameter)

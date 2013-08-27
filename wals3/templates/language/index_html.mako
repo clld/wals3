@@ -7,4 +7,6 @@ ${lib.languages_contextnav()}
 
 <h2>${_('Languages')}</h2>
 
+${request.map.render()}
+
 ${ctx.render()}

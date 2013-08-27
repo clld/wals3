@@ -5,13 +5,15 @@
 
 <h2>${_('Chapter')} ${ctx.name}</h2>
 
-${u.get_description(request, ctx)|n}
+${text|n}
 
 <%def name="sidebar()">
+    % if ctx.features:
     <%util:well title="Features">
         ${util.stacked_links(ctx.features)}
     </%util:well>
+    % endif
     <%util:well title="References">
-        ${util.stacked_links(ctx.references)}
+        ${util.stacked_links([ref.source for ref in ctx.references])}
     </%util:well>
 </%def>

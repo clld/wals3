@@ -5,8 +5,9 @@ from sqlalchemy.types import Integer
 
 from clld.web import datatables
 from clld.web.datatables.base import (
-    Col, filter_number, LinkCol, DetailsRowLinkCol, LinkToMapCol,
+    Col, filter_number, LinkCol, DetailsRowLinkCol, LinkToMapCol, IdCol,
 )
+from clld.db.meta import DBSession
 from clld.db.models import common
 from clld.web.util.helpers import linked_contributors, link, linked_references
 from clld.web.util.htmllib import HTML
@@ -101,22 +102,40 @@ class RepresentationCol(Col):
         return item.datadict()['representation']
 
 
+class _AreaCol(Col):
+    def __init__(self, *args, **kw):
+        super(_AreaCol, self).__init__(*args, **kw)
+        self.choices = [a.name for a in DBSession.query(Area).order_by(Area.id)]
+
+    def order(self):
+        return Area.name
+
+    def search(self, qs):
+        return Area.name.__eq__(qs)
+
+
+class FeatureAreaCol(_AreaCol):
+    def format(self, item):
+        return item.chapter.area.name
+
+
 class Features(datatables.Parameters):
     def base_query(self, query):
-        return query.join(Chapter)\
+        return query.join(Chapter).join(Area)\
             .join(common.Parameter_data, and_(
                 common.Parameter_data.object_pk == common.Parameter.pk,
                 common.Parameter_data.key == 'representation'
             ))\
-            .options(joinedload(Feature.chapter), joinedload(common.Parameter.data))
+            .options(joinedload_all(Feature.chapter, Chapter.area), joinedload(common.Parameter.data))
 
     def col_defs(self):
         return [
-            DetailsRowLinkCol(self),
             FeatureIdCol(self, 'id', sClass='right'),
             LinkCol(self, 'name'),
             ContributorsCol(self, 'Authors', bSearchable=False, bSortable=False),
+            FeatureAreaCol(self, 'area'),
             RepresentationCol(self, 'Languages', sClass='right'),
+            DetailsRowLinkCol(self, button_text='Values'),
         ]
 
 
@@ -148,9 +167,42 @@ class Languages(datatables.Languages):
             joinedload_all(WalsLanguage.genus, Genus.family))
 
     def col_defs(self):
-        cols = datatables.Languages.col_defs(self)
-        return cols[:2] + [
+        return [
+            IdCol(self, 'id'),
+            LinkCol(self, 'name'),
+            Col(self, 'iso_codes', model_col=WalsLanguage.iso_codes),
             GenusCol(self, 'genus'),
             FamilyCol(self, 'family'),
             LinkToMapCol(self),
         ]
+
+
+class ChapterIdCol(Col):
+    def format(self, item):
+        return item.id if not item.id.startswith('s') else ''
+
+    def order(self):
+        return Chapter.sortkey
+
+
+class ChapterAreaCol(_AreaCol):
+    def format(self, item):
+        return item.area.name if item.area else ''
+
+
+class Chapters(datatables.Contributions):
+    def base_query(self, query):
+        return query.outerjoin(Area).options(joinedload(Chapter.area))
+
+    def col_defs(self):
+        cols = datatables.Contributions.col_defs(self)
+        return [
+            ChapterIdCol(self, 'id', bSearchable=False),
+        ] + cols[:-1] + [
+            ChapterAreaCol(self, 'area'),
+        ] + cols[-1:]
+
+    def get_options(self):
+        opts = super(Chapters, self).get_options()
+        opts['aaSorting'] = [[0, 'asc']]
+        return opts

@@ -18,6 +18,11 @@
     <dd>${ctx.values[0].domainelement.name}</dd>
 </dl>
 
+% if ctx.values[0].sentence_assocs:
+<h3>Examples</h3>
+${util.sentences(ctx.values[0])}
+% endif
+
 % if ctx.references:
 <h3>References</h3>
 <ul>
@@ -44,15 +49,4 @@ $(document).ready(function() {
     <%util:history obj_="${value}" args="item">
         ${h.models.DomainElement.get(item.domainelement_pk).name}
     </%util:history>
-    ##<div class="well well-small">
-    ##    <h3>History</h3>
-    ##    <p>Current version from ${str(value.updated).split('.')[0]}.</p>
-    ##    <ul>
-    ##        % for v in value.history():
-    ##        <li>
-    ##            ${str(v.updated).split('.')[0]} ${h.models.DomainElement.get(v.domainelement_pk).name}
-    ##        </li>
-    ##        % endfor
-    ##    </ul>
-    ##</div>
 </%def>

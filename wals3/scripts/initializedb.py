@@ -4,10 +4,13 @@ import transaction
 from itertools import groupby, cycle
 import re
 from datetime import date, datetime
+from collections import defaultdict
 
 from pytz import utc
 from sqlalchemy import create_engine
+from sqlalchemy.orm import joinedload_all
 from path import path
+from bs4 import BeautifulSoup
 
 from clld.db.meta import DBSession, VersionedDBSession
 from clld.db.models import common
@@ -304,6 +307,53 @@ where id = id_r_ref and citekey = '%s'""" % id
     return res
 
 
+def parse_igt(html):
+    """
+<table class="IGT">
+  <caption>
+    <div class="translation">I want the white one.</div>
+  </caption>
+  <tbody>
+    <tr class="phrase">
+      <td class="morpheme"><i>Pojne-j-ben </i></td>
+<td class="morpheme"><i>lew-din </i></td>
+<td class="morpheme"><i>erd'-ije. </i></td>
+    </tr>
+    <tr class="gloss">
+      <td class="morpheme">white-PTCP-NMLZ</td>
+<td class="morpheme">eat-INF</td>
+<td class="morpheme">want-1SG.INTR</td>
+    </tr>
+  </tbody>
+</table>
+"""
+    def get_text(e):
+        if not isinstance(e, list):
+            e = [e]
+        return ' '.join(' '.join(ee.stripped_strings) for ee in e)
+
+    res = {}
+    soup = BeautifulSoup(html)
+    e = soup.find('caption')
+    if e:
+        res['description'] = get_text(e)
+    e = soup.find('tr', attrs={'class': 'phrase'})
+    if e:
+        morphemes = e.find_all('td', attrs={'class': 'morpheme'})
+        res['name'] = get_text(morphemes)
+        res['analyzed'] = '\t'.join(get_text(m) for m in morphemes)
+        res['markup_analyzed'] = '\t'.join(
+            ''.join(unicode(c for c in m.contents)) for m in morphemes)
+    e = soup.find('tr', attrs={'class': 'gloss'})
+    if e:
+        morphemes = e.find_all('td', attrs={'class': 'morpheme'})
+        res['gloss'] = '\t'.join(get_text(m) for m in morphemes)
+        res['markup_gloss'] = '\t'.join(
+            ''.join(unicode(c for c in m.contents)) for m in morphemes)
+    assert len(res.get('gloss', '').split('\t')) == len(res.get('analyzed', '').split('\t'))
+    return res
+
+
 def get_vs2008(args):
     vs2008 = {}
     for row in rows(args.data_file('datapoints_2008.csv'), delimiter=','):
@@ -314,13 +364,25 @@ def get_vs2008(args):
 E2008 = utc.localize(datetime(2008, 4, 21))
 E2011 = utc.localize(datetime(2011, 4, 28))
 E2013 = utc.localize(datetime(2013, 8, 31))
+data = Data(created=E2008, updated=E2008)
+
+
+def migrate(from_, to_, converter):
+    for row in DB.execute("select * from %s" % from_):
+        res = converter(row)
+        if not res:
+            continue
+        if isinstance(res, dict):
+            DBSession.add(to_(**res))
+        else:
+            data.add(to_, res[0], **res[1])
+    DBSession.flush()
 
 
 def main(args):
     icons = Icons()
     old_db = DB
 
-    data = Data(created=E2008, updated=E2008)
     vs2008 = get_vs2008(args)
 
     missing_sources = []
@@ -352,15 +414,15 @@ def main(args):
     for id, name in ABBRS.items():
         DBSession.add(common.GlossAbbreviation(id=id, name=name))
 
-    for row in old_db.execute("select * from country"):
-        data.add(
-            models.Country, row['id'],
-            id=row['id'], name=row['name'], continent=row['continent'])
+    migrate(
+        'country',
+        models.Country,
+        lambda r: (r['id'], dict(id=r['id'], name=r['name'], continent=r['continent'])))
 
-    for row in old_db.execute("select * from family"):
-        data.add(
-            models.Family, row['id'],
-            id=row['id'], name=row['name'], description=row['comment'])
+    migrate(
+        'family',
+        models.Family,
+        lambda r: (r['id'], dict(id=r['id'], name=r['name'], description=r['comment'])))
 
     for row, icon in zip(
         list(old_db.execute("select * from genus order by family_id")),
@@ -372,37 +434,43 @@ def main(args):
         genus.family = data['Family'][row['family_id']]
     DBSession.flush()
 
-    for row in old_db.execute("select * from altname"):
-        data.add(common.Identifier, (row['name'], row['type']),
-                 name=row['name'], type='name-%s' % row['type'])
-    DBSession.flush()
+    migrate(
+        'altname',
+        common.Identifier,
+        lambda r: (
+            (r['name'], r['type']), dict(name=r['name'], type='name-%s' % r['type'])))
 
-    for row in old_db.execute("select * from isolanguage"):
-        data.add(
-            common.Identifier, row['id'],
-            id=row['id'],
-            name=row['name'],
-            type=common.IdentifierType.iso.value,
-            description=row['dbpedia_url'])
-    DBSession.flush()
+    migrate(
+        'isolanguage',
+        common.Identifier,
+        lambda r: (
+            r['id'],
+            dict(
+                id=r['id'],
+                name=r['id'],
+                type=common.IdentifierType.iso.value,
+                description=r['name'])))
 
-    for row in old_db.execute("select * from language"):
-        kw = dict((key, row[key]) for key in ['id', 'name', 'latitude', 'longitude'])
-        lang = data.add(
-            models.WalsLanguage, row['id'],
-            samples_100=row['samples_100'] != 0,
-            samples_200=row['samples_200'] != 0,
-            **kw)
-        lang.genus = data['Genus'][row['genus_id']]
+    migrate(
+        'language',
+        models.WalsLanguage,
+        lambda r: (
+            r['id'],
+            dict(
+                id=r['id'],
+                name=r['name'],
+                latitude=r['latitude'],
+                longitude=r['longitude'],
+                genus=data['Genus'][r['genus_id']],
+                samples_100=r['samples_100'] != 0,
+                samples_200=r['samples_200'] != 0)))
 
-    for row in old_db.execute("select * from author"):
-        data.add(
-            common.Contributor, row['id'],
-            name=row['name'],
-            url=row['www'],
-            id=row['id'],
-            description=row['note'])
-    DBSession.flush()
+    migrate(
+        'author',
+        common.Contributor,
+        lambda r: (
+            r['id'],
+            dict(name=r['name'], url=r['www'], id=r['id'], description=r['note'])))
 
     dataset = common.Dataset(
         id='wals',
@@ -423,69 +491,99 @@ def main(args):
     for i, editor in enumerate(['dryerms', 'haspelmathm']):
         common.Editor(dataset=dataset, contributor=data['Contributor'][editor], ord=i + 1)
 
-    for row in old_db.execute("select * from country_language"):
-        DBSession.add(models.CountryLanguage(
-            language_pk=data['WalsLanguage'][row['language_id']].pk,
-            country_pk=data['Country'][row['country_id']].pk))
+    migrate(
+        'country_language',
+        models.CountryLanguage,
+        lambda r: dict(
+            language_pk=data['WalsLanguage'][r['language_id']].pk,
+            country_pk=data['Country'][r['country_id']].pk))
 
-    for row in old_db.execute("select * from altname_language"):
-        DBSession.add(common.LanguageIdentifier(
-            language=data['WalsLanguage'][row['language_id']],
-            identifier=data['Identifier'][(row['altname_name'], row['altname_type'])],
-            description=row['relation']))
-    DBSession.flush()
+    migrate(
+        'altname_language',
+        common.LanguageIdentifier,
+        lambda r: dict(
+            language=data['WalsLanguage'][r['language_id']],
+            identifier=data['Identifier'][(r['altname_name'], r['altname_type'])],
+            description=r['relation']))
 
-    for row in old_db.execute("select * from isolanguage_language"):
-        DBSession.add(common.LanguageIdentifier(
-            language=data['WalsLanguage'][row['language_id']],
-            identifier=data['Identifier'][row['isolanguage_id']],
-            description=row['relation']))
-    DBSession.flush()
+    migrate(
+        'isolanguage_language',
+        common.LanguageIdentifier,
+        lambda r: dict(
+            language=data['WalsLanguage'][r['language_id']],
+            identifier=data['Identifier'][r['isolanguage_id']],
+            description=r['relation']))
 
-    for row in old_db.execute("select * from area"):
-        data.add(
-            models.Area, row['id'],
-            name=row['name'], dbpedia_url=row['dbpedia_url'], id=str(row['id']))
-    DBSession.flush()
+    migrate(
+        'area',
+        models.Area,
+        lambda r: (
+            r['id'],
+            dict(name=r['name'], dbpedia_url=r['dbpedia_url'], id=str(r['id']))))
 
-    #
-    # turn supplements into contributions!!
-    #
-    for row in old_db.execute("select * from chapter"):
-        kw = dict(id=row['id'], name=row['name'])
+    def migrate_chapter(row):
+        kw = dict(
+            id=row['id'],
+            name=row['name'],
+            sortkey=int(row['id']),
+            area=data['Area'][row['area_id']])
         if int(row['id']) in [143, 144]:
             kw['created'] = E2011
             kw['updated'] = E2011
-        c = data.add(models.Chapter, row['id'], **kw)
-        c.area = data['Area'][row['area_id']]
-    DBSession.flush()
+        return row['id'], kw
 
-    for row in old_db.execute("select * from feature"):
+    migrate('chapter', models.Chapter, migrate_chapter)
+
+    def migrate_supplement(row):
+        if row['name'] not in ['Help', 'Abbreviations']:
+            sortkey = 990 + int(row['id']) if row['name'] != 'Introduction' else 0
+            id_ = 's%s' % row['id']
+            kw = dict(id=id_, name=row['name'], sortkey=sortkey)
+            return id_, kw
+
+    migrate('supplement', models.Chapter, migrate_supplement)
+
+    migrate(
+        'chapter_reference',
+        common.ContributionReference,
+        lambda r: dict(
+            contribution=data['Chapter'][r['chapter_id']],
+            source=data['Source'][r['reference_id']]))
+
+    migrate(
+        'reference_supplement',
+        common.ContributionReference,
+        lambda r: dict(
+            contribution=data['Chapter']['s%s' % r['supplement_id']],
+            source=data['Source'][r['reference_id']]))
+
+    def migrate_feature(row):
         kw = dict(id=row['id'], name=row['name'], ordinal_qualifier=row['id'][-1])
         if row['id'].startswith('143') or row['id'].startswith('144'):
             kw['created'] = E2011
             kw['updated'] = E2011
-        param = data.add(models.Feature, row['id'], **kw)
-        param.chapter = data['Chapter'][row['chapter_id']]
-    DBSession.flush()
+        kw['chapter'] = data['Chapter'][row['chapter_id']]
+        return row['id'], kw
 
-    for row in old_db.execute("select * from value"):
+    migrate('feature', models.Feature, migrate_feature)
+
+    def migrate_value(row):
         desc = row['description']
         if desc == 'SOV & NegV/VNeg':
             if row['icon_id'] != 's9ff':
                 desc += ' (a)'
             else:
                 desc += ' (b)'
-
-        data.add(
-            common.DomainElement, (row['feature_id'], row['numeric']),
+        kw = dict(
             id='%s-%s' % (row['feature_id'], row['numeric']),
             name=desc,
             description=row['long_description'],
             jsondata=dict(icon=Icons.id(row['icon_id'])),
             number=row['numeric'],
             parameter=data['Feature'][row['feature_id']])
-    DBSession.flush()
+        return (row['feature_id'], row['numeric']), kw
+
+    migrate('value', common.DomainElement, migrate_value)
 
     same = 0
     added = 0
@@ -517,7 +615,7 @@ def main(args):
             contribution=parameter.chapter,
             **kw)
         data.add(
-            common.Value, row['id'],
+            common.Value, id_,
             domainelement=data['DomainElement'][(row['feature_id'], value_numeric)],
             valueset=valueset,
             **kw)
@@ -541,7 +639,69 @@ def main(args):
             contributor_pk=data['Contributor'][row['author_id']].pk,
             contribution_pk=data['Chapter'][row['chapter_id']].pk))
 
-    lang.name = 'SPECIAL--' + lang.name
+    for row in old_db.execute("select * from author_supplement"):
+        DBSession.add(common.ContributionContributor(
+            ord=row['order'],
+            primary=row['primary'] != 0,
+            contributor_pk=data['Contributor'][row['author_id']].pk,
+            contribution_pk=data['Chapter']['s%s' % row['supplement_id']].pk))
+
+    igts = defaultdict(lambda: [])
+    for row in old_db.execute("select * from igt"):
+        d = {'id': 'igt-%s' % row['id']}
+        d.update(parse_igt(row['xhtml']))
+        igts[row['example_id']].append(d)
+
+    for row in old_db.execute("select * from example"):
+        if not row['language_id']:
+            print 'example without language:', row['id']
+            continue
+
+        _igts = igts[row['id']]
+        if _igts:
+            for igt in _igts:
+                data.add(
+                    common.Sentence, igt['id'],
+                    markup_comment=row['xhtml'],
+                    language=data['WalsLanguage'][row['language_id']],
+                    **igt)
+        else:
+            data.add(
+                common.Sentence, row['id'],
+                id=str(row['id']),
+                xhtml=row['xhtml'],
+                language=data['WalsLanguage'][row['language_id']])
+
+    missing = {}
+    for row in old_db.execute("select * from example_feature"):
+        _igts = igts[row['example_id']]
+        if _igts:
+            for igt in _igts:
+                try:
+                    sentence = data['Sentence'][igt['id']]
+                except KeyError:
+                    print 'missing sentence:', row['example_id']
+                    continue
+                try:
+                    value = data['Value']['%s-%s' % (row['feature_id'], sentence.language.id)]
+                    DBSession.add(common.ValueSentence(sentence=sentence, value=value))
+                except KeyError:
+                    missing[(row['feature_id'], sentence.language.id)] = 1
+                    #print 'missing datapoint:', '%s-%s' % (row['feature_id'], sentence.language.id)
+        else:
+            try:
+                sentence = data['Sentence'][row['example_id']]
+            except KeyError:
+                print 'missing sentence:', row['example_id']
+                continue
+            try:
+                value = data['Value']['%s-%s' % (row['feature_id'], sentence.language.id)]
+                DBSession.add(common.ValueSentence(sentence=sentence, value=value))
+            except KeyError:
+                missing[(row['feature_id'], sentence.language.id)] = 1
+                #print 'missing datapoint:', '%s-%s' % (row['feature_id'], sentence.language.id)
+
+    print len(missing), 'missing datapoints for example_feature relations'
 
 
 def prime_cache(args):
@@ -614,6 +774,16 @@ def prime_cache(args):
                 value=representation,
                 object_pk=parameter.pk)
             DBSession.add(d)
+
+    # cache iso codes for languages:
+    for language in DBSession.query(common.Language).options(joinedload_all(
+        common.Language.languageidentifier, common.LanguageIdentifier.identifier
+    )):
+        iso_codes = []
+        for identifier in language.identifiers:
+            if identifier.type == common.IdentifierType.iso.value:
+                iso_codes.append(identifier.name)
+        language.iso_codes = ', '.join(sorted(set(iso_codes)))
 
     compute_language_sources()
 

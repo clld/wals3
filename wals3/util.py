@@ -3,13 +3,14 @@ import codecs
 from sqlalchemy.orm import joinedload_all
 from path import path
 from bs4 import BeautifulSoup as soup
+from pyramid.httpexceptions import HTTPFound
 
 from clld import RESOURCES
 from clld.interfaces import IRepresentation
 from clld.web.adapters import get_adapter
 from clld.db.meta import DBSession
 from clld.db.models.common import DomainElement, Contribution
-from clld.web.util.helpers import button, icon, JS_CLLD
+from clld.web.util.helpers import button, icon, JS_CLLD, get_referents
 from clld.web.util.htmllib import HTML
 
 import wals3
@@ -25,20 +26,27 @@ def dataset_detail_html(context=None, request=None, **kw):
         'citation': get_adapter(IRepresentation, context, request, ext='md.txt')}
 
 
-def get_description(req, contribution):
-    p = path(wals3.__file__).dirname().joinpath('static', 'descriptions', str(contribution.id), 'body.xhtml')
+def source_detail_html(context=None, request=None, **kw):
+    return {'referents': get_referents(context)}
+
+
+def contribution_detail_html(context=None, request=None, **kw):
+    if context.id == 's4':
+        raise HTTPFound(request.route_url('genealogy'))
+
+    p = path(wals3.__file__).dirname().joinpath('static', 'descriptions', str(context.id), 'body.xhtml')
     c = codecs.open(p, encoding='utf8').read()
 
-    adapter = get_adapter(IRepresentation, Feature(), req, ext='snippet.html')
+    adapter = get_adapter(IRepresentation, Feature(), request, ext='snippet.html')
 
     for feature in DBSession.query(Feature)\
-        .filter(Feature.contribution_pk == contribution.pk)\
+        .filter(Feature.contribution_pk == context.pk)\
         .options(joinedload_all(Feature.domain, DomainElement.values)):
-        table = soup(adapter.render(feature, req))
+        table = soup(adapter.render(feature, request))
         values = '\n'.join(unicode(table.find(tag).extract()) for tag in ['thead', 'tbody'])
         c = c.replace('__values_%s__' % feature.id, values)
 
-    return c.replace('http://wals.info', req.application_url)
+    return {'text': c.replace('http://wals.info', request.application_url)}
 
 
 def link_to_map(language):

@@ -1,18 +1,20 @@
 from functools import partial
 
-from sqlalchemy.orm import joinedload_all
+from sqlalchemy.orm import joinedload_all, joinedload
 from pyramid.config import Configurator
 from pyramid.httpexceptions import HTTPNotFound
 
 from clld.interfaces import (
     IParameter, IMapMarker, IDomainElement, IMapMarker, IValue, ILanguage,
+    ICtxFactoryQuery,
 )
 from clld.web.adapters.base import Representation, adapter_factory
-from clld.web.app import get_configurator, menu_item
+from clld.web.app import get_configurator, menu_item, CtxFactoryQuery
+from clld.db.models.common import Contribution, ContributionReference
 
 from wals3.adapters import GeoJsonFeature
 from wals3.maps import FeatureMap, FamilyMap, CountryMap, SampleMap
-from wals3.datatables import Languages, Features, Datapoints
+from wals3.datatables import Languages, Features, Datapoints, Chapters
 from wals3.models import Family, Country, WalsLanguage, Genus
 from wals3.interfaces import IFamily, ICountry
 
@@ -24,6 +26,7 @@ _('Contributions')
 _('Contributors')
 _('Sources')
 _('Parameters')
+_('ValueSets')
 
 
 def map_marker(ctx, req):
@@ -38,6 +41,17 @@ def map_marker(ctx, req):
         icon = ctx.icon
     if icon:
         return req.static_url('clld:web/static/icons/' + icon + '.png')
+
+
+class WalsCtxFactoryQuery(CtxFactoryQuery):
+    def refined_query(self, query, model, req):
+        """Derived classes may override this method to add model-specific query
+        refinements of their own.
+        """
+        if model == Contribution:
+            return query.options(joinedload_all(
+                Contribution.references, ContributionReference.source))
+        return query
 
 
 def sample_factory(req):
@@ -63,8 +77,8 @@ def main(global_config, **settings):
     settings['route_patterns'] = {
         'languages': '/languoid',
         'language': '/languoid/lect/wals_code_{id:[^/\.]+}',
-        #'source': '/resource/reference/id/{id:[^/\.]+}',
-        #'sources': '/langdoc',
+        'source': '/refdb/record/{id:[^/\.]+}',
+        'sources': '/refdb',
         'familys': '/languoid',
         'family': '/languoid/family/{id:[^/\.]+}',
         'parameters': '/feature',
@@ -73,10 +87,12 @@ def main(global_config, **settings):
         'contribution': '/chapter/{id:[^/\.]+}',
         'countrys': '/country',
         'country': '/country/{id:[^/\.]+}',
+        'contributors': '/author',
+        'contributor': '/author/{id:[^/\.]+}',
     }
     settings['sitemaps'] = 'contribution parameter source sentence valueset'.split()
     utilities = [
-        #(ApicsCtxFactoryQuery(), interfaces.ICtxFactoryQuery),
+        (WalsCtxFactoryQuery(), ICtxFactoryQuery),
         (map_marker, IMapMarker),
         #(frequency_marker, interfaces.IFrequencyMarker),
         #(link_attrs, interfaces.ILinkAttrs),
@@ -96,6 +112,7 @@ def main(global_config, **settings):
     #config.add_menu_item(
     #    'blog', lambda ctx, req: ('http://blog.wals.info/category/news/', 'Newsblog'))
 
+    config.register_datatable('contributions', Chapters)
     config.register_datatable('values', Datapoints)
     config.register_datatable('languages', Languages)
     config.register_datatable('parameters', Features)
@@ -115,4 +132,5 @@ def main(global_config, **settings):
     config.register_adapter(GeoJsonFeature, IParameter)
     config.add_route('feature_info', '/feature-info/{id}')
     config.add_route('genealogy', '/languoid/genealogy')
+    config.add_route('changes', '/changes')
     return config.make_wsgi_app()
