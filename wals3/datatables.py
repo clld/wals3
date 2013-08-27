@@ -173,7 +173,6 @@ class Languages(datatables.Languages):
             Col(self, 'iso_codes', model_col=WalsLanguage.iso_codes),
             GenusCol(self, 'genus'),
             FamilyCol(self, 'family'),
-            LinkToMapCol(self),
         ]
 
 
