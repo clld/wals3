@@ -743,6 +743,10 @@ def prime_cache(args):
             .one()
         value = valueset.values[0]
 
+        if value.domainelement.number == int(row.new):
+            print '**** old news', valueset.language.id, valueset.parameter.id
+            continue
+
         if value.domainelement.number != int(row.old):
             print '--->', valueset.language.id, valueset.parameter.id, value.domainelement.number
         for de in valueset.parameter.domain:
