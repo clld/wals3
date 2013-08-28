@@ -1,6 +1,6 @@
 <%inherit file="../${context.get('request').registry.settings.get('clld.app_template', 'app.mako')}"/>
 <%namespace name="util" file="../util.mako"/>
-<%! active_menu_item = "contributions" %>
+<%! active_menu_item = "parameters" %>
 
 
 <h2>${_('Datapoint')} ${h.link(request, ctx.language)} / ${h.link(request, ctx.parameter)}</h2>
@@ -41,7 +41,6 @@ ${util.sentences(ctx.values[0])}
     <%util:feed title="Comments" url="${request.blog.feed_url(ctx, request)}">
         No comments have been posted.
     </%util:feed>
-    % endif
     <%util:history obj_="${value}" args="item">
         ${h.models.DomainElement.get(item.domainelement_pk).name}
     </%util:history>
