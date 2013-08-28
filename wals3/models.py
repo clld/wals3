@@ -18,8 +18,13 @@ from clld.db.models.common import (
     Parameter,
     Contribution,
     IdNameDescriptionMixin,
+    ValueSet,
 )
 from wals3 import interfaces as wals_interfaces
+
+
+ValueSet.wp_slug = property(lambda self: 'datapoint-%s-wals_code_%s' % (
+    self.parameter.id.lower(), self.language.id))
 
 
 @implementer(wals_interfaces.IFamily)
@@ -76,7 +81,7 @@ class Chapter(Contribution, CustomModelMixin, Versioned):
     pk = Column(Integer, ForeignKey('contribution.pk'), primary_key=True)
     #id = Column(Integer, unique=True)
     sortkey = Column(Integer)
-    blog_title = Column(Unicode)
+    wp_slug = Column(Unicode)
     area_pk = Column(Integer, ForeignKey('area.pk'))
     area = relationship(Area, lazy='joined')
 

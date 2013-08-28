@@ -6,11 +6,12 @@ from pyramid.httpexceptions import HTTPNotFound
 
 from clld.interfaces import (
     IParameter, IMapMarker, IDomainElement, IMapMarker, IValue, ILanguage,
-    ICtxFactoryQuery,
+    ICtxFactoryQuery, IBlog,
 )
 from clld.web.adapters.base import Representation, adapter_factory
 from clld.web.app import get_configurator, menu_item, CtxFactoryQuery
 from clld.db.models.common import Contribution, ContributionReference
+from clld.web.blog import Blog
 
 from wals3.adapters import GeoJsonFeature
 from wals3.maps import FeatureMap, FamilyMap, CountryMap, SampleMap
@@ -94,8 +95,7 @@ def main(global_config, **settings):
     utilities = [
         (WalsCtxFactoryQuery(), ICtxFactoryQuery),
         (map_marker, IMapMarker),
-        #(frequency_marker, interfaces.IFrequencyMarker),
-        #(link_attrs, interfaces.ILinkAttrs),
+        (Blog(settings), IBlog),
     ]
     config = get_configurator('wals3', *utilities, **dict(settings=settings))
     config.register_menu(
@@ -105,12 +105,8 @@ def main(global_config, **settings):
         ('languages', partial(menu_item, 'languages')),
         ('sources', partial(menu_item, 'sources')),
         ('contributors', partial(menu_item, 'contributors')),
-        #newsblog
-        #contact?
-        #help?
+        ('blog', lambda ctx, req: (req.blog.url('category/news/'), 'Newsblog')),
     )
-    #config.add_menu_item(
-    #    'blog', lambda ctx, req: ('http://blog.wals.info/category/news/', 'Newsblog'))
 
     config.register_datatable('contributions', Chapters)
     config.register_datatable('values', Datapoints)
@@ -133,4 +129,5 @@ def main(global_config, **settings):
     config.add_route('feature_info', '/feature-info/{id}')
     config.add_route('genealogy', '/languoid/genealogy')
     config.add_route('changes', '/changes')
+    config.add_route('datapoint', '/datapoint/{fid}/wals_code_{lid}')
     return config.make_wsgi_app()

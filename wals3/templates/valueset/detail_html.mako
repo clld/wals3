@@ -2,12 +2,8 @@
 <%namespace name="util" file="../util.mako"/>
 <%! active_menu_item = "contributions" %>
 
-<h2>${_('Datapoint')} ${h.link(request, ctx.language)} / ${h.link(request, ctx.parameter)}</h2>
 
-<div class="btn-group">
-    ${h.button('cite', onclick=h.JSModal.show(ctx.parameter.name, request.resource_url(ctx.parameter.chapter, ext='md.html')))}
-    <button class="btn">Comment</button>
-</div>
+<h2>${_('Datapoint')} ${h.link(request, ctx.language)} / ${h.link(request, ctx.parameter)}</h2>
 
 <dl>
     <dt>Language:</dt>
@@ -35,17 +31,17 @@ ${util.sentences(ctx.values[0])}
 % endif
 
 <%def name="sidebar()">
-    <% value = ctx.values[0] %>
-    <div class="well well-small">
-        <div id="comments">
-            No comments have been posted.
-        </div>
+    <div>
+        <form class="inline" method="POST" action="${request.route_url('datapoint', fid=ctx.parameter.id, lid=ctx.language.id)}">
+            ${h.button('cite', onclick=h.JSModal.show(ctx.parameter.name, request.resource_url(ctx.parameter.chapter, ext='md.html')))}
+            <button type="submit" class="btn">comment</button>
+        </form>
     </div>
-    <script>
-$(document).ready(function() {
-  ${h.JSFeed.init(dict(eid="comments", url="http://blog.wals.info/datapoint-"+ctx.parameter.id.lower()+"-wals_code_"+ctx.language.id+"/feed/", title="Comments"))|n}
-});
-    </script>
+    <% value = ctx.values[0] %>
+    <%util:feed title="Comments" url="${request.blog.feed_url(ctx, request)}">
+        No comments have been posted.
+    </%util:feed>
+    % endif
     <%util:history obj_="${value}" args="item">
         ${h.models.DomainElement.get(item.domainelement_pk).name}
     </%util:history>

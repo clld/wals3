@@ -525,6 +525,7 @@ def main(args):
         kw = dict(
             id=row['id'],
             name=row['name'],
+            wp_slug=row['blog_title'],
             sortkey=int(row['id']),
             area=data['Area'][row['area_id']])
         if int(row['id']) in [143, 144]:

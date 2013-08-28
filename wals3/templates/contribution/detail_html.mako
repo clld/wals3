@@ -13,6 +13,9 @@ ${text|n}
         ${util.stacked_links(ctx.features)}
     </%util:well>
     % endif
+    <%util:feed title="Comments" url="${request.blog.feed_url(ctx, request)}">
+        No comments have been posted.
+    </%util:feed>
     <%util:well title="References">
         ${util.stacked_links([ref.source for ref in ctx.references])}
     </%util:well>

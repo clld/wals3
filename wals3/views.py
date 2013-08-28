@@ -5,6 +5,7 @@ from sqlalchemy import or_, and_
 from sqlalchemy.orm import joinedload_all, joinedload
 from sqlalchemy.inspection import inspect
 from pyramid.view import view_config
+from pyramid.httpexceptions import HTTPMovedPermanently, HTTPFound
 from pytz import utc
 
 from clld.db.meta import DBSession
@@ -19,6 +20,22 @@ def info(request):
         'name': feature.name,
         'values': [{'name': d.name, 'number': i + 1} for i, d in enumerate(feature.domain)],
     }
+
+
+@view_config(route_name='datapoint')
+def datapoint(request):
+    return HTTPMovedPermanently(
+        request.route_url('valueset', id='%(fid)s-%(lid)s' % request.matchdict))
+
+
+@view_config(route_name='datapoint', request_method='POST')
+def comment(request):
+    """
+    check whether a blog post for the datapoint does exist, if not, create one and
+    redirect there.
+    """
+    vs = ValueSet.get('%(fid)s-%(lid)s' % request.matchdict)
+    return HTTPFound(request.blog.post_url(vs, request, create=True) + '#comment')
 
 
 @view_config(route_name='genealogy', renderer='genealogy.mako')
