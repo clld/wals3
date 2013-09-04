@@ -4,6 +4,9 @@
 
 
 <h2>${_('Chapter')} ${ctx.name}</h2>
+<p>
+ by ${h.linked_contributors(request, ctx)} ${h.cite_button(request, ctx)}
+</p>
 
 ${text|n}
 

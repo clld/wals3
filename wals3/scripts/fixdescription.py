@@ -5,8 +5,11 @@ from sqlite3.dbapi2 import connect
 
 from path import path
 from bs4 import BeautifulSoup as soup
+from bs4.element import Tag
 
 import wals3
+from wals3.scripts.initializedb import ABBRS
+
 
 c = connect('/home/robert/old_projects/legacy/wals_pylons/trunk/wals2/db.sqlite')
 cu = c.cursor()
@@ -17,53 +20,98 @@ GENUS_MAP = dict(cu.fetchall())
 def pattern(path):
     return re.compile('http\:\/\/wals\.info' + path)
 
+
 def url(path):
     return 'http://wals.info' + path
 
+
 URL_PATTERNS = {
-    'country': (
-        pattern('\/languoid\/by_geography\?country\=(?P<id>[A-Z]{2})$'),
-        lambda m: url('/country/%s' % m.group('id')),
-    ),
-    'genus': (
-        pattern('\/languoid\/genus\/(?P<id>[a-z]+)$'),
-        lambda m: url('/family/%s#%s' % (GENUS_MAP[m.group('id')], m.group('id'))),
-    ),
+#    'country': (
+#        pattern('\/languoid\/by_geography\?country\=(?P<id>[A-Z]{2})$'),
+#        lambda m: url('/country/%s' % m.group('id')),
+#    ),
+#    'genus': (
+#        pattern('\/languoid\/genus\/(?P<id>[a-z]+)$'),
+#        lambda m: url('/family/%s#%s' % (GENUS_MAP[m.group('id')], m.group('id'))),
+#    ),
     'family': (
-        pattern('\/languoid\/family\/(?P<id>[a-z]+)$'),
-        lambda m: url('/family/%s' % m.group('id')),
+        pattern('\/family\/(?P<id>[a-z]+)$'),
+        lambda m: url('/languoid/family/%s' % m.group('id')),
     ),
     'source': (
-        pattern('\/refdb\/record\/(?P<id>.+)$'),
-        lambda m: url('/source/%s' % m.group('id')),
+        pattern('\/source\/(?P<id>.+)$'),
+        lambda m: url('/refdb/record/%s' % m.group('id')),
     ),
     'contribution': (
-        pattern('\/feature\/(description\/)?(?P<id>[0-9]+)(?P<fragment>\#.*)?$'),
-        lambda m: url('/contribution/%s%s' % (m.group('id'), m.group('fragment') or '')),
+        pattern('\/contribution\/(?P<id>[0-9]+)(?P<fragment>\#.*)?$'),
+        lambda m: url('/chapter/%s%s' % (m.group('id'), m.group('fragment') or '')),
     ),
     'parameter': (
-        pattern('\/feature\/(?P<id>[0-9]+[A-Z])'),
-        lambda m: url('/parameter/%s' % m.group('id')),
+        pattern('\/parameter\/(?P<id>[0-9]+[A-Z])'),
+        lambda m: url('/feature/%s' % m.group('id')),
     ),
     'language': (
-        pattern('\/languoid\/lect\/wals_code_(?P<id>[a-z]{2,3})$'),
-        lambda m: url('/language/%s' % m.group('id')),
+        pattern('\/language\/(?P<id>[a-z]{2,3})$'),
+        lambda m: url('/languoid/lect/wals_code_%s' % m.group('id')),
     ),
-    'image': (
-        re.compile('\.\/(?P<id>.+)\/images\/(?P<path>.+)$'),
-        lambda m: url('/static/descriptions/%(id)s/images/%(path)s' % m.groupdict()),
-    ),
+#    'image': (
+#        re.compile('\.\/(?P<id>.+)\/images\/(?P<path>.+)$'),
+#        lambda m: url('/static/descriptions/%(id)s/images/%(path)s' % m.groupdict()),
+#    ),
 }
 
 
 def fix(id_):
     print('chapter %s' % id_)
     p = path(wals3.__file__).dirname().joinpath(
-        'static', 'descriptions', str(id_), 'body.html')
+        'static', 'descriptions', str(id_), 'body.xhtml')
     assert p.exists()
-    r = codecs.open(p, encoding='utf8').read()
+    with codecs.open(p, encoding='utf8') as fp:
+        r = fp.read()
     et.fromstring(r.encode('utf8'))
     s = soup(r)
+
+    #
+    # TODO: replace span class="T3" with tooltip showing the meaning of the gloss part!
+    #
+    def markup_gloss_abbrs(soup, string):
+        for i, abbr in enumerate(string.split('.')):
+            if i > 0:
+                yield soup.new_string('.')
+            atom = abbr.strip().upper()
+            m = re.match('(1|2|3)(?P<atom>SG|PL)', atom)
+            if atom in ABBRS or m:
+                if m:
+                    atom = m.group('atom')
+                span = soup.new_tag('span', **{'class': 'hint--bottom', 'data-hint': ABBRS[atom]})
+                span.string = abbr
+                yield span
+            else:
+                yield soup.new_string(abbr)
+
+    for tag in s.find_all('span', **{'class': 'T3'}):
+        content = []
+        for child in tag:
+            tag_content = list(markup_gloss_abbrs(s, child.string))
+            if isinstance(child, Tag):
+                assert child.name in ['b', 'i']
+                t = s.new_tag(child.name)
+                for tc in tag_content:
+                    t.append(tc)
+                content.append(t)
+            else:
+                content.extend(tag_content)
+        tag.clear()
+        for c in content:
+            tag.append(c)
+    c = unicode(s)
+    c = c.replace('<?xml version="1.0"?>\n', '').strip()
+    try:
+        et.fromstring(c.encode('utf8'))
+    finally:
+        with open(p.dirname().joinpath('body.xhtml'), 'w') as fp:
+            fp.write(c.encode('utf8'))
+    return
 
     #
     # fix URLs
@@ -98,14 +146,10 @@ def fix(id_):
     assert not in_example
 
     #
-    # TODO: replace span class="T3" with tooltip showing the meaning of the gloss part!
-    # use css and javascript from valency!
-    #
-
-    #
     # handle value tables
     #
     for tag in s.find_all('div', class_='value-table'):
+        continue
         tag.name = 'table'
         tag['class'] = ['table', 'table-hover', 'values']
         tag['style'] = 'width: auto;'
@@ -120,23 +164,28 @@ def fix(id_):
                 break
 
     for tag in s.find_all('div', id=True):
+        continue
         if re.match('values\_[A-Z]$', tag['id']):
             tag.extract()
 
     for tag in s.find_all('span', class_='close'):
+        continue
         if 'onclick' in tag.attrs:
             tag.extract()
 
     for tag in s.find_all('li', style=True):
+        continue
         del tag['style']
 
     for tag in s.find_all('ul', id='tableofcontent'):
+        continue
         tag['class'] = 'nav nav-tabs nav-stacked'.split()
 
     #
     # cleanup tables
     #
     for tag in s.find_all('table', class_="Table1"):
+        continue
         if tag.find('td', class_="tableBox"):
             tag['class'] = "table table-bordered".split()
         else:
@@ -145,10 +194,12 @@ def fix(id_):
             del tag[attr]
 
     for tag in s.find_all('td', class_="tableHeader"):
+        continue
         tag.name = 'th'
         del tag['class']
 
     for class_ in ["tableTopRow", "tableInside", "tableBottomRow", "tableBox"]:
+        continue
         for tag in s.find_all('td', class_=class_):
             del tag['class']
             if class_ == 'tableBox':
@@ -161,6 +212,7 @@ def fix(id_):
     # put captions inside the table
     #
     for tag in s.find_all('p', class_="captionTable"):
+        continue
         div = None
         table = None
         for sibling in tag.next_siblings:
@@ -182,11 +234,13 @@ def fix(id_):
     # figures
     #
     for class_ in ["figureChapter", "figureExample"]:
+        continue
         for tag in s.find_all('div', class_=class_):
             tag.name = 'figure'
             del tag['class']
 
     for tag in s.find_all('p', class_="captionFigure"):
+        continue
         tag.name = 'figcaption'
         for attr in tag.attrs.keys():
             del tag[attr]
@@ -194,16 +248,16 @@ def fix(id_):
     #c = s.prettify()
     c = unicode(s)
     c = c.replace('<?xml version="1.0"?>\n', '').strip()
-    c = re.sub(
-        '\<p\s+class\=\"example\-start\"\>',
-        '<blockquote class="example"><p class="example-start">',
-        c,
-        flags=re.M)
-    c = re.sub(
-        u'\<p\s+class\=\"example\-end\"\>[\s\xa0]*\<\/p\>',
-        '<p class="example-end"></p></blockquote>',
-        c,
-        flags=re.M)
+    #c = re.sub(
+    #    '\<p\s+class\=\"example\-start\"\>',
+    #    '<blockquote class="example"><p class="example-start">',
+    #    c,
+    #    flags=re.M)
+    #c = re.sub(
+    #    u'\<p\s+class\=\"example\-end\"\>[\s\xa0]*\<\/p\>',
+    #    '<p class="example-end"></p></blockquote>',
+    #    c,
+    #    flags=re.M)
 
     try:
         et.fromstring(c.encode('utf8'))

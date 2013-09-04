@@ -15,9 +15,10 @@ from bs4 import BeautifulSoup
 from clld.db.meta import DBSession, VersionedDBSession
 from clld.db.models import common
 from clld.db.util import compute_language_sources
-from clld.scripts.util import initializedb, Data
+from clld.scripts.util import initializedb, Data, gbs_func
 from clld.lib.bibtex import EntryType
 from clld.lib.dsv import rows
+from clld.util import LGR_ABBRS
 
 import wals3
 from wals3 import models
@@ -198,6 +199,9 @@ ABBRS = {
     "VP": "verb phrase",
 }
 
+for k, v in LGR_ABBRS.items():
+    ABBRS.setdefault(k, v)
+
 
 class Icons(object):
     filename_pattern = re.compile('(?P<spec>(c|d|s|f|t)[0-9a-f]{3})\.png')
@@ -250,6 +254,8 @@ where id = id_r_ref and citekey = '%s'""" % id
             if not refdb_id:
                 print 'missing ref', id
                 return {}
+
+    res['pk'] = int(refdb_id)
 
     if 'bibtex_type' not in res:
         for row in REFDB.execute("select genre from ref_record where id = %s" % refdb_id):
@@ -386,6 +392,8 @@ def main(args):
     vs2008 = get_vs2008(args)
 
     missing_sources = []
+    refdb_ids = {}
+    max_id = 7350
     with open('/home/robert/venvs/clld/data/wals-data/missing_source.py', 'w') as fp:
         for row in old_db.execute("select * from reference"):
             try:
@@ -396,6 +404,14 @@ def main(args):
             if not bibdata:
                 fp.write('"%s",\n' % row['id'])
                 missing_sources.append(row['id'])
+                bibdata['pk'] = max_id
+                max_id += 1
+
+            if bibdata['pk'] in refdb_ids:
+                print 'already seen:', row['id'], 'as', refdb_ids[bibdata['pk']]
+                data['Source'][row['id']] = data['Source'][refdb_ids[bibdata['pk']]]
+                continue
+            refdb_ids[bibdata['pk']] = row['id']
 
             bibdata.update({
                 'id': row['id'],
@@ -626,26 +642,31 @@ def main(args):
 
     DBSession.flush()
 
-    for row in old_db.execute("select * from datapoint_reference"):
-        common.ValueSetReference(
-            valueset=data['ValueSet'][row['datapoint_id']],
-            source=data['Source'][row['reference_id']],
-            description=row['note'],
-        )
+    migrate(
+        'datapoint_reference',
+        common.ValueSetReference,
+        lambda r: dict(
+            valueset=data['ValueSet'][r['datapoint_id']],
+            source=data['Source'][r['reference_id']],
+            description=r['note']))
 
-    for row in old_db.execute("select * from author_chapter"):
-        DBSession.add(common.ContributionContributor(
-            ord=row['order'],
-            primary=row['primary'] != 0,
-            contributor_pk=data['Contributor'][row['author_id']].pk,
-            contribution_pk=data['Chapter'][row['chapter_id']].pk))
+    migrate(
+        'author_chapter',
+        common.ContributionContributor,
+        lambda r: dict(
+            ord=r['order'],
+            primary=r['primary'] != 0,
+            contributor_pk=data['Contributor'][r['author_id']].pk,
+            contribution_pk=data['Chapter'][r['chapter_id']].pk))
 
-    for row in old_db.execute("select * from author_supplement"):
-        DBSession.add(common.ContributionContributor(
-            ord=row['order'],
-            primary=row['primary'] != 0,
-            contributor_pk=data['Contributor'][row['author_id']].pk,
-            contribution_pk=data['Chapter']['s%s' % row['supplement_id']].pk))
+    migrate(
+        'author_supplement',
+        common.ContributionContributor,
+        lambda r: dict(
+            ord=r['order'],
+            primary=r['primary'] != 0,
+            contributor_pk=data['Contributor'][r['author_id']].pk,
+            contribution_pk=data['Chapter']['s%s' % r['supplement_id']].pk))
 
     igts = defaultdict(lambda: [])
     for row in old_db.execute("select * from igt"):
@@ -791,6 +812,8 @@ def prime_cache(args):
         language.iso_codes = ', '.join(sorted(set(iso_codes)))
 
     compute_language_sources()
+
+    gbs_func('update', args)
 
 
 if __name__ == '__main__':

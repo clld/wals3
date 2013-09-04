@@ -9,7 +9,8 @@ from pyramid.httpexceptions import HTTPMovedPermanently, HTTPFound
 from pytz import utc
 
 from clld.db.meta import DBSession
-from clld.db.models.common import Value, ValueSet
+from clld.db.models.common import Value, ValueSet, Source
+from clld.web.views.olac import OlacConfig, olac_with_cfg, Participant, Institution
 from wals3.models import Family, Genus, Feature
 
 
@@ -22,12 +23,6 @@ def info(request):
     }
 
 
-@view_config(route_name='datapoint')
-def datapoint(request):
-    return HTTPMovedPermanently(
-        request.route_url('valueset', id='%(fid)s-%(lid)s' % request.matchdict))
-
-
 @view_config(route_name='datapoint', request_method='POST')
 def comment(request):
     """
@@ -36,6 +31,11 @@ def comment(request):
     """
     vs = ValueSet.get('%(fid)s-%(lid)s' % request.matchdict)
     return HTTPFound(request.blog.post_url(vs, request, create=True) + '#comment')
+
+
+@view_config(route_name='credits', renderer='credits.mako')
+def credits(request):
+    return {}
 
 
 @view_config(route_name='genealogy', renderer='genealogy.mako')
@@ -76,3 +76,59 @@ def changes(request):
 @view_config(route_name='sample', renderer='sample.mako')
 def sample(ctx, request):
     return {'ctx': ctx}
+
+
+class OlacConfigSource(OlacConfig):
+    def _query(self, req):
+        return req.db.query(Source)
+
+    def get_earliest_record(self, req):
+        return self._query(req).order_by(Source.updated, Source.pk).first()
+
+    def get_record(self, req, identifier):
+        """
+        """
+        rec = Source.get(self.parse_identifier(req, identifier), default=None)
+        assert rec
+        return rec
+
+    def query_records(self, req, from_=None, until=None):
+        q = self._query(req).order_by(Source.pk)
+        if from_:
+            q = q.filter(Source.updated >= from_)
+        if until:
+            q = q.filter(Source.updated < until)
+        return q
+
+    def format_identifier(self, req, item):
+        """
+        """
+        return self.delimiter.join([self.scheme, 'refdb.' + req.dataset.domain, str(item.pk)])
+
+    def parse_identifier(self, req, id_):
+        """
+        """
+        assert self.delimiter in id_
+        return int(id_.split(self.delimiter)[-1])
+
+    def description(self, req):
+        return {
+            'archiveURL': 'http://%s/refdb_oai' % req.dataset.domain,
+            'participants': [
+                Participant("Admin", 'Robert Forkel', 'robert_forkel@eva.mpg.de'),
+            ] + [Participant("Editor", ed.contributor.name, ed.contributor.email or req.dataset.contact) for ed in req.dataset.editors],
+            'institution': Institution(
+                req.dataset.publisher_name,
+                req.dataset.publisher_url,
+                '%s, Germany' % req.dataset.publisher_place,
+            ),
+            'synopsis': 'The World Atlas of Language Structures Online is a large database '
+            'of structural (phonological, grammatical, lexical) properties of languages '
+            'gathered from descriptive materials (such as reference grammars). The RefDB '
+            'archive contains bibliographical records for all resources cited in WALS Online.',
+        }
+
+
+@view_config(route_name='olac.source')
+def olac_source(req):
+    return olac_with_cfg(req, OlacConfigSource())
