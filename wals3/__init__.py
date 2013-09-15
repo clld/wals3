@@ -13,8 +13,8 @@ from clld.web.adapters.base import Representation, adapter_factory
 from clld.web.app import get_configurator, menu_item, CtxFactoryQuery
 from clld.web.views import redirect, xpartial
 from clld.db.models.common import Contribution, ContributionReference, Parameter
-from clld.web.blog import Blog
 
+from wals3.blog import Blog
 from wals3.adapters import GeoJsonFeature
 from wals3.maps import FeatureMap, FamilyMap, CountryMap, SampleMap
 from wals3.datatables import Languages, Features, Datapoints, Chapters
