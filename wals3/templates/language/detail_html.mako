@@ -22,8 +22,7 @@
         % if request.map:
         <%util:accordion_group eid="acc-map" parent="sidebar-accordion" title="Map" open="${True}">
             ${request.map.render()}
-            <p>Coordinates: ${ctx.latitude}, ${ctx.longitude}</p>
-            <p>Spoken in: ${', '.join(h.link(request, c) for c in ctx.countries)|n}</p>
+            ${util.dl_table(('Coordinates', h.format_coordinates(ctx)), ('Spoken in', h.literal(', '.join(h.link(request, c) for c in ctx.countries))))}
         </%util:accordion_group>
         % endif
         % if ctx.sources:

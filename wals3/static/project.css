@@ -5174,3 +5174,50 @@ dl.terminology dd {
 dl.table dt { width: 20em; }
 
 table.values caption {white-space: nowrap;}
+
+#contextnavbar .navbar-inner {
+  margin-top: 5px;
+background: #bfd298; /* Old browsers */
+background: -moz-linear-gradient(top, #bfd298 0%, #b1c490 100%); /* FF3.6+ */
+background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#bfd298), color-stop(100%,#b1c490)); /* Chrome,Safari4+ */
+background: -webkit-linear-gradient(top, #bfd298 0%,#b1c490 100%); /* Chrome10+,Safari5.1+ */
+background: -o-linear-gradient(top, #bfd298 0%,#b1c490 100%); /* Opera 11.10+ */
+background: -ms-linear-gradient(top, #bfd298 0%,#b1c490 100%); /* IE10+ */
+background: linear-gradient(to bottom, #bfd298 0%,#b1c490 100%); /* W3C */
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#bfd298', endColorstr='#b1c490',GradientType=0 ); /* IE6-9 */
+
+  border-bottom: 1px solid #eee;
+  -webkit-border-radius: 0;
+  -moz-border-radius: 0;
+  border-radius: 0;
+  -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.065);
+  -moz-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.065);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.065);
+  *zoom: 1;
+}
+
+#contextnavbar .navbar-link {
+  color: #912f03;
+}
+#contextnavbar .navbar-link:hover {
+  color: #111;
+}
+#contextnavbar .nav > li > a {
+  color: #912f03;
+  text-shadow: none;
+}
+#contextnavbar .nav > li > a:focus,
+#contextnavbar .nav > li > a:hover {
+  background-color: #d1deb6;
+  color: #111;
+}
+#contextnavbar .nav > .active > a,
+#contextnavbar .nav > .active > a:hover,
+#contextnavbar .nav > .active > a:focus {
+  color: #912f03;
+  text-decoration: none;
+  background-color: #d1deb6;
+  -webkit-box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.125);
+  -moz-box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.125);
+  box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.125);
+}

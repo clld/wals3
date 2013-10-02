@@ -12,7 +12,7 @@ from clld.db.models import common
 from clld.web.util.helpers import linked_contributors, link, linked_references
 from clld.web.util.htmllib import HTML
 
-from wals3.models import WalsLanguage, Genus, Family, Chapter, Feature, Area
+from wals3.models import WalsLanguage, Genus, Family, Chapter, Feature, Area, Country
 
 
 class FeatureIdCol(LinkCol):
@@ -75,15 +75,11 @@ class Datapoints(datatables.Values):
         return cols
 
     def get_options(self):
-        opts = super(Datapoints, self).get_options()
         if self.language:
             # if the table is restricted to the values for one language, the number of
             # features is an upper bound for the number of values; thus, we do not
             # paginate.
-            opts['bLengthChange'] = False
-            opts['bPaginate'] = False
-            #opts['iDisplayLength'] = 200
-        return opts
+            return {'bLengthChange': False, 'bPaginate': False}
 
 
 class ContributorsCol(Col):
@@ -135,7 +131,7 @@ class Features(datatables.Parameters):
             ContributorsCol(self, 'Authors', bSearchable=False, bSortable=False),
             FeatureAreaCol(self, 'area'),
             RepresentationCol(self, 'Languages', sClass='right'),
-            DetailsRowLinkCol(self, button_text='Values'),
+            DetailsRowLinkCol(self, 'd', button_text='Values'),
         ]
 
 
@@ -161,9 +157,22 @@ class FamilyCol(Col):
         return link(self.dt.req, item.genus.family)
 
 
+class MacroareaCol(Col):
+    def __init__(self, dt, name, **kw):
+        kw['bSortable'] = False
+        kw['choices'] = [r[0] for r in DBSession.query(Country.continent).distinct()]
+        super(MacroareaCol, self).__init__(dt, name, **kw)
+
+    def search(self, qs):
+        return Country.continent.__eq__(qs)
+
+    def format(self, item):
+        return ', '.join(set(c.continent for c in item.countries))
+
+
 class Languages(datatables.Languages):
     def base_query(self, query):
-        return query.join(Genus).join(Family).options(
+        return query.join(WalsLanguage.countries).join(Genus).join(Family).options(
             joinedload_all(WalsLanguage.genus, Genus.family))
 
     def col_defs(self):
@@ -173,6 +182,7 @@ class Languages(datatables.Languages):
             Col(self, 'iso_codes', model_col=WalsLanguage.iso_codes),
             GenusCol(self, 'genus'),
             FamilyCol(self, 'family'),
+            MacroareaCol(self, 'macroarea')
         ]
 
 
@@ -202,6 +212,4 @@ class Chapters(datatables.Contributions):
         ] + cols[-1:]
 
     def get_options(self):
-        opts = super(Chapters, self).get_options()
-        opts['aaSorting'] = [[0, 'asc']]
-        return opts
+        return {'aaSorting': [[0, 'asc']]}

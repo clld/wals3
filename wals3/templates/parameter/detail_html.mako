@@ -17,12 +17,12 @@
     </%util:well>
 </div>
 
-<h2>${_('Parameter')} ${ctx.name}</h2>
+<h2>Feature ${ctx.id}: ${ctx.name}</h2>
 
 <p>
- by ${h.linked_contributors(request, ctx.chapter)}
- (${h.link(request, ctx.chapter, label='Chapter %s' % ctx.chapter.id)})
- ${h.cite_button(request, ctx.chapter)}
+    In chapter ${ctx.chapter.id}: ${h.link(request, ctx.chapter)}
+    by ${h.linked_contributors(request, ctx.chapter)}
+    ${h.cite_button(request, ctx.chapter)}
 </p>
 
 <br style="clear: right"/>

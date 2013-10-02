@@ -1,6 +1,6 @@
 from sqlalchemy.orm import joinedload, joinedload_all
 
-from clld.web.adapters import GeoJsonParameter
+from clld.web.adapters.geojson import GeoJsonParameter, pacific_centered_coordinates
 from clld.db.meta import DBSession
 from clld.db.models.common import Value, DomainElement, ValueSet
 
@@ -16,6 +16,9 @@ class GeoJsonFeature(GeoJsonParameter):
 
     def get_language(self, ctx, req, value):
         return value.valueset.language
+
+    def get_coordinates(self, language):
+        return pacific_centered_coordinates(language)
 
     def feature_properties(self, ctx, req, value):
         return {

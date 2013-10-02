@@ -6,6 +6,8 @@ from clld.web.util.helpers import JS
 class FeatureMap(ParameterMap):
     def options(self):
         return {
+            'icon_size': 20,
+            'worldCopyJump': True,
             'on_init': JS('wals_parameter_map_on_init'),
             'info_query': {'parameter': self.ctx.pk}}
 
