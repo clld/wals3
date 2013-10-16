@@ -37,10 +37,13 @@
     The second online version was published in April 2011.
 </p>
 <p>
-    With the current edition WALS Online switches to a new versioning model.
-    Changes in value
-    assignment will be made transparent by showing a history on the respective pages.
-    Data downloads can be selected by timestamp.
+  The 2013 edition of WALS corrects a number of coding errors expecially in Chapters 1 and 3.
+  A full list of changes is available <a href="${request.route_url('changes')}">here</a>.
+</p>
+<p>
+  Starting with this edition of WALS, there will not be specific editions every two or three years, but we will be
+  updating it whenever corrections or additions are made. Changes in value assignment will be made transparent by
+  showing a history on the respective pages.
 </p>
 <p>
     WALS Online is a publication of the

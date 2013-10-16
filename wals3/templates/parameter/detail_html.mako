@@ -1,7 +1,7 @@
 <%inherit file="../${context.get('request').registry.settings.get('clld.app_template', 'app.mako')}"/>
 <%namespace name="util" file="../util.mako"/>
 <%! active_menu_item = "parameters" %>
-<%block name="title">${_('Parameter')} ${ctx.name}</%block>
+<%block name="title">- Feature ${ctx.id}: ${ctx.name}</%block>
 
 <div class="span4" style="float: right; margin-top: 1em;">
     <%util:well title="Values">
@@ -31,10 +31,7 @@
 ${request.map.render()}
 % endif
 
-<div>
-    <% dt = request.registry.getUtility(h.interfaces.IDataTable, 'values'); dt = dt(request, h.models.Value, parameter=ctx) %>
-    ${dt.render()}
-</div>
+${util.values_and_sentences()}
 
 <%block name="javascript">
 wals_parameter_map_on_init = function (map) {

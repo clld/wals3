@@ -84,12 +84,10 @@ def sample_factory(req):
 #    Route('root.metadata',              '/metadata'),
 #    Route('root.metadata.alt',          '/metadata.{extension}'),
 #
-#    Route('about.credits',              "/about/credits", controller='root', action='about_credits'),
 #    Route('export',                     "/export", controller='root', action='export'),
 #    Route('export.do',                  "/do_export", controller='root', action='do_export'),
 #
 #    Redirect("/feature",                "/feature/"),
-#    Route('feature.exhibit',            '/feature/exhibit'),
 #    Redirect("/feature",                "/feature/item{url:.*}", code=301),
 #
 #    #
@@ -123,13 +121,6 @@ def sample_factory(req):
 #    Route('refdb.search.alt',           "/refdb/search_{what}", requirements=dict(what='author|title|language|journal')),
 #
 #    Route('refdb.metadata.alt',         "/refdb/metadata/{id}.{extension}", requirements={"id": R"(\d{1,4}|[\d\w\-]+)"}),
-#
-#    Route('icon.index',                 '/icon'),
-#
-#    Route('languoid.samples',           '/languoid/samples/{type}', requirements={"type": '100|200'}),
-#    Route('languoid.samples.alt',       '/languoid/samples/{type}.{extension}', requirements={"type": '100|200'}),
-#    Route('languoid.genealogy',         '/languoid/genealogy'),
-#    Route('languoid.genealogy.alt',     '/languoid/genealogy.{extension}'),
 #
 #    Route('languoid.metadata',          "/languoid/metadata/"+WALS_CODE_PREFIX+"{id}", requirements=dict(id=LECT_ID_PATTERN)),
 #    Route('languoid.metadata.alt',      "/languoid/metadata/"+WALS_CODE_PREFIX+"{id}.{extension}", requirements=dict(id=LECT_ID_PATTERN)),
@@ -257,6 +248,7 @@ def main(global_config, **settings):
         ('contributions', partial(menu_item, 'contributions')),
         ('languages', partial(menu_item, 'languages')),
         ('sources', partial(menu_item, 'sources')),
+        #('examples', partial(menu_item, 'sentences')),
         ('contributors', partial(menu_item, 'contributors')),
         ('blog', lambda ctx, req: (req.blog.url('category/news/'), 'Newsblog')),
     )
