@@ -12,35 +12,30 @@
 
 <h2>${_('Language')} ${ctx.name}</h2>
 
-<div>
-    <% dt = request.registry.getUtility(h.interfaces.IDataTable, 'values'); dt = dt(request, h.models.Value, language=ctx) %>
-    ${dt.render()}
-</div>
+${request.get_datatable('values', h.models.Value, language=ctx).render()}
 
 <%def name="sidebar()">
-    <div class="accordion" id="sidebar-accordion">
-        % if request.map:
-        <%util:accordion_group eid="acc-map" parent="sidebar-accordion" title="Map" open="${True}">
-            ${request.map.render()}
-            ${util.dl_table(('Coordinates', h.format_coordinates(ctx)), ('Spoken in', h.literal(', '.join(h.link(request, c) for c in ctx.countries))))}
-        </%util:accordion_group>
-        % endif
-        % if ctx.sources:
-        <%util:accordion_group eid="sources" parent="sidebar-accordion" title="Sources">
-            <ul>
-                % for source in ctx.sources:
-                <li>${h.link(request, source, label=source.description)}<br />
-                <small>${h.link(request, source)}</small></li>
-                % endfor
-            </ul>
-        </%util:accordion_group>
-        % endif
-        <%util:accordion_group eid="acc-names" parent="sidebar-accordion" title="Alternative names">
-            <ul>
-                % for identifier in ctx.identifiers:
-                <li>${identifier.type} ${identifier.id or identifier.name}</li>
-                % endfor
-            </ul>
-        </%util:accordion_group>
-    </div>
+    ${util.codes()}
+    <div style="clear: right;"> </div>
+    <%util:well>
+        ${request.map.render()}
+        ${h.format_coordinates(ctx)}
+        ${util.dl_table(('Spoken in', h.literal(', '.join(h.link(request, c) for c in ctx.countries))))}
+    </%util:well>
+    <%util:well title="Alternative names">
+        ${util.dl_table(*[(i.description.capitalize(), i.name) for i in ctx.identifiers if i.type == 'name'])}
+    </%util:well>
+    % if ctx.sources:
+    <%util:well title="Sources">
+        ${util.sources_list(sorted(list(ctx.sources), key=lambda s: s.name))}
+    </%util:well>
+    % endif
+    ##    <%util:accordion_group eid="acc-names" parent="sidebar-accordion" title="Alternative names">
+    ##        <ul>
+    ##            % for identifier in ctx.identifiers:
+    ##            <li>${identifier.type} ${identifier.id or identifier.name}</li>
+    ##            % endfor
+    ##        </ul>
+    ##    </%util:accordion_group>
+    ##</div>
 </%def>

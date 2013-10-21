@@ -32,6 +32,12 @@ for k, v in uncited.MAP.items():
 # start with what's online right now:
 DB = create_engine('postgresql://robert@/wals-vm42')
 REFDB = create_engine('postgresql://robert@/walsrefs')
+GC = create_engine('postgresql://robert@/glottolog3')
+
+glottocodes = {}
+for row in GC.execute('select ll.hid, l.id from language as l, languoid as ll where ll.pk = l.pk'):
+    if row[0] and len(row[0]) == 3:
+        glottocodes[row[0]] = row[1]
 
 ABBRS = {
     "A": "agent-like argument",
@@ -454,7 +460,7 @@ def main(args):
         'altname',
         common.Identifier,
         lambda r: (
-            (r['name'], r['type']), dict(name=r['name'], type='name-%s' % r['type'])))
+            (r['name'], r['type']), dict(name=r['name'], type='name', description=r['type'])))
 
     migrate(
         'isolanguage',
@@ -465,6 +471,17 @@ def main(args):
                 id=r['id'],
                 name=r['id'],
                 type=common.IdentifierType.iso.value,
+                description=r['name'])))
+
+    migrate(
+        'isolanguage',
+        common.Identifier,
+        lambda r: None if r['id'] not in glottocodes else (
+            'gc-%s' % r['id'],
+            dict(
+                id='gc-%s' % r['id'],
+                name=glottocodes[r['id']],
+                type=common.IdentifierType.glottolog.value,
                 description=r['name'])))
 
     migrate(
@@ -528,6 +545,14 @@ def main(args):
         lambda r: dict(
             language=data['WalsLanguage'][r['language_id']],
             identifier=data['Identifier'][r['isolanguage_id']],
+            description=r['relation']))
+
+    migrate(
+        'isolanguage_language',
+        common.LanguageIdentifier,
+        lambda r: None if 'gc-%s' % r['isolanguage_id'] not in data['Identifier'] else dict(
+            language=data['WalsLanguage'][r['language_id']],
+            identifier=data['Identifier']['gc-%s' % r['isolanguage_id']],
             description=r['relation']))
 
     migrate(
