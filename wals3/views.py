@@ -33,11 +33,6 @@ def comment(request):
     return HTTPFound(request.blog.post_url(vs, request, create=True) + '#comment')
 
 
-@view_config(route_name='credits', renderer='credits.mako')
-def credits(request):
-    return {}
-
-
 @view_config(route_name='genealogy', renderer='genealogy.mako')
 def genealogy(request):
     return dict(
@@ -45,7 +40,6 @@ def genealogy(request):
         .options(joinedload_all(Family.genera, Genus.languages)))
 
 
-@view_config(route_name="changes", renderer="changes.mako")
 def changes(request):
     """
     select vs.id, v.updated, h.domainelement_pk, v.domainelement_pk from value_history as h, value as v, valueset as vs where h.pk = v.pk and v.valueset_pk = vs.pk;

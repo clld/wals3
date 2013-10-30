@@ -234,6 +234,7 @@ def main(global_config, **settings):
         'contributor': '/author/{id:[^/\.]+}',
         'legal': '/about/legal',
         'olac': '/languoid/oai',
+        'credits': '/about/credits',
     }
     settings['sitemaps'] = 'contribution parameter source sentence valueset'.split()
     utilities = [
@@ -273,8 +274,6 @@ def main(global_config, **settings):
     config.register_adapter(GeoJsonFeature, IParameter)
     config.add_route('feature_info', '/feature-info/{id}')
     config.add_route('genealogy', '/languoid/genealogy')
-    config.add_route('changes', '/changes')
-    config.add_route('credits', '/about/credits')
 
     config.add_301(
         '/index',
