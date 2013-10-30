@@ -32,10 +32,6 @@ class FeatureIdCol2(FeatureIdCol):
 
 
 class AreaCol(Col):
-    #def __init__(self, *args, **kw):
-    #    super(AreaCol, self).__init__(*args, **kw)
-    #    self.choices = [a.name for a in DBSession.query(Area).order_by(Area.id)]
-
     def format(self, item):
         return item.valueset.parameter.chapter.area.name
 
@@ -68,10 +64,10 @@ class Datapoints(datatables.Values):
     def col_defs(self):
         # remove the details link.
         cols = super(Datapoints, self).col_defs()[1:]
-        if not self.parameter:
-            cols = [FeatureIdCol2(self, 'fid', sClass='right', bSearchable=False)]\
-                + cols\
-                + [AreaCol(self, 'area', bSearchable=False)]
+        if self.language:
+            cols = [
+                FeatureIdCol2(self, 'fid', sClass='right', bSearchable=False)
+            ] + cols + [AreaCol(self, 'area', bSearchable=False)]
         return cols
 
     def get_options(self):
@@ -135,28 +131,6 @@ class Features(datatables.Parameters):
         ]
 
 
-class GenusCol(Col):
-    def order(self):
-        return Genus.name
-
-    def search(self, qs):
-        return Genus.name.contains(qs)
-
-    def format(self, item):
-        return item.genus.name
-
-
-class FamilyCol(Col):
-    def order(self):
-        return Family.name
-
-    def search(self, qs):
-        return Family.name.contains(qs)
-
-    def format(self, item):
-        return link(self.dt.req, item.genus.family)
-
-
 class MacroareaCol(Col):
     def __init__(self, dt, name, **kw):
         kw['bSortable'] = False
@@ -180,8 +154,8 @@ class Languages(datatables.Languages):
             IdCol(self, 'id'),
             LinkCol(self, 'name'),
             Col(self, 'iso_codes', model_col=WalsLanguage.iso_codes),
-            GenusCol(self, 'genus'),
-            FamilyCol(self, 'family'),
+            LinkCol(self, 'genus', model_col=Genus.name, get_object=lambda i: i.genus),
+            LinkCol(self, 'family', model_col=Family.name, get_object=lambda i: i.genus.family),
             MacroareaCol(self, 'macroarea')
         ]
 

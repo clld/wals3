@@ -46,6 +46,7 @@ class Country(Base, IdNameDescriptionMixin):
         Language, secondary=CountryLanguage.__table__, backref='countries')
 
 
+@implementer(wals_interfaces.IGenus)
 class Genus(Base, IdNameDescriptionMixin):
     family_pk = Column(Integer, ForeignKey('family.pk'))
     subfamily = Column(Unicode)

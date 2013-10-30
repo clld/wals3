@@ -10,11 +10,32 @@ from clld.interfaces import IRepresentation
 from clld.web.adapters import get_adapter
 from clld.db.meta import DBSession
 from clld.db.models.common import DomainElement, Contribution
-from clld.web.util.helpers import button, icon, JS_CLLD, get_referents
+from clld.web.util.helpers import button, icon, JS_CLLD, get_referents, JS
+from clld.web.util.multiselect import MultiSelect
 from clld.web.util.htmllib import HTML
 
 import wals3
 from wals3.models import Feature
+
+
+class LanguoidSelect(MultiSelect):
+    def format_result(self, l):
+        return dict(
+            id='%s-%s' % (l.mapper_name().lower()[0], l.id),
+            text=l.name,
+            type=l.mapper_name())
+
+    def get_options(self):
+        return {
+            'multiple': False,
+            'placeholder': 'Search a languoid by name',
+            'formatResult': JS('WALS3.formatLanguoid'),
+            'formatSelection': JS('WALS3.formatLanguoid')}
+
+
+def language_index_html(context=None, request=None, **kw):
+    return {'ms': LanguoidSelect(
+        request, 'languoid', 'languoid', url=request.route_url('languoids'))}
 
 
 def dataset_detail_html(context=None, request=None, **kw):

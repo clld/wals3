@@ -462,6 +462,21 @@ def main(args):
         lambda r: (
             (r['name'], r['type']), dict(name=r['name'], type='name', description=r['type'])))
 
+    # names for isolanguages are not unique!
+    enames = {}
+    for r in DB.execute("select * from isolanguage"):
+        id_ = 'ethnologue-%s' % r['id']
+        if r['name'] in enames:
+            data['Identifier'][id_] = enames[r['name']]
+        else:
+            enames[r['name']] = data.add(
+                common.Identifier, id_,
+                id=id_,
+                name=r['name'],
+                type='name',
+                description='ethnologue')
+    DBSession.flush()
+
     migrate(
         'isolanguage',
         common.Identifier,
@@ -545,6 +560,14 @@ def main(args):
         lambda r: dict(
             language=data['WalsLanguage'][r['language_id']],
             identifier=data['Identifier'][r['isolanguage_id']],
+            description=r['relation']))
+
+    migrate(
+        'isolanguage_language',
+        common.LanguageIdentifier,
+        lambda r: None if 'ethnologue-%s' % r['isolanguage_id'] not in data['Identifier'] else dict(
+            language=data['WalsLanguage'][r['language_id']],
+            identifier=data['Identifier']['ethnologue-%s' % r['isolanguage_id']],
             description=r['relation']))
 
     migrate(

@@ -6,7 +6,11 @@ class IFamily(Interface):
     """
 
 
-class ICountry(Interface):
+class IGenus(Interface):
     """marker
     """
 
+
+class ICountry(Interface):
+    """marker
+    """

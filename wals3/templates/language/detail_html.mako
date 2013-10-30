@@ -1,16 +1,17 @@
 <%inherit file="../${context.get('request').registry.settings.get('clld.app_template', 'app.mako')}"/>
 <%namespace name="util" file="../util.mako"/>
 <%! active_menu_item = "languages" %>
+<%block name="title">Language ${ctx.name}</%block>
 
 <ul class="breadcrumb">
     <li>Family: ${h.link(request, ctx.genus.family)} <span class="divider">/</span></li>
     % if ctx.genus.subfamily:
     <li class="active">Subfamily: ${ctx.genus.subfamily} <span class="divider">/</span></li>
     % endif
-    <li class="active">Genus: ${ctx.genus.name}</li>
+    <li class="active">Genus: ${h.link(request, ctx.genus)}</li>
 </ul>
 
-<h2>${_('Language')} ${ctx.name}</h2>
+<h2>Language ${ctx.name}</h2>
 
 ${request.get_datatable('values', h.models.Value, language=ctx).render()}
 

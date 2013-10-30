@@ -16,10 +16,10 @@ from clld.db.models.common import Contribution, ContributionReference, Parameter
 
 from wals3.blog import Blog
 from wals3.adapters import GeoJsonFeature
-from wals3.maps import FeatureMap, FamilyMap, CountryMap, SampleMap
+from wals3.maps import FeatureMap, FamilyMap, CountryMap, SampleMap, GenusMap
 from wals3.datatables import Languages, Features, Datapoints, Chapters
 from wals3.models import Family, Country, WalsLanguage, Genus
-from wals3.interfaces import IFamily, ICountry
+from wals3.interfaces import IFamily, ICountry, IGenus
 
 
 def _(s, *args, **kw):
@@ -30,6 +30,7 @@ _('Contributors')
 _('Sources')
 _('Parameters')
 _('ValueSets')
+_('Sentences')
 
 
 def map_marker(ctx, req):
@@ -222,6 +223,7 @@ def main(global_config, **settings):
         'sources': '/refdb',
         'familys': '/languoid',
         'family': '/languoid/family/{id:[^/\.]+}',
+        'genus': '/languoid/genus/{id:[^/\.]+}',
         'parameters': '/feature',
         'parameter': '/feature/{id:[^/\.]+}',
         'sentences': '/example',
@@ -264,6 +266,10 @@ def main(global_config, **settings):
     config.register_adapter(adapter_factory('family/detail_html.mako'), IFamily)
     config.register_map('family', FamilyMap)
 
+    config.register_resource('genus', Genus, IGenus)
+    config.register_adapter(adapter_factory('genus/detail_html.mako'), IGenus)
+    config.register_map('genus', GenusMap)
+
     config.register_resource('country', Country, ICountry)
     config.register_adapter(adapter_factory('country/detail_html.mako'), ICountry)
     config.register_map('country', CountryMap)
@@ -304,4 +310,5 @@ def main(global_config, **settings):
     config.add_410("/experimental/{id}")
 
     config.add_route('olac.source', '/refdb_oai')
+    config.add_route('languoids', '/languoids')
     return config.make_wsgi_app()

@@ -1,18 +1,12 @@
 <%inherit file="../${context.get('request').registry.settings.get('clld.app_template', 'app.mako')}"/>
 <%namespace name="util" file="../util.mako"/>
 <%! active_menu_item = "parameters" %>
+<%block name="title">Datapoint ${ctx.name}</%block>
 
 
-<h2>${_('Datapoint')} ${h.link(request, ctx.language)} / ${h.link(request, ctx.parameter)}</h2>
+<h2>Datapoint ${h.link(request, ctx.language)} / ${h.link(request, ctx.parameter)}</h2>
 
-<dl>
-    <dt>Language:</dt>
-    <dd>${h.link(request, ctx.language)}</dd>
-    <dt>Feature:</dt>
-    <dd>${h.link(request, ctx.parameter)} by ${h.linked_contributors(request, ctx.contribution)}</dd>
-    <dt>Value:</dt>
-    <dd>${ctx.values[0].domainelement.name}</dd>
-</dl>
+${util.dl_table(('Language', h.link(request, ctx.language)), ('Feature', h.HTML.span(h.link(request, ctx.parameter), ' by ', h.linked_contributors(request, ctx.contribution))), ('Value', ctx.values[0].domainelement.name))}
 
 % if ctx.values[0].sentence_assocs:
 <h3>Examples</h3>

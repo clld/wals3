@@ -5,13 +5,74 @@ from sqlalchemy import or_, and_
 from sqlalchemy.orm import joinedload_all, joinedload
 from sqlalchemy.inspection import inspect
 from pyramid.view import view_config
-from pyramid.httpexceptions import HTTPMovedPermanently, HTTPFound
+from pyramid.httpexceptions import HTTPMovedPermanently, HTTPFound, HTTPNotFound
 from pytz import utc
 
 from clld.db.meta import DBSession
-from clld.db.models.common import Value, ValueSet, Source
+from clld.db.models.common import Value, ValueSet, Source, Language, LanguageIdentifier, Identifier
+from clld.db.util import icontains
 from clld.web.views.olac import OlacConfig, olac_with_cfg, Participant, Institution
-from wals3.models import Family, Genus, Feature
+
+from wals3.models import Family, Genus, Feature, WalsLanguage
+from wals3.util import LanguoidSelect
+
+
+@view_config(route_name='languoids', renderer='json')
+def languoids(request):
+    if request.params.get('id'):
+        if not '-' in request.params['id']:
+            return HTTPNotFound()
+        m, id_ = request.params['id'].split('-', 1)
+        model = dict(w=Language, g=Genus, f=Family).get(m)
+        if not model:
+            return HTTPNotFound()
+        obj = model.get(id_)
+        if not obj:
+            return HTTPNotFound()
+        return HTTPFound(location=request.resource_url(obj))
+
+    max_results = 20
+    qs = request.params.get('q')
+    if not qs:
+        return []
+
+    query = DBSession.query(Language)\
+        .filter(icontains(Language.name, qs))\
+        .order_by(WalsLanguage.ascii_name).limit(max_results)
+
+    res = [l for l in query]
+
+    if len(res) < max_results:
+        max_results = max_results - len(res)
+
+        # fill up suggestions with matching alternative names:
+        for l in DBSession.query(Language)\
+                .join(Language.languageidentifier, LanguageIdentifier.identifier)\
+                .filter(icontains(Identifier.name, qs))\
+                .order_by(WalsLanguage.ascii_name).limit(max_results):
+            if l not in res:
+                res.append(l)
+
+    if len(res) < max_results:
+        max_results = max_results - len(res)
+
+        # fill up with matching genera:
+        for l in DBSession.query(Genus)\
+                .filter(icontains(Genus.name, qs))\
+                .order_by(Genus.name).limit(max_results):
+            res.append(l)
+
+    if len(res) < max_results:
+        max_results = max_results - len(res)
+
+        # fill up with matching families:
+        for l in DBSession.query(Family)\
+                .filter(icontains(Family.name, qs))\
+                .order_by(Family.name).limit(max_results):
+            res.append(l)
+
+    ms = LanguoidSelect(request, None, None, url='x')
+    return dict(results=map(ms.format_result, res), context={}, more=False)
 
 
 @view_config(route_name='feature_info', renderer='json')
