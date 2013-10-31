@@ -16,11 +16,14 @@ import datetime
 from alembic import op
 import sqlalchemy as sa
 
+from clld.db.migration import update
+from clld.db.models.common import Identifier
+
 
 def upgrade():
     conn = op.get_bind()
     #12
-    conn.execute("update identifier set name = 'Bembe' where name = 'Bembe (CK if same Bembe)'")
+    update(conn, Identifier, dict(name='Bembe'), name='Bembe (CK if same Bembe)')
 
 
 def downgrade():

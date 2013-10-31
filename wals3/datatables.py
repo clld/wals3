@@ -114,11 +114,7 @@ class FeatureAreaCol(_AreaCol):
 class Features(datatables.Parameters):
     def base_query(self, query):
         return query.join(Chapter).join(Area)\
-            .join(common.Parameter_data, and_(
-                common.Parameter_data.object_pk == common.Parameter.pk,
-                common.Parameter_data.key == 'representation'
-            ))\
-            .options(joinedload_all(Feature.chapter, Chapter.area), joinedload(common.Parameter.data))
+            .options(joinedload_all(Feature.chapter, Chapter.area))
 
     def col_defs(self):
         return [
@@ -126,7 +122,7 @@ class Features(datatables.Parameters):
             LinkCol(self, 'name'),
             ContributorsCol(self, 'Authors', bSearchable=False, bSortable=False),
             FeatureAreaCol(self, 'area'),
-            RepresentationCol(self, 'Languages', sClass='right'),
+            Col(self, 'Languages', model_col=Feature.representation),
             DetailsRowLinkCol(self, 'd', button_text='Values'),
         ]
 

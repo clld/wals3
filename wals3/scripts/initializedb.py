@@ -355,13 +355,13 @@ def parse_igt(html):
         res['name'] = get_text(morphemes)
         res['analyzed'] = '\t'.join(get_text(m) for m in morphemes)
         res['markup_analyzed'] = '\t'.join(
-            ''.join(unicode(c for c in m.contents)) for m in morphemes)
+            ''.join(unicode(c) for c in m.contents) for m in morphemes)
     e = soup.find('tr', attrs={'class': 'gloss'})
     if e:
         morphemes = e.find_all('td', attrs={'class': 'morpheme'})
-        res['gloss'] = '\t'.join(get_text(m) for m in morphemes)
+        res['gloss'] = '\t'.join(get_text(m).replace('. ', '.') for m in morphemes)
         res['markup_gloss'] = '\t'.join(
-            ''.join(unicode(c for c in m.contents)) for m in morphemes)
+            ''.join(unicode(c) for c in m.contents) for m in morphemes)
     assert len(res.get('gloss', '').split('\t')) == len(res.get('analyzed', '').split('\t'))
     return res
 
@@ -372,7 +372,6 @@ def teaser(html):
         res = '%s %s' % (res, s)
         if len(res) > 100:
             break
-    print res
     return res.strip()
 
 
@@ -746,12 +745,14 @@ def main(args):
                     language=data['WalsLanguage'][row['language_id']],
                     **igt)
         else:
-            data.add(
-                common.Sentence, row['id'],
-                id=str(row['id']),
-                name=teaser(row['xhtml']),
-                xhtml=row['xhtml'],
-                language=data['WalsLanguage'][row['language_id']])
+            name = teaser(row['xhtml'])
+            if name:
+                data.add(
+                    common.Sentence, row['id'],
+                    id=str(row['id']),
+                    name=name,
+                    xhtml=row['xhtml'],
+                    language=data['WalsLanguage'][row['language_id']])
 
     missing = {}
     for row in old_db.execute("select * from example_feature"):
@@ -839,26 +840,14 @@ def prime_cache(args):
         value.updated = E2013
         VersionedDBSession.flush()
 
+    #
+    # TODO: these must be recomputed as well, after migrations!
+    #
     # cache number of languages for a parameter:
     for parameter, valuesets in groupby(
             DBSession.query(common.ValueSet).order_by(common.ValueSet.parameter_pk),
             lambda vs: vs.parameter):
-        representation = str(len(set(v.language_pk for v in valuesets)))
-
-        d = None
-        for _d in parameter.data:
-            if _d.key == 'representation':
-                d = _d
-                break
-
-        if d:
-            d.value = representation
-        else:
-            d = common.Parameter_data(
-                key='representation',
-                value=representation,
-                object_pk=parameter.pk)
-            DBSession.add(d)
+        parameter.representation = str(len(set(v.language_pk for v in valuesets)))
 
     # cache iso codes for languages:
     for language in DBSession.query(common.Language).options(joinedload_all(

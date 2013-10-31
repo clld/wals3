@@ -26,6 +26,7 @@
         ${util.stacked_links(sorted(vss, key=lambda vs: vs.language.name))}
     </%util:accordion_group>
 % endfor
+## https://github.com/clld/wals3/issues?labels=data&milestone=1
 </div>
 
 <h4 id="e2011">WALS Online 2011</h4>
