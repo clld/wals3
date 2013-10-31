@@ -366,6 +366,16 @@ def parse_igt(html):
     return res
 
 
+def teaser(html):
+    res = ''
+    for s in BeautifulSoup(html).stripped_strings:
+        res = '%s %s' % (res, s)
+        if len(res) > 100:
+            break
+    print res
+    return res.strip()
+
+
 def get_vs2008(args):
     vs2008 = {}
     for row in rows(args.data_file('datapoints_2008.csv'), delimiter=','):
@@ -739,6 +749,7 @@ def main(args):
             data.add(
                 common.Sentence, row['id'],
                 id=str(row['id']),
+                name=teaser(row['xhtml']),
                 xhtml=row['xhtml'],
                 language=data['WalsLanguage'][row['language_id']])
 
