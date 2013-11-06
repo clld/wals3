@@ -1,4 +1,5 @@
 import codecs
+from math import ceil
 
 from sqlalchemy.orm import joinedload_all
 from path import path
@@ -68,6 +69,21 @@ def contribution_detail_html(context=None, request=None, **kw):
         c = c.replace('__values_%s__' % feature.id, values)
 
     return {'text': c.replace('http://wals.info', request.application_url)}
+
+
+def partitioned(items, n=3):
+    max_items_per_bucket, rem = divmod(len(items), n)
+    if rem:
+        max_items_per_bucket += 1
+    bucket = []
+
+    for item in items:
+        if len(bucket) >= max_items_per_bucket:
+            yield bucket
+            bucket = []
+        bucket.append(item)
+
+    yield bucket
 
 
 def link_to_map(language):

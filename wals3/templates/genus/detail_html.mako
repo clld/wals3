@@ -19,11 +19,13 @@
 
 ${request.map.render()}
 
-<%def name="sidebar()">
-    <%util:well title="${str(len(ctx.languages))} language${'s' if len(ctx.languages)> 1 else ''}">
-        <table class="table table-condensed">
+<h3>Languages</h3>
+<div id="list-container" class="row-fluid">
+    % for languages in u.partitioned(ctx.languages):
+    <div class="span4">
+        <table class="table table-condensed table-nonfluid">
             <tbody>
-                % for language in ctx.languages:
+                % for language in languages:
                 <tr>
                     <td>${u.link_to_map(language)}</td>
                     <td>${h.link(request, language)}</td>
@@ -31,5 +33,6 @@ ${request.map.render()}
                 % endfor
             </tbody>
         </table>
-    </%util:well>
-</%def>
+    </div>
+    % endfor
+</div>

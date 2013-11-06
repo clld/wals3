@@ -142,8 +142,8 @@ class MacroareaCol(Col):
 
 class Languages(datatables.Languages):
     def base_query(self, query):
-        return query.join(WalsLanguage.countries).join(Genus).join(Family).options(
-            joinedload_all(WalsLanguage.genus, Genus.family))
+        return query.outerjoin(WalsLanguage.countries).join(Genus).join(Family).options(
+            joinedload_all(WalsLanguage.genus, Genus.family)).distinct()
 
     def col_defs(self):
         return [

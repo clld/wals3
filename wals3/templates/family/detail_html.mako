@@ -6,19 +6,29 @@
 <%! from sqlalchemy.orm import joinedload %>
 <%! from wals3.models import Genus %>
 
+<ul class="nav nav-pills pull-right">
+    <li><a href="#map-container">Map</a></li>
+    <li><a href="#list-container">Genera</a></li>
+</ul>
+
 <h2>Family ${ctx.name}</h2>
 
 ${request.map.render()}
 
-<%def name="sidebar()">
-    <%util:well title="Genera">
-    <div class="accordion" id="sidebar-accordion">
-        % for genus in h.DBSession.query(Genus).filter(Genus.family_pk == ctx.pk).order_by(Genus.name).options(joinedload(Genus.languages)):
-        <%util:accordion_group eid="acc-${genus.id}" parent="sidebar-accordion">
-            <%def name="title()">
-                <img height="20" width="20" src="${u.wals3.map_marker(genus, request)}" />
-                ${genus.name} (${len(genus.languages)} language${'s' if len(genus.languages)> 1 else ''})
-            </%def>
+<h3>Genera</h3>
+<div id="list-container" class="row-fluid">
+    % for genera in u.partitioned(h.DBSession.query(Genus).filter(Genus.family_pk == ctx.pk).order_by(Genus.name).options(joinedload(Genus.languages)).all()):
+    <div class="span4">
+        % for genus in filter(None, genera):
+        <h4>
+            <button title="click to toggle display of languages for genus ${genus.name}"
+                    type="button" class="btn btn-mini expand-collapse" data-toggle="collapse" data-target="#genus-${genus.pk}">
+                <i class="icon icon-plus"> </i>
+            </button>
+            <img height="20" width="20" src="${u.wals3.map_marker(genus, request)}" />
+            ${h.link(request, genus)}
+        </h4>
+        <div id="genus-${genus.pk}" class="collapse">
             <table class="table table-condensed table-nonfluid">
                 <tbody>
                     % for language in genus.languages:
@@ -29,8 +39,15 @@ ${request.map.render()}
                     % endfor
                 </tbody>
             </table>
-        </%util:accordion_group>
+        </div>
         % endfor
     </div>
-    </%util:well>
-</%def>
+    % endfor
+</div>
+<script>
+$(document).ready(function() {
+    $('.expand-collapse').click(function(){ //you can give id or class name here for $('button')
+        $(this).children('i').toggleClass('icon-minus icon-plus');
+    });
+});
+</script>
