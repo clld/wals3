@@ -23,6 +23,7 @@ from clld.util import LGR_ABBRS
 import wals3
 from wals3 import models
 from wals3.scripts import uncited
+from wals3.scripts import issues
 
 
 UNCITED_MAP = {}
@@ -209,26 +210,6 @@ for k, v in LGR_ABBRS.items():
     ABBRS.setdefault(k, v)
 
 
-class Icons(object):
-    filename_pattern = re.compile('(?P<spec>(c|d|s|f|t)[0-9a-f]{3})\.png')
-
-    @staticmethod
-    def id(spec):
-        return ''.join(c if i == 0 else c + c for i, c in enumerate(spec))
-
-    def __init__(self):
-        self._icons = []
-        for name in sorted(
-            path(wals3.__file__).dirname().joinpath('static', 'icons').files()
-        ):
-            m = self.filename_pattern.match(name.splitall()[-1])
-            if m:
-                self._icons.append(Icons.id(m.group('spec')))
-
-    def __iter__(self):
-        return iter(self._icons)
-
-
 def get_source(id):
     """retrieve a source record from wals_refdb
     """
@@ -401,7 +382,7 @@ def migrate(from_, to_, converter):
 
 
 def main(args):
-    icons = Icons()
+    icons = issues.Icons()
     old_db = DB
 
     vs2008 = get_vs2008(args)
@@ -518,6 +499,7 @@ def main(args):
                 name=r['name'],
                 latitude=r['latitude'],
                 longitude=r['longitude'],
+                ascii_name=r['ascii_name'],
                 genus=data['Genus'][r['genus_id']],
                 samples_100=r['samples_100'] != 0,
                 samples_200=r['samples_200'] != 0)))
@@ -652,7 +634,7 @@ def main(args):
             id='%s-%s' % (row['feature_id'], row['numeric']),
             name=desc,
             description=row['long_description'],
-            jsondata=dict(icon=Icons.id(row['icon_id'])),
+            jsondata=dict(icon=issues.Icons.id(row['icon_id'])),
             number=row['numeric'],
             parameter=data['Feature'][row['feature_id']])
         return (row['feature_id'], row['numeric']), kw
@@ -790,55 +772,63 @@ def prime_cache(args):
     """
     we use a versioned session to insert the changes in value assignment
     """
+    ##
+    ## compute the changes from 2008 to 2011:
+    ##
+    #vs2008 = get_vs2008(args)
+    #for row in DB.execute("select * from datapoint"):
+    #    key = (row['language_id'], row['feature_id'])
+    #    old_value = vs2008.get(key)
+    #    new_value = row['value_numeric']
+    #    if old_value and old_value != new_value:
+    #        valueset = VersionedDBSession.query(common.ValueSet)\
+    #            .join(common.Language)\
+    #            .join(common.Parameter)\
+    #            .filter(common.Parameter.id == row['feature_id'])\
+    #            .filter(common.Language.id == row['language_id'])\
+    #            .one()
+    #        value = valueset.values[0]
+    #        assert value.domainelement.number == old_value
+    #        for de in valueset.parameter.domain:
+    #            if de.number == new_value:
+    #                value.domainelement = de
+    #                break
+    #        assert value.domainelement.number == new_value
+    #        valueset.updated = E2011
+    #        value.updated = E2011
+    #        VersionedDBSession.flush()
     #
-    # compute the changes from 2008 to 2011:
+    #for row in rows(args.data_file('corrections_2013.tab'), namedtuples=True, newline='\r'):
+    #    valueset = VersionedDBSession.query(common.ValueSet)\
+    #        .join(common.Language)\
+    #        .join(common.Parameter)\
+    #        .filter(common.Parameter.id == row.feature)\
+    #        .filter(common.Language.id == row.wals_code)\
+    #        .one()
+    #    value = valueset.values[0]
     #
-    vs2008 = get_vs2008(args)
-    for row in DB.execute("select * from datapoint"):
-        key = (row['language_id'], row['feature_id'])
-        old_value = vs2008.get(key)
-        new_value = row['value_numeric']
-        if old_value and old_value != new_value:
-            valueset = VersionedDBSession.query(common.ValueSet)\
-                .join(common.Language)\
-                .join(common.Parameter)\
-                .filter(common.Parameter.id == row['feature_id'])\
-                .filter(common.Language.id == row['language_id'])\
-                .one()
-            value = valueset.values[0]
-            assert value.domainelement.number == old_value
-            for de in valueset.parameter.domain:
-                if de.number == new_value:
-                    value.domainelement = de
-                    break
-            assert value.domainelement.number == new_value
-            valueset.updated = E2011
-            value.updated = E2011
-            VersionedDBSession.flush()
+    #    if value.domainelement.number == int(row.new):
+    #        print '**** old news', valueset.language.id, valueset.parameter.id
+    #        continue
+    #
+    #    if value.domainelement.number != int(row.old):
+    #        print '--->', valueset.language.id, valueset.parameter.id, value.domainelement.number
+    #    for de in valueset.parameter.domain:
+    #        if de.number == int(row.new):
+    #            value.domainelement = de
+    #            break
+    #    assert value.domainelement.number == int(row.new)
+    #    valueset.updated = E2013
+    #    value.updated = E2013
+    #    VersionedDBSession.flush()
+    #print 'corrections 2013 done'
 
-    for row in rows(args.data_file('corrections_2013.tab'), namedtuples=True, newline='\r'):
-        valueset = VersionedDBSession.query(common.ValueSet)\
-            .join(common.Language)\
-            .join(common.Parameter)\
-            .filter(common.Parameter.id == row.feature)\
-            .filter(common.Language.id == row.wals_code)\
-            .one()
-        value = valueset.values[0]
-
-        if value.domainelement.number == int(row.new):
-            print '**** old news', valueset.language.id, valueset.parameter.id
-            continue
-
-        if value.domainelement.number != int(row.old):
-            print '--->', valueset.language.id, valueset.parameter.id, value.domainelement.number
-        for de in valueset.parameter.domain:
-            if de.number == int(row.new):
-                value.domainelement = de
-                break
-        assert value.domainelement.number == int(row.new)
-        valueset.updated = E2013
-        value.updated = E2013
+    for issue in ['0', '14', '15', '16', '17', '19', '20', '24', '26', '27', '28']:
+        issue = getattr(issues, 'issue' + issue)
+        issue(VersionedDBSession, E2013)
         VersionedDBSession.flush()
+        transaction.commit()
+        transaction.begin()
 
     #
     # TODO: these must be recomputed as well, after migrations!
@@ -848,6 +838,9 @@ def prime_cache(args):
             DBSession.query(common.ValueSet).order_by(common.ValueSet.parameter_pk),
             lambda vs: vs.parameter):
         parameter.representation = str(len(set(v.language_pk for v in valuesets)))
+    print 'recomputation of representation done'
+    transaction.commit()
+    transaction.begin()
 
     # cache iso codes for languages:
     for language in DBSession.query(common.Language).options(joinedload_all(
@@ -858,8 +851,13 @@ def prime_cache(args):
             if identifier.type == common.IdentifierType.iso.value:
                 iso_codes.append(identifier.name)
         language.iso_codes = ', '.join(sorted(set(iso_codes)))
+    print 'recomputation of iso codes done'
+    transaction.commit()
+    transaction.begin()
 
     compute_language_sources()
+    transaction.commit()
+    transaction.begin()
 
     gbs_func('update', args)
 
