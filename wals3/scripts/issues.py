@@ -241,6 +241,73 @@ def update_classification(session,
 #
 # issues
 #
+def issue10(session, timestamp):
+    """
+    Nubian (Hill) -> Ghulfan. In the case of Ghulfan, we need to add Nubian (Hill) to the
+    list of names under Other.
+    Kaguru -> Kagulu
+    Gallong -> Galo. The name "Gallong" should be added under "Other".
+    The name of the family and genus that Haruai belongs to should be changed to Piawi.
+    Koyra -> Koorete.
+    there is a spelling error in the name of the genus Jingpho, which contains one
+    language with the same name. The name of the language is spelled correctly, but the
+    genus is incorrectly spelled Jinghpo.
+    The language Embera (wals code emb) should be renamed Emberá (Northern)
+    """
+
+
+def issue11(session, timestamp):
+    """
+    Another name change:
+    Kaugel (kgl) -> Umbu Ungu
+    with Kaugel added as a name under 'Other".
+
+    Another name change:
+    Bobo Fing [bbf] -> Bobo Madaré (Northern)
+
+    Plus the current entry links Bobo Fing to two Ethnologue languages and two ISO codes,
+    but this entry should link only to Konabéré and ISO code bbo.
+    location for Bobo Fing [bbf] should be changed to
+    12° 25′ N, 4° 20′ W
+    """
+    kgl = common.Language.get('kgl', session=session)
+    kgl.name = 'Umbu Ungu'
+    name = common.Identifier(
+        id='other-name-kaugel', name='Kaugel', description='other', type='name')
+    session.add(common.LanguageIdentifier(language=kgl, identifier=name))
+
+    bbf = common.Language.get('bbf', session=session)
+    bbf.name = 'Bobo Madaré (Northern)'
+    bbf.ascii_name = 'bobo madare northern'
+    bbf.latitude = 12.4166666666666667
+    bbf.longitude = -4.3333333333333
+    bbf.updated = timestamp
+    update_iso(session, timestamp, bbf, 'bwq')
+    update_glottocode(session, timestamp, bbf, 'nort2819')
+
+
+def issue13(session, timestamp):
+    """
+    The name for what is now called Tamang should be changed to Tamang (Eastern).
+    (We are splitting it into two varieties, but we will not add Western Tamang yet.)
+    It would keep the WALS code tam.
+    The location should be changed to 27° 30′ N, 85° 40′ E .
+    The references to Taylor 1973 should be removed (since that source is on the western variety).
+    """
+    tam = common.Language.get('tam', session=session)
+    tam.updated = timestamp
+    tam.name = "Tamang (Eastern)"
+    tam.ascii_name = "tamang eastern"
+    tam.latitude = 27.5
+    tam.longitude = 85.666666666667
+
+    taylor = common.Source.get('Taylor-1973', session=session)
+    for vs in tam.valuesets:
+        for ref in vs.references:
+            if ref.source == taylor:
+                session.delete(ref)
+
+
 def issue14(session, timestamp):
     update_classification(
         session, timestamp,

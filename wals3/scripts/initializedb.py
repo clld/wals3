@@ -772,58 +772,58 @@ def prime_cache(args):
     """
     we use a versioned session to insert the changes in value assignment
     """
-    ##
-    ## compute the changes from 2008 to 2011:
-    ##
-    #vs2008 = get_vs2008(args)
-    #for row in DB.execute("select * from datapoint"):
-    #    key = (row['language_id'], row['feature_id'])
-    #    old_value = vs2008.get(key)
-    #    new_value = row['value_numeric']
-    #    if old_value and old_value != new_value:
-    #        valueset = VersionedDBSession.query(common.ValueSet)\
-    #            .join(common.Language)\
-    #            .join(common.Parameter)\
-    #            .filter(common.Parameter.id == row['feature_id'])\
-    #            .filter(common.Language.id == row['language_id'])\
-    #            .one()
-    #        value = valueset.values[0]
-    #        assert value.domainelement.number == old_value
-    #        for de in valueset.parameter.domain:
-    #            if de.number == new_value:
-    #                value.domainelement = de
-    #                break
-    #        assert value.domainelement.number == new_value
-    #        valueset.updated = E2011
-    #        value.updated = E2011
-    #        VersionedDBSession.flush()
     #
-    #for row in rows(args.data_file('corrections_2013.tab'), namedtuples=True, newline='\r'):
-    #    valueset = VersionedDBSession.query(common.ValueSet)\
-    #        .join(common.Language)\
-    #        .join(common.Parameter)\
-    #        .filter(common.Parameter.id == row.feature)\
-    #        .filter(common.Language.id == row.wals_code)\
-    #        .one()
-    #    value = valueset.values[0]
+    # compute the changes from 2008 to 2011:
     #
-    #    if value.domainelement.number == int(row.new):
-    #        print '**** old news', valueset.language.id, valueset.parameter.id
-    #        continue
-    #
-    #    if value.domainelement.number != int(row.old):
-    #        print '--->', valueset.language.id, valueset.parameter.id, value.domainelement.number
-    #    for de in valueset.parameter.domain:
-    #        if de.number == int(row.new):
-    #            value.domainelement = de
-    #            break
-    #    assert value.domainelement.number == int(row.new)
-    #    valueset.updated = E2013
-    #    value.updated = E2013
-    #    VersionedDBSession.flush()
-    #print 'corrections 2013 done'
+    vs2008 = get_vs2008(args)
+    for row in DB.execute("select * from datapoint"):
+        key = (row['language_id'], row['feature_id'])
+        old_value = vs2008.get(key)
+        new_value = row['value_numeric']
+        if old_value and old_value != new_value:
+            valueset = VersionedDBSession.query(common.ValueSet)\
+                .join(common.Language)\
+                .join(common.Parameter)\
+                .filter(common.Parameter.id == row['feature_id'])\
+                .filter(common.Language.id == row['language_id'])\
+                .one()
+            value = valueset.values[0]
+            assert value.domainelement.number == old_value
+            for de in valueset.parameter.domain:
+                if de.number == new_value:
+                    value.domainelement = de
+                    break
+            assert value.domainelement.number == new_value
+            valueset.updated = E2011
+            value.updated = E2011
+            VersionedDBSession.flush()
 
-    for issue in ['0', '14', '15', '16', '17', '19', '20', '24', '26', '27', '28']:
+    for row in rows(args.data_file('corrections_2013.tab'), namedtuples=True, newline='\r'):
+        valueset = VersionedDBSession.query(common.ValueSet)\
+            .join(common.Language)\
+            .join(common.Parameter)\
+            .filter(common.Parameter.id == row.feature)\
+            .filter(common.Language.id == row.wals_code)\
+            .one()
+        value = valueset.values[0]
+
+        if value.domainelement.number == int(row.new):
+            print '**** old news', valueset.language.id, valueset.parameter.id
+            continue
+
+        if value.domainelement.number != int(row.old):
+            print '--->', valueset.language.id, valueset.parameter.id, value.domainelement.number
+        for de in valueset.parameter.domain:
+            if de.number == int(row.new):
+                value.domainelement = de
+                break
+        assert value.domainelement.number == int(row.new)
+        valueset.updated = E2013
+        value.updated = E2013
+        VersionedDBSession.flush()
+    print 'corrections 2013 done'
+
+    for issue in ['0', '10', '11', '13', '14', '15', '16', '17', '19', '20', '24', '26', '27', '28']:
         issue = getattr(issues, 'issue' + issue)
         issue(VersionedDBSession, E2013)
         VersionedDBSession.flush()

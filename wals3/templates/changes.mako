@@ -1,6 +1,11 @@
 <%inherit file="home_comp.mako"/>
 <%namespace name="util" file="util.mako"/>
 
+<%block name="head">
+<style type="text/css">
+.dataTables_filter {display: none;}
+</style>
+</%block>
 
 <ul class="nav nav-pills pull-right">
   <li class="active">
@@ -19,26 +24,57 @@
 <h4 id="e2013">WALS Online 2013</h4>
 
 <h5>Value assignment changes</h5>
+<p>
+  The changes listed below include value corrections and additions of new values for existing features.
+  Details about specific corrections can be found
+  ${h.external_link("https://github.com/clld/wals3/issues?labels=data&milestone=1&state=closed", label='here')}.
+</p>
+<%util:table items="${changes2013}" eid="t2013" args="item" class_="table-nonfluid">\
+    <%def name="head()">
+        <th> </th><th>Feature</th><th>Number of added/changed datapoints</th>
+    </%def>
+    <% vss = list(item[1]) %>
+    <td>
+      <button title="click to toggle display of datapoints"
+              type="button" class="btn btn-mini expand-collapse" data-toggle="collapse" data-target="#c2013-${item[0].pk}">
+        <i class="icon icon-plus"> </i>
+      </button>
+    </td>
+    <td>
+      ${h.link(request, item[0])}
+        <div id="c2013-${item[0].pk}" class="collapse">
+          ${util.stacked_links(vss)}
+        </div>
+    </td>
+    <td>${str(len(vss))}</td>
+</%util:table>
 
-<div class="accordion" id="sidebar-accordion">
-% for parameter, vss in changes2013:
-    <%util:accordion_group eid="acc-2013-${parameter.id}" parent="sidebar-accordion" title="${parameter.id} ${parameter.name}">
-        ${util.stacked_links(sorted(vss, key=lambda vs: vs.language.name))}
-    </%util:accordion_group>
-% endfor
-## https://github.com/clld/wals3/issues?labels=data&milestone=1
-</div>
 
 <h4 id="e2011">WALS Online 2011</h4>
 
 <h5>Value assignment changes</h5>
-<div class="accordion" id="accordion-2011">
-% for parameter, vss in changes2011:
-    <%util:accordion_group eid="acc-2011-${parameter.id}" parent="accordion-2011" title="${parameter.id} ${parameter.name}">
-        ${util.stacked_links(sorted(vss, key=lambda vs: vs.language.name))}
-    </%util:accordion_group>
-% endfor
-</div>
+<p>
+  The changes listed below include value corrections and additions of new values for existing features.
+</p>
+<%util:table items="${changes2011}" eid="t2011" args="item" class_="table-nonfluid">\
+    <%def name="head()">
+        <th> </th><th>Feature</th><th>Number of added/changed datapoints</th>
+    </%def>
+    <% vss = list(item[1]) %>
+    <td>
+      <button title="click to toggle display of datapoints"
+              type="button" class="btn btn-mini expand-collapse" data-toggle="collapse" data-target="#c2011-${item[0].pk}">
+        <i class="icon icon-plus"> </i>
+      </button>
+    </td>
+    <td>
+      ${h.link(request, item[0])}
+        <div id="c2011-${item[0].pk}" class="collapse">
+          ${util.stacked_links(vss)}
+        </div>
+    </td>
+    <td>${str(len(vss))}</td>
+</%util:table>
 
 <h5>Other changes</h5>
 <ul>
@@ -48,10 +84,7 @@
     both with many new maps)
   </li>
   <li>
-    New data for some chapters has been added.
-  </li>
-  <li>
-    Additional maps have been added to chapters 81 (Order of Subject, Object and Verb) and 90 (Order of Relative Clause and Noun).
+    Additional features have been added to some chapters.
   </li>
   <li>
     The genealogical classification of languages, including genera, has been updated.
@@ -76,3 +109,11 @@
   A description of errate in the printed version of 2005 can be found at
   ${h.external_link('http://blog.wals.info/category/errata/errata-2005/')}.
 </p>
+
+<script>
+$(document).ready(function() {
+    $('.expand-collapse').click(function(){ //you can give id or class name here for $('button')
+        $(this).children('i').toggleClass('icon-minus icon-plus');
+    });
+});
+</script>

@@ -9,7 +9,7 @@ from pyramid.httpexceptions import HTTPMovedPermanently, HTTPFound, HTTPNotFound
 from pytz import utc
 
 from clld.db.meta import DBSession
-from clld.db.models.common import Value, ValueSet, Source, Language, LanguageIdentifier, Identifier
+from clld.db.models.common import Value, ValueSet, Source, Language, LanguageIdentifier, Identifier, Parameter
 from clld.db.util import icontains
 from clld.web.views.olac import OlacConfig, olac_with_cfg, Participant, Institution
 
@@ -110,22 +110,27 @@ def changes(request):
     E2012 = utc.localize(datetime(2012, 1, 1))
 
     history = inspect(Value.__history_mapper__).class_
-    query = DBSession.query(Value, history)\
+    query = DBSession.query(Value)\
+        .outerjoin(history, Value.pk == history.pk)\
         .join(ValueSet)\
-        .filter(Value.pk == history.pk)\
         .order_by(ValueSet.parameter_pk, ValueSet.language_pk)\
-        .options(joinedload_all(Value.valueset, ValueSet.language))
+        .options(joinedload_all(Value.valueset, ValueSet.language),
+                 joinedload_all(Value.valueset, ValueSet.parameter))
 
-    changes2011 = query.filter(or_(
-        and_(E2009 < Value.updated, Value.updated < E2012),
-        and_(E2009 < history.updated, history.updated < E2012)))
+    changes2011 = query.join(ValueSet.parameter)\
+        .filter(Parameter.id.contains('A'))\
+        .filter(Parameter.id != '143A')\
+        .filter(Parameter.id != '144A')\
+        .filter(or_(
+            and_(E2009 < Value.updated, Value.updated < E2012),
+            and_(history.updated != None, E2009 < history.updated, history.updated < E2012)))
 
     changes2013 = query.filter(or_(
         E2012 < Value.updated, E2012 < history.updated))
 
     return {
-        'changes2011': groupby([v.valueset for v, h in changes2011], lambda vs: vs.parameter),
-        'changes2013': groupby([v.valueset for v, h in changes2013], lambda vs: vs.parameter)}
+        'changes2011': groupby([v.valueset for v in changes2011], lambda vs: vs.parameter),
+        'changes2013': groupby([v.valueset for v in changes2013], lambda vs: vs.parameter)}
 
 
 @view_config(route_name='sample', renderer='sample.mako')
