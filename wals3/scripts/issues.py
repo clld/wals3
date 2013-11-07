@@ -1,6 +1,7 @@
 # coding: utf8
 from __future__ import unicode_literals
 import re
+from uuid import uuid1
 
 from path import path
 from sqlalchemy.orm.exc import NoResultFound
@@ -179,6 +180,7 @@ def update_iso(session, timestamp, lang, *obsolete, **new):
 
         if ethnologue.id not in [li.identifier.id for li in lang.languageidentifier]:
             session.add(common.LanguageIdentifier(language=lang, identifier=ethnologue))
+    return lang
 
 
 def update_glottocode(session, timestamp, lang, gc):
@@ -199,6 +201,7 @@ def update_glottocode(session, timestamp, lang, gc):
         glottocode = common.Identifier(
             id=gc, name=gc, description=gc, type=common.IdentifierType.glottolog.value)
     session.add(common.LanguageIdentifier(language=lang, identifier=glottocode))
+    return lang
 
 
 def update_classification(session,
@@ -238,22 +241,133 @@ def update_classification(session,
         lang.genus = genus
 
 
+def update_language(session, timestamp, lang, keep_old_name=False, **kw):
+    if isinstance(lang, basestring):
+        lang = common.Language.get(lang, session=session)
+
+    if 'name' in kw and keep_old_name:
+        name = common.Identifier(
+            id=str(uuid1()), name=lang.name, description='other', type='name')
+        session.add(common.LanguageIdentifier(language=lang, identifier=name))
+
+    return update_obj(session, timestamp, lang, **kw)
+
+
+def update_obj(session, timestamp, obj, **kw):
+    obj.updated = timestamp
+    for k, v in kw.items():
+        setattr(obj, k, v)
+    return obj
+
+
 #
 # issues
 #
+def issue5(session, timestamp):
+    gul = update_iso(session, timestamp, 'gul', 'glu', kcm='Gula (Central African Republic)')
+    update_glottocode(session, timestamp, gul, 'gula1266')
+
+
+def issue7(session, timestamp):
+    """
+    wals3=# select id, name from language where name like 'Dangal%';
+    id | name
+    -----+---------------------
+    dnw | Dangaléat (Western)
+    (1 row)
+
+    wals3=# select id, name from identifier where name like 'Dangal%';
+    id | name
+    ----------------+--------------------
+    | Dangaleat, Western
+    ethnologue-daa | Dangaléat
+    (2 rows)
+    """
+    lang = update_language(session, timestamp, 'dnw', name='Dangaléat', ascii_name='dangaleat')
+    for li in lang.languageidentifier:
+        if 'Western' in li.identifier.name:
+            id_ = li.identifier
+            session.delete(li)
+            session.delete(id_)
+
+
+def issue8(session, timestamp):
+    """
+    It turns out that the data and sources for Yi (wals code yi) are actually for two
+    completely different languages (both in the Burmese-Lolo genus, but in different branches).
+
+    One language is Nuosu. We will keep the WALS code yi for Nuosu. We need to add Yi as
+    a name under "Other". Its location needs to be changed to 28° N, 103° E. Otherwise,
+    the language information remains the same.
+
+    The other language is Nasu, whose information is as follows:
+    Ethnologue name: Nasu
+    ISO-code: ywq
+    Ruhlen name: --
+    Other name: Yi
+    WALS code: nsu
+    Location: 26° 10′ N, 102° 20′ E
+
+    The source for Nuosu is
+    Yiyu Jianzhi. [A brief description of the Yi language] by Chen Shilin, Bian Shiming and Xiuqing, Li 1985
+    Chen-et-al-1985
+    while the source for Nasu is
+    Yiyu yufa yanjiu [A study on Yi grammar] by Gao, Huanian 1958
+    Gao-1958
+    """
+    nuosu = update_language(
+        session, timestamp, 'yi', keep_old_name=True,
+        name='Nuosu', ascii_name='nuosu', latitude=28, longitude=103)
+
+    nasu = models.WalsLanguage(
+        id='nsu',
+        name='Nasu',
+        ascii_name='nasu',
+        latitude=26.16666666666666666,
+        longitude=102.33333333333333333,
+        genus=nuosu.genus)
+    update_iso(session, timestamp, nasu, ywq='Wuding-Luquan Yi')
+    update_glottocode(session, timestamp, nasu, 'wudi1238')
+
+    gao = common.Source.get('Gao-1958', session=session)
+    for vs in nuosu.valuesets:
+        if gao in [ref.source for ref in vs.references]:
+            if len(vs.references) > 1:
+                vs_copy_lang(session, timestamp, vs, nasu)
+            else:
+                vs_switch_lang(session, timestamp, vs, nasu)
+
+
+def issue9(session, timestamp):
+    """
+    the location of Bao'an is inaccurate. It should be changed to 35° 45′ N, 102° 50′ E.
+    """
+    update_language(session, timestamp, 'bao', latitude=35.75, longitude=102.8333333333333334)
+
+
 def issue10(session, timestamp):
     """
-    Nubian (Hill) -> Ghulfan. In the case of Ghulfan, we need to add Nubian (Hill) to the
+    1. Nubian (Hill) -> Ghulfan. In the case of Ghulfan, we need to add Nubian (Hill) to the
     list of names under Other.
-    Kaguru -> Kagulu
-    Gallong -> Galo. The name "Gallong" should be added under "Other".
-    The name of the family and genus that Haruai belongs to should be changed to Piawi.
-    Koyra -> Koorete.
-    there is a spelling error in the name of the genus Jingpho, which contains one
+    2. Kaguru -> Kagulu
+    3. Gallong -> Galo. The name "Gallong" should be added under "Other".
+    4. The name of the family and genus that Haruai belongs to should be changed to Piawi.
+    5. Koyra -> Koorete.
+    6. there is a spelling error in the name of the genus Jingpho, which contains one
     language with the same name. The name of the language is spelled correctly, but the
     genus is incorrectly spelled Jinghpo.
-    The language Embera (wals code emb) should be renamed Emberá (Northern)
+    7. The language Embera (wals code emb) should be renamed Emberá (Northern)
     """
+    update_language(session, timestamp, 'nbh', keep_old_name=True,
+                    name='Ghulfan', ascii_name='ghulfan')
+    update_language(session, timestamp, 'kgr', name='Kagulu', ascii_name='kagulu')
+    update_language(session, timestamp, 'gal', keep_old_name=True,
+                    name='Galo', ascii_name='galo')
+    genus = update_obj(session, timestamp, models.Genus.get('upperyuat', session=session), name='Piawi')
+    update_obj(session, timestamp, genus.family, name='Piawi')
+    update_language(session, timestamp, 'kjr', name='Koorete', ascii_name='koorete')
+    update_obj(session, timestamp, models.Genus.get('jinghpo', session=session), name='Jingpho')
+    update_language(session, timestamp, 'emb', name='Emberá (Northern)', ascii_name='embera northern')
 
 
 def issue11(session, timestamp):
@@ -270,18 +384,15 @@ def issue11(session, timestamp):
     location for Bobo Fing [bbf] should be changed to
     12° 25′ N, 4° 20′ W
     """
-    kgl = common.Language.get('kgl', session=session)
-    kgl.name = 'Umbu Ungu'
-    name = common.Identifier(
-        id='other-name-kaugel', name='Kaugel', description='other', type='name')
-    session.add(common.LanguageIdentifier(language=kgl, identifier=name))
+    update_language(session, timestamp, 'kgl', keep_old_name=True,
+                    name='Umbu Ungu', ascii_name='umbu ungu')
 
-    bbf = common.Language.get('bbf', session=session)
-    bbf.name = 'Bobo Madaré (Northern)'
-    bbf.ascii_name = 'bobo madare northern'
-    bbf.latitude = 12.4166666666666667
-    bbf.longitude = -4.3333333333333
-    bbf.updated = timestamp
+    bbf = update_language(
+        session, timestamp, 'bbf',
+        name='Bobo Madaré (Northern)',
+        ascii_name='bobo madare northern',
+        latitude=12.4166666666666667,
+        longitude=-4.3333333333333)
     update_iso(session, timestamp, bbf, 'bwq')
     update_glottocode(session, timestamp, bbf, 'nort2819')
 

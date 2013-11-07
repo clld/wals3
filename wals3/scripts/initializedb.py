@@ -823,7 +823,7 @@ def prime_cache(args):
         VersionedDBSession.flush()
     print 'corrections 2013 done'
 
-    for issue in ['0', '10', '11', '13', '14', '15', '16', '17', '19', '20', '24', '26', '27', '28']:
+    for issue in ['0', '9', '10', '11', '13', '14', '15', '16', '17', '19', '20', '24', '26', '27', '28']:
         issue = getattr(issues, 'issue' + issue)
         issue(VersionedDBSession, E2013)
         VersionedDBSession.flush()

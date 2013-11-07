@@ -29,6 +29,7 @@ _('Contributions')
 _('Contributors')
 _('Sources')
 _('Parameters')
+_('Parameter')
 _('ValueSets')
 _('Sentences')
 

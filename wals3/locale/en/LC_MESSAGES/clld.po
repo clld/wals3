@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: wals3 0.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2013-08-27 10:28+0200\n"
+"POT-Creation-Date: 2013-11-07 08:54+0100\n"
 "PO-Revision-Date: 2013-02-20 13:59+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: en <LL@li.org>\n"
@@ -17,23 +17,30 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 1.3\n"
 
-#: wals3/__init__.py:25
+#: wals3/__init__.py:28
 msgid "Contributions"
 msgstr "Chapters"
 
-#: wals3/__init__.py:26
+#: wals3/__init__.py:29
 msgid "Contributors"
 msgstr "Authors"
 
-#: wals3/__init__.py:27
+#: wals3/__init__.py:30
 msgid "Sources"
 msgstr "References"
 
-#: wals3/__init__.py:28
+#: wals3/__init__.py:31
 msgid "Parameters"
 msgstr "Features"
 
-#: wals3/__init__.py:29
+#: wals3/__init__.py:32
+msgid "Parameter"
+msgstr "Feature"
+
+#: wals3/__init__.py:33
 msgid "ValueSets"
 msgstr "Datapoints"
 
+#: wals3/__init__.py:34
+msgid "Sentences"
+msgstr "Examples"
