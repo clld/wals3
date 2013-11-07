@@ -1,30 +1,26 @@
 from functools import partial
 from string import ascii_uppercase
+import re
 
-from sqlalchemy.orm import joinedload_all, joinedload
-from pyramid.config import Configurator
+from path import path
+from sqlalchemy.orm import joinedload_all
 from pyramid.httpexceptions import HTTPNotFound, HTTPMovedPermanently
 
 from clld.interfaces import (
-    IParameter, IMapMarker, IDomainElement, IMapMarker, IValue, ILanguage,
+    IParameter, IMapMarker, IDomainElement, IValue, ILanguage,
     ICtxFactoryQuery, IBlog,
 )
-from clld.web.adapters.base import Representation, adapter_factory
+from clld.web.adapters.base import adapter_factory
 from clld.web.app import get_configurator, menu_item, CtxFactoryQuery
-from clld.web.views import redirect, xpartial
 from clld.db.models.common import Contribution, ContributionReference, Parameter
 
 from wals3.blog import Blog
 from wals3.adapters import GeoJsonFeature
-from wals3.maps import FeatureMap, FamilyMap, CountryMap, SampleMap, GenusMap
-from wals3.datatables import Languages, Features, Datapoints, Chapters
 from wals3.models import Family, Country, WalsLanguage, Genus
 from wals3.interfaces import IFamily, ICountry, IGenus
 
 
-def _(s, *args, **kw):
-    return s
-
+_ = lambda s: s
 _('Contributions')
 _('Contributors')
 _('Sources')
@@ -35,15 +31,31 @@ _('Sentences')
 
 
 def map_marker(ctx, req):
+    """to allow for user-selectable markers, we have to look up a possible custom
+    selection from the url params.
+    """
+    icon_map = req.registry.settings['icons']
     icon = None
     if IValue.providedBy(ctx):
-        icon = ctx.domainelement.jsondata['icon']
+        if 'v%s' % ctx.domainelement.number in req.params:
+            icon = icon_map.get(req.params['v%s' % ctx.domainelement.number])
+        else:
+            icon = ctx.domainelement.jsondata['icon']
     elif IDomainElement.providedBy(ctx):
-        icon = ctx.jsondata['icon']
+        if 'v%s' % ctx.number in req.params:
+            icon = icon_map.get(req.params['v%s' % ctx.number])
+        else:
+            icon = ctx.jsondata['icon']
     elif ILanguage.providedBy(ctx):
-        icon = ctx.genus.icon
+        if ctx.genus.id in req.params:
+            icon = icon_map.get(req.params[ctx.genus.id])
+        else:
+            icon = ctx.genus.icon
     elif isinstance(ctx, Genus):
-        icon = ctx.icon
+        if ctx.id in req.params:
+            icon = icon_map.get(req.params[ctx.id])
+        else:
+            icon = ctx.icon
     if icon:
         return req.static_url('clld:web/static/icons/' + icon + '.png')
 
@@ -240,6 +252,18 @@ def main(global_config, **settings):
         'credits': '/about/credits',
     }
     settings['sitemaps'] = 'contribution parameter source sentence valueset'.split()
+
+    convert = lambda spec: ''.join(c if i == 0 else c + c for i, c in enumerate(spec))
+    filename_pattern = re.compile('(?P<spec>(c|d|s|f|t)[0-9a-f]{3})\.png')
+    icons = {}
+    for name in sorted(
+        path(__file__).dirname().joinpath('static', 'icons').files()
+    ):
+        m = filename_pattern.match(name.splitall()[-1])
+        if m:
+            icons[m.group('spec')] = convert(m.group('spec'))
+    settings['icons'] = icons
+
     utilities = [
         (WalsCtxFactoryQuery(), ICtxFactoryQuery),
         (map_marker, IMapMarker),
@@ -257,26 +281,19 @@ def main(global_config, **settings):
         ('blog', lambda ctx, req: (req.blog.url('category/news/'), 'Newsblog')),
     )
 
-    config.register_datatable('contributions', Chapters)
-    config.register_datatable('values', Datapoints)
-    config.register_datatable('languages', Languages)
-    config.register_datatable('parameters', Features)
-    config.register_map('parameter', FeatureMap)
+    config.include('wals3.maps')
+    config.include('wals3.datatables')
 
     config.register_resource('family', Family, IFamily)
     config.register_adapter(adapter_factory('family/detail_html.mako'), IFamily)
-    config.register_map('family', FamilyMap)
 
     config.register_resource('genus', Genus, IGenus)
     config.register_adapter(adapter_factory('genus/detail_html.mako'), IGenus)
-    config.register_map('genus', GenusMap)
 
     config.register_resource('country', Country, ICountry)
     config.register_adapter(adapter_factory('country/detail_html.mako'), ICountry)
-    config.register_map('country', CountryMap)
 
     config.add_route('sample', '/languoid/samples/{count}', factory=sample_factory)
-    config.register_map('sample', SampleMap)
 
     config.register_adapter(GeoJsonFeature, IParameter)
     config.add_route('feature_info', '/feature-info/{id}')
@@ -289,6 +306,8 @@ def main(global_config, **settings):
         '/.{ext}',
         lambda req: req.route_url('dataset_alt', ext=req.matchdict['ext']))
 
+    # we redirect legacy urls for datapoints because they could not be expressed
+    # with a single id.
     def datapoint(req):
         data = {k: v for k, v in req.matchdict.items()}
         if data['fid'][-1] not in ascii_uppercase:

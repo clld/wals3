@@ -17,6 +17,8 @@ class Icons(object):
 
     @staticmethod
     def id(spec):
+        """translate old wals icon id into clld icon id c0a9 -> c00aa99
+        """
         return ''.join(c if i == 0 else c + c for i, c in enumerate(spec))
 
     def __init__(self):

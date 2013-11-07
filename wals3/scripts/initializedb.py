@@ -365,7 +365,7 @@ def get_vs2008(args):
 
 E2008 = utc.localize(datetime(2008, 4, 21))
 E2011 = utc.localize(datetime(2011, 4, 28))
-E2013 = utc.localize(datetime(2013, 8, 31))
+E2013 = utc.localize(datetime(2013, 11, 15))
 data = Data(created=E2008, updated=E2008)
 
 

@@ -17,6 +17,12 @@ from wals3.models import Family, Genus, Feature, WalsLanguage
 from wals3.util import LanguoidSelect
 
 
+
+"""
+http://wals.info/feature/82A?s=20&v1=c00d&v2=cd00&v3=cccc&z1=2998&z2=2999&z3=3000&tg_format=map&lat=5.5&lng=152.58&z=2&t=m
+"""
+
+
 @view_config(route_name='languoids', renderer='json')
 def languoids(request):
     if request.params.get('id'):

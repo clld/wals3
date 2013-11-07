@@ -1,15 +1,14 @@
-from sqlalchemy import and_
 from sqlalchemy.orm import joinedload, joinedload_all
 from sqlalchemy.sql.expression import cast
 from sqlalchemy.types import Integer
 
 from clld.web import datatables
 from clld.web.datatables.base import (
-    Col, filter_number, LinkCol, DetailsRowLinkCol, LinkToMapCol, IdCol,
+    Col, filter_number, LinkCol, DetailsRowLinkCol, IdCol,
 )
 from clld.db.meta import DBSession
 from clld.db.models import common
-from clld.web.util.helpers import linked_contributors, link, linked_references
+from clld.web.util.helpers import linked_contributors, linked_references
 from clld.web.util.htmllib import HTML
 
 from wals3.models import WalsLanguage, Genus, Family, Chapter, Feature, Area, Country
@@ -57,8 +56,6 @@ class Datapoints(datatables.Values):
 
     #
     # TODO: add columns:
-    # - parameter id (if not self.parameter)
-    # - feature area (if not self.parameter)
     # - references
     #
     def col_defs(self):
@@ -183,3 +180,10 @@ class Chapters(datatables.Contributions):
 
     def get_options(self):
         return {'aaSorting': [[0, 'asc']]}
+
+
+def includeme(config):
+    config.register_datatable('contributions', Chapters)
+    config.register_datatable('values', Datapoints)
+    config.register_datatable('languages', Languages)
+    config.register_datatable('parameters', Features)

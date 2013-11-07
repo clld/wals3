@@ -1,5 +1,5 @@
 import codecs
-from math import ceil
+from itertools import groupby
 
 from sqlalchemy.orm import joinedload_all
 from path import path
@@ -17,6 +17,25 @@ from clld.web.util.htmllib import HTML
 
 import wals3
 from wals3.models import Feature
+
+
+def icons(req, param):
+    icon_map = req.registry.settings['icons']
+    td = lambda spec: HTML.td(
+        HTML.img(
+            src=req.static_url('clld:web/static/icons/' + icon_map[spec] + '.png'),
+            height='20',
+            width='20'),
+        onclick='WALS3.reload({"%s": "%s"})' % (param, spec))
+    rows = [
+        HTML.tr(*map(td, icons)) for c, icons in
+        groupby(sorted(icon_map.keys()), lambda spec: spec[0])]
+    return HTML.div(
+        HTML.table(
+            HTML.tbody(*rows),
+            class_="table table-condensed"
+        ),
+        button('Close', **{'data-dismiss': 'clickover'}))
 
 
 class LanguoidSelect(MultiSelect):

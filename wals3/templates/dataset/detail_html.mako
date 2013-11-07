@@ -17,7 +17,7 @@
   </script>
   <gcse:search></gcse:search>
   </div>
-  ${util.feed('WALS News', request.blog.feed_url('category/news', request), eid='news')}
+  ${util.feed('WALS News', request.blog.feed_url('category/news', request), eid='news', numEntries=1)}
   ${util.feed('Latest Comments', request.blog.feed_url('comments', request), eid='comments')}
 </%def>
 
@@ -27,8 +27,7 @@
     The World Atlas of Language Structures (WALS) is a large database of structural
     (phonological, grammatical, lexical) properties of languages gathered from descriptive
     materials (such as reference grammars) by a team of
-    <a href="${request.route_url('contributors')}">${stats['contributor']} authors</a>
-    (many of them the leading authorities on the subject).
+    <a href="${request.route_url('contributors')}">${stats['contributor']} authors</a>.
 </p>
 <p>
     The first version of WALS was published as a book with CD-ROM in 2005 by

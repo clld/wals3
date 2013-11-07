@@ -25,8 +25,10 @@ ${request.map.render()}
                     type="button" class="btn btn-mini expand-collapse" data-toggle="collapse" data-target="#genus-${genus.pk}">
                 <i class="icon icon-plus"> </i>
             </button>
-            <img height="20" width="20" src="${u.wals3.map_marker(genus, request)}" />
+            <img height="20" width="20" src="${u.wals3.map_marker(genus, request)}"
+                 id="iconselect${genus.id}" data-toggle="popover" data-placement="right" />
             ${h.link(request, genus)}
+            (${str(len(genus.languages))})
         </h4>
         <div id="genus-${genus.pk}" class="collapse">
             <table class="table table-condensed table-nonfluid">
@@ -49,5 +51,8 @@ $(document).ready(function() {
     $('.expand-collapse').click(function(){ //you can give id or class name here for $('button')
         $(this).children('i').toggleClass('icon-minus icon-plus');
     });
+    % for genus in ctx.genera:
+    $('#iconselect${genus.id}').clickover({'html': true, 'content': '${u.icons(request, genus.id)}'});
+    % endfor
 });
 </script>
