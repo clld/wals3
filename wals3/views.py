@@ -1,8 +1,9 @@
 from datetime import datetime
 from itertools import groupby
 
-from sqlalchemy import or_, and_
+from sqlalchemy import or_, and_, not_
 from sqlalchemy.orm import joinedload_all, joinedload
+from sqlalchemy.sql.functions import count
 from sqlalchemy.inspection import inspect
 from pyramid.view import view_config
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPFound, HTTPNotFound
@@ -17,12 +18,6 @@ from wals3.models import Family, Genus, Feature, WalsLanguage
 from wals3.util import LanguoidSelect
 
 
-
-"""
-http://wals.info/feature/82A?s=20&v1=c00d&v2=cd00&v3=cccc&z1=2998&z2=2999&z3=3000&tg_format=map&lat=5.5&lng=152.58&z=2&t=m
-"""
-
-
 @view_config(route_name='languoids', renderer='json')
 def languoids(request):
     if request.params.get('id'):
@@ -32,7 +27,7 @@ def languoids(request):
         model = dict(w=Language, g=Genus, f=Family).get(m)
         if not model:
             return HTTPNotFound()
-        obj = model.get(id_)
+        obj = model.get(id_, default=None)
         if not obj:
             return HTTPNotFound()
         return HTTPFound(location=request.resource_url(obj))
@@ -134,9 +129,21 @@ def changes(request):
     changes2013 = query.filter(or_(
         E2012 < Value.updated, E2012 < history.updated))
 
+    #
+    # TODO:
+    #
+    history = inspect(ValueSet.__history_mapper__).class_
+    current = DBSession.query(ValueSet.pk).subquery()
+    removals2013 = []#DBSession.query(Parameter.id, Parameter.name, count(history.pk))\
+        #.filter(Parameter.pk == history.parameter_pk)\
+        #.filter(not_(history.pk.in_(current)))\
+        #.group_by(Parameter.pk, Parameter.id, Parameter.name)\
+        #.order_by(Parameter.pk)
+
     return {
         'changes2011': groupby([v.valueset for v in changes2011], lambda vs: vs.parameter),
-        'changes2013': groupby([v.valueset for v in changes2013], lambda vs: vs.parameter)}
+        'changes2013': groupby([v.valueset for v in changes2013], lambda vs: vs.parameter),
+        'removals2013': removals2013}
 
 
 @view_config(route_name='sample', renderer='sample.mako')

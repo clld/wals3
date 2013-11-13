@@ -48,6 +48,17 @@
     </td>
     <td>${str(len(vss))}</td>
 </%util:table>
+<p>
+  Several datapoints have been removed (typically because they had been assigned to the
+  wrong language, thus they show up as additions above).
+</p>
+##<%util:table items="${removals2013}" eid="r2013" args="item" class_="table-nonfluid">\
+##    <%def name="head()">
+##        <th>Feature</th><th>Number of removed datapoints</th>
+##    </%def>
+##    <td><a href="${request.route_url('parameter', id=item[0])}">${item[1]}</a></td>
+##    <td>${str(item[2])}</td>
+##</%util:table>
 
 
 <h4 id="e2011">WALS Online 2011</h4>

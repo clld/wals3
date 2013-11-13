@@ -11,6 +11,9 @@ class Tests(TestWithApp):
 
     def test_home(self):
         self.app.get('/', status=200)
+        self.app.get('/feature-info/3A')
+        self.app.get('/changes')
+        self.app.get('/refdb_oai?verb=Identify')
 
     def test_genealogy(self):
         self.app.get('/languoid/genealogy', status=200)
@@ -38,3 +41,17 @@ class Tests(TestWithApp):
 
         _path = '/values?sEcho=1&iSortingCols=1&iSortCol_0=1&sSortDir_0=desc'
         self.app.get(_path, xhr=True, status=200)
+
+    def test_g(self):
+        self.app.get('/languoid/genus/berber')
+        self.app.get('/languoid/family/arawakan')
+
+        self.app.get('/languoids?id=g-berber')
+        self.app.get('/languoids?id=f-arawakan')
+        self.app.get('/languoids?id=w-abh')
+        self.app.get('/languoids?q=')
+        self.app.get('/languoids?q=berbery')
+        self.app.get('/languoids?q=berber')
+        self.app.get('/languoids?id=gberber', status=404)
+        self.app.get('/languoids?id=x-berber', status=404)
+        self.app.get('/languoids?id=g-berberyyy', status=404)
