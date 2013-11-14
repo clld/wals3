@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from sqlalchemy.orm import joinedload, joinedload_all, contains_eager
 
 from clld.web.adapters.geojson import (
