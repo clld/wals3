@@ -7,21 +7,34 @@
 </style>
 </%block>
 
-<ul class="nav nav-pills pull-right">
-  <li class="active">
-    <a href="#e2013">2013</a>
-  </li>
-  <li class="active">
-    <a href="#e2011">2011</a>
-  </li>
-  <li class="active">
-    <a href="#e2008">2008</a>
-  </li>
-</ul>
 
-##http://blog.wals.info/category/errata/
+<%def name="sidebar()">
+    <%util:well title="Editions">
+    <ul class="nav nav-pills nav-stacked">
+      <li class="active">
+        <a href="#e2013">2013</a>
+      </li>
+      <li class="active">
+        <a href="#e2011">2011</a>
+      </li>
+      <li class="active">
+        <a href="#e2008">2008</a>
+      </li>
+    </ul>
+    </%util:well>
+</%def>
 
-<h4 id="e2013">WALS Online 2013</h4>
+<h3>Changes</h3>
+<p>
+  This page lists changes between different editions of WALS Online. While no longer accessible
+  online, the data of older editions could be computed using the changes listed here. If you
+  need a full database of an older edition this may prove cumbersome, so in this case
+  <a href="${request.route_url('contact')}">contact us</a> or download the data from
+  ${h.external_link('https://github.com/clld/wals-data', label='the github repository')}.
+</p>
+
+
+<%util:section title="WALS Online 2013" id="e2013" level="${4}">
 
 <h5>Value assignment changes</h5>
 <p>
@@ -59,10 +72,10 @@
 ##    <td><a href="${request.route_url('parameter', id=item[0])}">${item[1]}</a></td>
 ##    <td>${str(item[2])}</td>
 ##</%util:table>
+</%util:section>
 
 
-<h4 id="e2011">WALS Online 2011</h4>
-
+<%util:section title="WALS Online 2011" id="e2011" level="${4}">
 <h5>Value assignment changes</h5>
 <p>
   The changes listed below include value corrections and additions of new values for existing features.
@@ -113,13 +126,14 @@
     WALS Online now contains the long introduction chapter of the printed atlas from 2005
   </li>
 </ul>
+</%util:section>
 
-<h4 id="e2008">WALS Online 2008</h4>
-
-<p>
-  A description of errate in the printed version of 2005 can be found at
-  ${h.external_link('http://blog.wals.info/category/errata/errata-2005/')}.
-</p>
+<%util:section title="WALS Online 2008" id="e2008" level="${4}">
+  <p>
+    A description of errate in the printed version of 2005 can be found at
+    ${h.external_link('http://blog.wals.info/category/errata/errata-2005/')}.
+  </p>
+</%util:section>
 
 <script>
 $(document).ready(function() {

@@ -517,12 +517,9 @@ def main(args):
         description='The World Atlas of Language Structures Online',
         domain='wals.info',
         published=date(2013, 8, 15),
-        #license='http://creativecommons.org/licenses/by-sa/3.0/',
+        contact='contact.wals@livingreviews.org',
         license='http://creativecommons.org/licenses/by-nc-nd/2.0/de/deed.en',
-        contact='wals@eva.mpg.de',
         jsondata={
-            #'license_icon': 'http://i.creativecommons.org/l/by-sa/3.0/88x31.png',
-            #'license_name': 'Creative Commons Attribution-ShareAlike 3.0 Unported License'})
             'license_icon': 'http://wals.info/static/images/cc_by_nc_nd.png',
             'license_name': 'Creative Commons Attribution-NonCommercial-NoDerivs 2.0 Germany'})
     DBSession.add(dataset)

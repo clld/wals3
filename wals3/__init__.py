@@ -279,7 +279,7 @@ def main(global_config, **settings):
         ('sources', partial(menu_item, 'sources')),
         #('examples', partial(menu_item, 'sentences')),
         ('contributors', partial(menu_item, 'contributors')),
-        ('blog', lambda ctx, req: (req.blog.url('category/news/'), 'Newsblog')),
+        #('blog', lambda ctx, req: (req.blog.url('category/news/'), 'Newsblog')),
     )
 
     config.include('wals3.maps')

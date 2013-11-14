@@ -5,7 +5,7 @@
 <%! active_menu_item = "languages" %>
 
 <%def name="sidebar()">
-  <div class="well well-small">
+    <%util:well>
       <p>
         This section gives a list of the languages that appear on at least one map in the atlas,
         organized according to their genealogical classification. The classification here does not include
@@ -88,7 +88,7 @@
         the notion of genealogical classification makes sense, but crosslinguistic work on sign languages
         is sufficiently new that it would be premature to attempt a genealogical classification of them.
       </p>
-  </div>
+    </%util:well>
 </%def>
 
 ${lib.languages_contextnav()}
