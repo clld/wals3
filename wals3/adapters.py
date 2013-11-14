@@ -66,7 +66,7 @@ class Matrix(CsvDump):
         return self._fields
 
     def row(self, req, fp, item, index):  # pragma: no cover
-        values = {'{0.id} {0.name}'.format(v.parameter): '{0.number 0.name}'.format(v.values[0].domainelement) for v in item.valuesets}
+        values = {'{0.id} {0.name}'.format(v.parameter): '{0.number} {0.name}'.format(v.values[0].domainelement) for v in item.valuesets}
         for name, getter in self.md_fields:
             values[name] = getter(item) or ''
         values['URL'] = req.resource_url(item)
