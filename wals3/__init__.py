@@ -11,11 +11,12 @@ from clld.interfaces import (
     ICtxFactoryQuery, IBlog,
 )
 from clld.web.adapters.base import adapter_factory
+from clld.web.adapters.download import Download
 from clld.web.app import get_configurator, menu_item, CtxFactoryQuery
-from clld.db.models.common import Contribution, ContributionReference, Parameter
+from clld.db.models.common import Contribution, ContributionReference, Parameter, Language, Source
 
 from wals3.blog import Blog
-from wals3.adapters import GeoJsonFeature
+from wals3.adapters import GeoJsonFeature, Matrix
 from wals3.models import Family, Country, WalsLanguage, Genus
 from wals3.interfaces import IFamily, ICountry, IGenus
 
@@ -331,4 +332,9 @@ def main(global_config, **settings):
 
     config.add_route('olac.source', '/refdb_oai')
     config.add_route('languoids', '/languoids')
+
+    config.register_download(
+        Matrix(Language, 'wals3', description="Feature values CSV"))
+    config.register_download(
+        Download(Source, 'wals3', ext='bib', description="Sources as BibTeX"))
     return config.make_wsgi_app()

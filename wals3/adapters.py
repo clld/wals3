@@ -6,6 +6,7 @@ from clld.web.adapters.geojson import (
 from clld.web.adapters.download import CsvDump
 from clld.db.meta import DBSession
 from clld.db.models.common import Value, DomainElement, ValueSet, Language, Parameter
+from wals3.models import WalsLanguage, Genus
 
 
 class GeoJsonFeature(GeoJsonParameter):
@@ -40,14 +41,23 @@ class GeoJsonLects(GeoJsonLanguages):
 
 class Matrix(CsvDump):
     md_fields = [
+        ('wals_code', lambda p: p.id),
+        ('iso_code', lambda p: p.iso_code or ''),
+        ('glottocode', lambda p: p.glottocode or ''),
         ('Name', lambda p: p.name),
+        ('latitude', lambda p: p.latitude),
+        ('longitude', lambda p: p.longitude),
+        ('genus', lambda p: p.genus.name),
+        ('family', lambda p: p.genus.family.name),
     ]
     _fields = []
 
     def query(self, req):
         return DBSession.query(Language)\
             .order_by(Language.id)\
-            .options(joinedload(Language.valuesets))
+            .options(
+                joinedload(Language.valuesets),
+                joinedload_all(WalsLanguage.genus, Genus.family))
 
     def get_fields(self, req):  # pragma: no cover
         if not self._fields:
@@ -56,8 +66,8 @@ class Matrix(CsvDump):
         return self._fields
 
     def row(self, req, fp, item, index):  # pragma: no cover
-        values = {'{0.id} {0.name}'.format(v.parameter): v.values[0].domainelement.number for v in item.valuesets}
+        values = {'{0.id} {0.name}'.format(v.parameter): '{0.number 0.name}'.format(v.values[0].domainelement) for v in item.valuesets}
         for name, getter in self.md_fields:
             values[name] = getter(item) or ''
-        values['ID'] = req.resource_url(item)
+        values['URL'] = req.resource_url(item)
         return [values.get(p, '') for p in self.get_fields(req)]
