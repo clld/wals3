@@ -9,17 +9,17 @@ html, body
   margin: 0;
   padding: 0;
   padding-top: 3px;
-  line-height: 1.5em; 
+  line-height: 1.5em;
   }
 
 #home p { font-size: 110%}
-  
-h1,h2,h3,h4,h5,h6 { 
-  font-weight: bold; 
+
+h1,h2,h3,h4,h5,h6 {
+  font-weight: bold;
   font-family: "Trebuchet MS", "Lucida Sans Unicode", geneva, verdana, sans-serif;
 }
-h1 { 
-  font-size: 150%; 
+h1 {
+  font-size: 150%;
   margin-top: 0.5em;
   margin-bottom: 0.5em;
 }
@@ -37,10 +37,10 @@ a:hover { text-decoration: none; color: #ab3a05; }
 div.narrow { margin-left: 5%; margin-right: 5%; }
 
 /* navigation */
-.nav ul 
-{ font-size: 90%; 
-  list-style: none; 
-  margin: 0; 
+.nav ul
+{ font-size: 90%;
+  list-style: none;
+  margin: 0;
   text-align: right;
   }
 .nav li, .nav li span input
@@ -49,7 +49,7 @@ div.narrow { margin-left: 5%; margin-right: 5%; }
   padding: 0 .75em;
   white-space: nowrap;
   }
-.nav li.last { 
+.nav li.last {
   border-right: none;
  }
 
@@ -87,7 +87,7 @@ a.Family { text-decoration: none; color: #80a532; }
 a.Family:hover { text-decoration: underline; }
 a.Family:visited { text-decoration: none; color: #2d4007; }
 
-.ext-link 
+.ext-link
 { background: url(../../images/extlink.gif) no-repeat 0 58%;
   padding-left: 18px;
   }
@@ -96,10 +96,10 @@ a.Family:visited { text-decoration: none; color: #2d4007; }
 /*
  * sidebars and boxed content
  */
-.sidebar { 
-  float: right; 
+.sidebar {
+  float: right;
   clear: right;
-  width: 38%; 
+  width: 38%;
   margin-left: 1em;
   margin-right: 0;
   margin-top: 0.3em;
@@ -107,10 +107,10 @@ a.Family:visited { text-decoration: none; color: #2d4007; }
 }
 .narrow-main { width: 58%; }
 
-.narrow-sidebar { 
-  float: right; 
+.narrow-sidebar {
+  float: right;
   clear: right;
-  width: 30%; 
+  width: 30%;
   margin-left: 1em;
   margin-right: 0;
   margin-top: 0.3em;
@@ -120,33 +120,33 @@ a.Family:visited { text-decoration: none; color: #2d4007; }
 .box, .box-white {
   margin-top: 0.2em;
   margin-bottom: 0.2em;
-  padding-left: 0.5em; 
+  padding-left: 0.5em;
   padding-right: 0.5em;
   padding-top: 0.2em;
-  padding-bottom: 0.2em; 
+  padding-bottom: 0.2em;
   border: 1px solid #eacec0;
-} 
+}
 .box { background: #fbf5f2; }
 .box-white { background: white; }
 
 .border { border: 1px solid #eacec0; }
 
-/* 
- * definition lists 
+/*
+ * definition lists
  */
-dl.table { 
+dl.table {
   width: 100%;
-  list-style: none; 
+  list-style: none;
   padding: none;
 }
-dl.table dt { 
+dl.table dt {
   width: 13em;
   float: left;
   margin: 0 0 0 0;
   padding: .5em;
-  font-weight: bold; 
+  font-weight: bold;
 }
-dl.table dd { 
+dl.table dd {
   float: left;
   margin: 0 0 0 0;
   padding: .5em;
@@ -160,7 +160,7 @@ dl.table dd {
 /*----------------------------------------------------------------------------
  * standard components of each page (created by the master template)
  */
-#header 
+#header
 { width: 98%;
   width: 96%;
   padding-top: 0.5em;
@@ -171,12 +171,12 @@ dl.table dd {
   margin-bottom: 0;
   margin-left: 1%;
   margin-right: 1%;
-  background-color: white; 
+  background-color: white;
 }
 #header a img { border: none; float: left; }
 
 #footer a img { border: none; }
-#footer 
+#footer
 { border-top: 0px none;
   color: #222222;
   background-color: white;
@@ -212,20 +212,20 @@ dl.table dd {
   padding-top: 10px;
 }
 
-.message { 
+.message {
   border: 1px solid #a81eaf;
   background: #e9c7ab;
   color: #400044;
   text-align: center;
   margin: 0 auto 0 auto;
-  padding-left: 0.5em; 
+  padding-left: 0.5em;
   padding-right: 0.5em;
   padding-top: 0.2em;
-  padding-bottom: 0.2em; 
+  padding-bottom: 0.2em;
   font-weight: bold;
  }
 
-#content 
+#content
 { color: #222222;
   background-color: white;
   width: 96%;
@@ -236,29 +236,29 @@ dl.table dd {
   padding-bottom: 5px;
 }
 
-#mainnav 
+#mainnav
 { background-color: #80a532;
   font-family: "Trebuchet MS", "Lucida Sans Unicode", geneva, verdana, sans-serif;
   color: white;
   font-size: 110%;
-  margin-bottom: .33em; 
+  margin-bottom: .33em;
   padding-top: 10px;
   padding-bottom: 10px;
   padding-right: 10px;
   }
-#mainnav li a 
-{ text-decoration: none; 
+#mainnav li a
+{ text-decoration: none;
   color: white;
   }
-#mainnav li 
-{ border-right: none; 
+#mainnav li
+{ border-right: none;
   padding: .2em 0;
 }
-#mainnav :link, #mainnav :visited 
+#mainnav :link, #mainnav :visited
 { color: white;
   padding: .2em 20px;
   }
-#mainnav :link:hover, #mainnav :visited:hover 
+#mainnav :link:hover, #mainnav :visited:hover
 { background-color: white;
   color: #2d4007;
   }
@@ -266,7 +266,7 @@ dl.table dd {
 /*
  * created by templates from util.xhtml
  */
-#contextnav 
+#contextnav
 { background-color:#bfd298;
   font-family: "Trebuchet MS", "Lucida Sans Unicode", geneva, verdana, sans-serif;
   font-weight: bold;
@@ -292,8 +292,8 @@ dl.table dd {
 /* the language display on map pages */
 div.ld-map { clear: right; width: 100%; }
 .ld-map ul { list-style: none; }
-.ld-map ul li { 
-  display: inline; 
+.ld-map ul li {
+  display: inline;
   border-right: 1px dotted #666;
   margin-left: 0.5em;
 }
@@ -311,9 +311,9 @@ div.ld-map { clear: right; width: 100%; }
 /*----------------------------------------------------------------------------
  * created by templates from util.xhtml
  */
-#valueDisplay td.feature-name { 
+#valueDisplay td.feature-name {
   border: 1px solid #EACEC0;
-  vertical-align: middle; 
+  vertical-align: middle;
   text-align: center; }
 #valueDisplay td.value-description { border: 1px solid #EACEC0; }
 #valueDisplay td { margin: 0.1em 0.3em 0.1em 0.3em; padding: 0.2em 0.5em 0.2em 0.5em; }
@@ -361,12 +361,12 @@ div.gfc-resultsHeader div.gfc-title {
   font-weight: bold;
   color: #2d4007;
 }
-div.gfc-resultsRoot { 
-  border-bottom: 1px solid #eacec0; 
+div.gfc-resultsRoot {
+  border-bottom: 1px solid #eacec0;
   margin-bottom: 0.5em;
 }
-div.gfc-result div.gf-title { 
-  margin-top: 0.5em; 
+div.gfc-result div.gf-title {
+  margin-top: 0.5em;
   height: auto;
   overflow-x: auto;
   overflow-y: auto;
@@ -384,12 +384,12 @@ div.gs-visibleUrl { color: #80a532; }
 /*
  * autocomplete
  */
-.yui-skin-sam .yui-ac-content li.yui-ac-highlight { 
+.yui-skin-sam .yui-ac-content li.yui-ac-highlight {
   background-color: #a81eaf;
   color: white;
 }
 
-.yui-skin-sam .yui-ac-content .prehighlight { 
+.yui-skin-sam .yui-ac-content .prehighlight {
   background-color: #e9c7eb;
 }
 
@@ -475,7 +475,7 @@ table.IGT caption {
 .yui-skin-sam th.yui-dt-asc,
 /*
 .yui-skin-sam th.yui-dt-desc {
-    background:url(../../../../assets/skins/sam/sprite.png) repeat-x 0 -100px; 
+    background:url(../../../../assets/skins/sam/sprite.png) repeat-x 0 -100px;
 }
 */
 .yui-skin-sam thead tr th { border-bottom: 1px solid #bfd298; }
@@ -494,7 +494,7 @@ table.IGT caption {
 
 /* striping */
 .yui-skin-sam tr.yui-dt-even { background-color:#FFF; } /* white */
-.yui-skin-sam tr.yui-dt-odd { background-color:#eee; } 
+.yui-skin-sam tr.yui-dt-odd { background-color:#eee; }
 .yui-skin-sam tr.yui-dt-even td.yui-dt-asc,
 .yui-skin-sam tr.yui-dt-even td.yui-dt-desc { background-color:#eee; } /* light blue sorted */
 .yui-skin-sam tr.yui-dt-odd td.yui-dt-asc,
@@ -606,11 +606,11 @@ table.IGT caption {
 /* refdb */
 div.pagination
 { text-align: center;
-  padding-bottom: 1em; 
+  padding-bottom: 1em;
   padding-top: 0.5em;
   }
 div.pagination ul { display: inline; }
-div.pagination ul li 
+div.pagination ul li
 { display: inline;
   padding-left: 0.5em;
   padding-right: 0.5em;
@@ -643,32 +643,32 @@ td.number { text-align: right; }
 
 
 
-table.three-cols td.first-char { 
-  width: 1.5em; 
+table.three-cols td.first-char {
+  width: 1.5em;
   font-weight: bold;
-  vertical-align: top; 
+  vertical-align: top;
   padding-left: 1em;
   padding-right: 0.5em;
 }
 table.three-cols td.entry { }
 td.numeric { text-align: right; }
 
-td.icon 
-{ width: 24px; 
-  height: 26px; 
+td.icon
+{ width: 24px;
+  height: 26px;
   text-align: center;
   vertical-align: middle;
   }
 td.languages
 { text-align: left;
-  vertical-align: middle; 
+  vertical-align: middle;
   padding-left: 0.3em;
 }
 th.icon { background-color: #fbf5f2; }
 
 td.value-description { background-color: #fbf5f2; }
-td.feature-name 
-{ background-color: #fbf5f2; 
+td.feature-name
+{ background-color: #fbf5f2;
   font-size: 110%;
   padding-left: 0.5em;
   padding-right: 0.5em;
@@ -683,9 +683,9 @@ td.value-description, td.feature-name
   }
 
 div.icon-select
-{ position: absolute; 
+{ position: absolute;
 /*  background-color: #FFFFFF; */
-  text-align: left; 
+  text-align: left;
 /*  border: 1px solid #222222;*/
   overflow: auto;
   z-index: 100;
@@ -697,15 +697,15 @@ div.icon-select table td { margin: 3px 3px 3px 3px; padding: 2px 2px 2px 2px; }
 div.icon-select td.close { text-align: right; }
 
 tr.genus-head th { border: 1px solid #eacec0; }
-tr.genus-head th.icon { 
+tr.genus-head th.icon {
   text-align: center;
   vertical-align: middle;
 }
-tr.genus-head th.label { 
+tr.genus-head th.label {
   text-align: left;
   vertical-align: middle;
 }
-tr.genus-head th.icon div { 
+tr.genus-head th.icon div {
   width: 100%;
   text-align: center;
   vertical-align: middle;
@@ -723,23 +723,23 @@ ol.breadcrumbs li { display: inline; }
 ol.breadcrumbs li:before { content: " > "; }
 
 /* chapter index */
-#toc th { 
+#toc th {
   text-align: left;
   font-size: 120%;
   font-variant: small-caps;
 }
 
 /* chapter descriptions */
-#chapter-meta { 
+#chapter-meta {
   font-family: "Charis SIL","Lucida Sans Unicode","Lucida Grande","Arial Unicode MS";
   margin-top: 1em;
   margin-bottom: 0.5em;
 }
-.meta dt, #chapter-meta dt { 
+.meta dt, #chapter-meta dt {
   font-size: 110%;
-  font-weight: bold;  
+  font-weight: bold;
 }
-.meta dd, #chapter-meta dd { 
+.meta dd, #chapter-meta dd {
   margin-left: 2em;
   margin-top: 0.2em;
   margin-bottom: 0.2em;
@@ -757,7 +757,7 @@ table.alt-names th { text-align: left; margin-right: 1em; }
 table.alt-names td { margin-bottom: 0.5em; }
 
 ul.alt-names, #ci { list-style: none; margin: 0; padding: 0; }
-ul.alt-names li, #ci li 
+ul.alt-names li, #ci li
 { display: inline;
   margin-right: 1em;
   white-space: nowrap;
@@ -773,7 +773,7 @@ table.features th.feature { text-align: left; }
 table.features th.value { text-align: left; }
 table.features th.references { text-align: left; }
 table.features th.area, th.continent
-{ background-color: #dfe8cc; 
+{ background-color: #dfe8cc;
   margin-top: 0.2em;
   }
 tr.odd { background-color: #eee; }
@@ -781,11 +781,11 @@ tr.odd { background-color: #eee; }
 table#features caption { display: none; }
 
 /* layout of the box with suggestions */
-.suggest_link 
+.suggest_link
 { background-color: #FFFFFF;
   padding: 2px 6px 2px 6px;
   }
-.suggest_link_over 
+.suggest_link_over
 { background-color: #3366CC;
   padding: 2px 6px 2px 6px;
   }
@@ -799,7 +799,7 @@ table#features caption { display: none; }
 #actions dl, #actions dt { margin: 0; }
 #actions dt { font-style: italic; }
 #actions dd { margin-top: 0; margin-bottom: 0; }
-#actions select { font-size: 85%; } 
+#actions select { font-size: 85%; }
 
 #results { width: 68%; }
 #results table.record-header, #results h3
@@ -816,15 +816,15 @@ table#features caption { display: none; }
 { padding-top: 0.1em;
   padding-bottom: 0.2em;
   }
-#results h3 { 
+#results h3 {
   margin-bottom: 0.1em;
   margin-right: 0.6em;
  }
-#results h2 
+#results h2
 { padding-left: 4px;
   font-size: 100%;
   }
-#results h3 
+#results h3
 { padding-top: 3px;
   margin-top: 0.1em;
   padding-bottom: 3px;
@@ -834,7 +834,7 @@ table#features caption { display: none; }
   text-align: left;
   }
 #results caption { display: none; }
-#results td.field 
+#results td.field
 { width: 10em;
   border: 1px solid #eacec0;
   padding-top: 2px;
@@ -844,12 +844,12 @@ table#features caption { display: none; }
   text-align: left;
   }
 #results dl { margin: 0; }
-#results dt 
+#results dt
 { margin: 0;
   font-style: italic;
   }
-#noresults 
-{ text-align: center; 
+#noresults
+{ text-align: center;
   margin-top: 2em;
   margin-bottom: 2em;
   }
@@ -859,12 +859,12 @@ span.booktitle {font-style: italic;}
 /*div.formatList { font-size: 90%; }*/
 div.formatList a { padding-right: 0.3em; }
 table.form { width: 100%; }
-table.form td { 
+table.form td {
   margin-left: 0.5em;
-  margin-right: 0.5em; 
+  margin-right: 0.5em;
 }
-th.form, td.form { 
-  text-align: left; 
+th.form, td.form {
+  text-align: left;
   vertical-align: middle;
 }
 .formButton { margin-top: 1em; margin-right: 1em }
@@ -882,17 +882,17 @@ ul.draglist {
 ul.draglist li {
     margin: 1px;
     padding-left: 0.5em;
-    cursor: move; 
+    cursor: move;
 }
 
-ul.draglist_alt { 
+ul.draglist_alt {
     position: relative;
     list-style: none;
     margin:0;
     padding:0;
     /*
-       The bottom padding provides the cushion that makes the empty 
-       list targetable.  Alternatively, we could leave the padding 
+       The bottom padding provides the cushion that makes the empty
+       list targetable.  Alternatively, we could leave the padding
        off by default, adding it when we detect that the list is empty.
     */
     padding-bottom:20px;
@@ -900,7 +900,7 @@ ul.draglist_alt {
 
 ul.draglist_alt li {
     margin: 1px;
-    cursor: move; 
+    cursor: move;
 }
 
 li.dd_list {
@@ -927,3 +927,5 @@ div.yui-resize-handle-r { height: 100%; width: 15px; background: white url(../ex
 
 #legend td.number { border-left: 1px solid #bfd298; }
 #legend th.number { border-left: 1px solid #bfd298; }
+
+textarea#comment {width: 90% !important;}
