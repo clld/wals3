@@ -17,9 +17,11 @@ ${util.sentences(ctx.values[0])}
 <h3>References</h3>
 <ul>
     % for ref in ctx.references:
+        % if ref.source:
     <li>
         ${h.link(request, ref.source)}
     </li>
+        % endif
     % endfor
 </ul>
 % endif
