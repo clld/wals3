@@ -3,26 +3,26 @@
 <%! active_menu_item = "contributions" %>
 
 
-<h2>${_('Datapoint')} ${h.link(request, ctx.language)} / ${h.link(request, ctx.parameter)}</h2>
+<h2>${_('Datapoint')} ${h.link(request, ctx.valueset.language)} / ${h.link(request, ctx.valueset.parameter)}</h2>
 
 <div class="btn-group">
-    ${h.button('cite', onclick=h.JSModal.show(ctx.parameter.name, request.resource_url(ctx.parameter.chapter, ext='md.html')))}
+    ${h.button('cite', onclick=h.JSModal.show(ctx.valueset.parameter.name, request.resource_url(ctx.valueset.parameter.chapter, ext='md.html')))}
     <button class="btn">Comment</button>
 </div>
 
 <dl>
     <dt>Language:</dt>
-    <dd>${h.link(request, ctx.language)}</dd>
+    <dd>${h.link(request, ctx.valueset.language)}</dd>
     <dt>Feature:</dt>
-    <dd>${h.link(request, ctx.parameter)} by ${h.linked_contributors(request, ctx.contribution)}</dd>
+    <dd>${h.link(request, ctx.valueset.parameter)} by ${h.linked_contributors(request, ctx.valueset.contribution)}</dd>
     <dt>Value:</dt>
     <dd>${ctx.domainelement.name}</dd>
 </dl>
 
-% if ctx.references:
+% if ctx.valueset.references:
 <h3>References</h3>
 <ul>
-    % for ref in ctx.references:
+    % for ref in ctx.valueset.references:
     <li>
         ${h.link(request, ref.source)}
     </li>
@@ -38,7 +38,7 @@
     </div>
     <script>
 $(document).ready(function() {
-  ${h.JSFeed.init(dict(eid="comments", url="http://blog.wals.info/datapoint-"+ctx.parameter.id.lower()+"-wals_code_"+ctx.language.id+"/feed/", title="Comments"))|n}
+  ${h.JSFeed.init(dict(eid="comments", url="http://blog.wals.info/datapoint-"+ctx.valueset.parameter.id.lower()+"-wals_code_"+ctx.valueset.language.id+"/feed/", title="Comments"))|n}
 });
     </script>
     <div class="well well-small">
