@@ -323,6 +323,12 @@ def main(global_config, **settings):
     config.add_301('/languoid/lect', lambda req: req.route_url('languages'))
     config.add_301('/languoid/family', lambda req: req.route_url('languages'))
     config.add_301('/languoid/genus', lambda req: req.route_url('languages'))
+    config.add_301('/supplement/1', lambda req: req.route_url('contribution', id='s1'))
+    config.add_301('/supplement/5', lambda req: req.route_url('contribution', id='s5'))
+    config.add_301('/supplement/6', lambda req: req.route_url('contribution', id='s6'))
+    config.add_301('/supplement/7', lambda req: req.route_url('contribution', id='s7'))
+    config.add_301('/supplement/8', lambda req: req.route_url('contribution', id='s8'))
+    config.add_301('/supplement/9', lambda req: req.route_url('contribution', id='s9'))
 
     for pattern in ['/refdb/', '/refdb/record', '/refdb/record/', '/refdb/search']:
         config.add_301(pattern, lambda req: req.route_url('sources'))
