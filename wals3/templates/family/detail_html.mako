@@ -52,7 +52,7 @@ $(document).ready(function() {
         $(this).children('i').toggleClass('icon-minus icon-plus');
     });
     % for genus in ctx.genera:
-    $('#iconselect${genus.id}').clickover({'html': true, 'content': '${u.icons(request, genus.id)}'});
+    $('#iconselect${genus.id}').clickover({'html': true, 'content': '${u.icons(request, genus.id)|n}'});
     % endfor
 });
 </script>

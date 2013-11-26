@@ -313,9 +313,17 @@ def main(global_config, **settings):
         data = {k: v for k, v in req.matchdict.items()}
         if data['fid'][-1] not in ascii_uppercase:
             data['fid'] += 'A'
-        return req.route_url('valueset', id='%(fid)s-%(lid)s' % data)
+        return req.route_url('valueset', id='%(fid)s-%(lid)s' % data, _query=req.query_params)
 
     config.add_301('/datapoint/{fid}/wals_code_{lid}', datapoint, name='datapoint')
+
+    # we redirect legacy urls for feature combinations because they could not be expressed
+    # with a single id.
+    def combined(req):
+        return req.route_url('combination', id='%(id1)s_%(id2)s' % req.matchdict, _query=req.query_params)
+
+    config.add_301('/feature/combined/{id1}/{id2}', combined, name='combined')
+
     config.add_301(
         "/feature/description/{id:[0-9]+}",
         lambda req: req.route_url('contribution', id=req.matchdict['id']))

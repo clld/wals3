@@ -1,9 +1,9 @@
 from __future__ import unicode_literals
 
-from sqlalchemy.orm import joinedload, joinedload_all, contains_eager
+from sqlalchemy.orm import joinedload, joinedload_all
 
 from clld.web.adapters.geojson import (
-    GeoJsonParameter, GeoJsonLanguages, pacific_centered_coordinates,
+    GeoJsonParameter, GeoJsonLanguages, pacific_centered_coordinates
 )
 from clld.web.adapters.download import CsvDump
 from clld.db.meta import DBSession
@@ -37,6 +37,11 @@ class GeoJsonLects(GeoJsonLanguages):
         for language in ctx.languages:
             yield language
 
+    def feature_properties(self, ctx, req, language):
+        if hasattr(ctx, 'icon_url'):
+            # special handling for domain elements of feature combinations
+            return {'icon': ctx.icon_url}
+
     def get_coordinates(self, language):
         return pacific_centered_coordinates(language)
 
@@ -64,11 +69,15 @@ class Matrix(CsvDump):
     def get_fields(self, req):  # pragma: no cover
         if not self._fields:
             self._fields = [f[0] for f in self.md_fields]
-            self._fields.extend(['{0.id} {0.name}'.format(p) for p in DBSession.query(Parameter).order_by(Parameter.pk)])
+            self._fields.extend(['{0.id} {0.name}'.format(p) for p in
+                                 DBSession.query(Parameter).order_by(Parameter.pk)])
         return self._fields
 
     def row(self, req, fp, item, index):  # pragma: no cover
-        values = {'{0.id} {0.name}'.format(v.parameter): '{0.number} {0.name}'.format(v.values[0].domainelement) for v in item.valuesets}
+        values = {
+            '{0.id} {0.name}'.format(v.parameter):
+            '{0.number} {0.name}'.format(v.values[0].domainelement)
+            for v in item.valuesets}
         for name, getter in self.md_fields:
             values[name] = getter(item) or ''
         values['URL'] = req.resource_url(item)

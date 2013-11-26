@@ -3,12 +3,17 @@
 <%! active_menu_item = "parameters" %>
 <%block name="title">Feature ${ctx.id}: ${ctx.name}</%block>
 
+<%block name="head">
+    <link href="${request.static_url('clld:web/static/css/select2.css')}" rel="stylesheet">
+    <script src="${request.static_url('clld:web/static/js/select2.js')}"></script>
+</%block>
+
 <div class="span4" style="float: right; margin-top: 1em;">
     <%util:well title="Values">
         <table class="table table-condensed">
             % for de in ctx.domain:
             <tr>
-                <td id="iconselect${str(de.number)}" data-toggle="popover" data-placement="left">
+                <td title="click to select a different map marker" id="iconselect${str(de.number)}" data-toggle="popover" data-placement="left">
                     ${h.map_marker_img(req, de)}
                 </td>
                 <td>${de}</td>
@@ -26,6 +31,18 @@
     by ${h.linked_contributors(request, ctx.chapter)}
     ${h.cite_button(request, ctx.chapter)}
 </p>
+<div>
+    <form>
+        <fieldset>
+            <p>
+                You may combine this feature with another one. Start typing the
+                feature name or number in the field below.
+            </p>
+            ${select.render(selected=[ctx])}
+            <button class="btn" type="submit">Submit</button>
+        </fieldset>
+    </form>
+</div>
 
 <br style="clear: right"/>
 

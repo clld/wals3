@@ -1,12 +1,11 @@
 from datetime import datetime
 from itertools import groupby
 
-from sqlalchemy import or_, and_, not_
-from sqlalchemy.orm import joinedload_all, joinedload
-from sqlalchemy.sql.functions import count
+from sqlalchemy import or_, and_
+from sqlalchemy.orm import joinedload_all
 from sqlalchemy.inspection import inspect
 from pyramid.view import view_config
-from pyramid.httpexceptions import HTTPMovedPermanently, HTTPFound, HTTPNotFound
+from pyramid.httpexceptions import HTTPFound, HTTPNotFound
 from pytz import utc
 
 from clld.db.meta import DBSession
