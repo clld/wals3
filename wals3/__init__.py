@@ -340,6 +340,9 @@ def main(global_config, **settings):
     config.add_301(
         '/example/{fid}/all',
         lambda req: req.route_url('parameter', id=req.matchdict['fid']))
+    config.add_301(
+        '/example/all/wals_code_{lid}',
+        lambda req: req.route_url('sentences', _query=dict(language=req.matchdict['lid'])))
 
     # we redirect legacy urls for datapoints because they could not be expressed
     # with a single id.
@@ -361,6 +364,14 @@ def main(global_config, **settings):
     config.add_301(
         "/feature/description/{id:[0-9]+}",
         lambda req: req.route_url('contribution', id=req.matchdict['id']))
+
+    config.add_301(
+        "/languoid/by_geography",
+        lambda req: req.route_url('country', id=req.params.get('country')))
+
+    config.add_301(
+        "/wals-2011-{fid}",
+        lambda req: req.route_url('parameter', id=req.matchdict.get('fid')))
 
     config.add_301('/languoid/lect', lambda req: req.route_url('languages'))
     config.add_301('/languoid/family', lambda req: req.route_url('languages'))
