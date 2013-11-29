@@ -1,7 +1,7 @@
 import codecs
 from itertools import groupby
 
-from sqlalchemy.orm import joinedload_all
+from sqlalchemy.orm import joinedload_all, joinedload
 from path import path
 from bs4 import BeautifulSoup as soup
 from pyramid.httpexceptions import HTTPFound
@@ -10,14 +10,14 @@ from clld import RESOURCES
 from clld.interfaces import IRepresentation
 from clld.web.adapters import get_adapter
 from clld.db.meta import DBSession
-from clld.db.models.common import DomainElement, Contribution
+from clld.db.models.common import DomainElement, Contribution, ValueSet, Value
 from clld.web.util.helpers import button, icon, JS_CLLD, get_referents, JS
 from clld.web.util.multiselect import MultiSelect, CombinationMultiSelect
 from clld.web.util.htmllib import HTML
 from clld.web.icon import ICON_MAP
 
 import wals3
-from wals3.models import Feature
+from wals3.models import Feature, WalsLanguage, Genus
 from wals3.maps import CombinedMap
 
 
@@ -92,6 +92,32 @@ def contribution_detail_html(context=None, request=None, **kw):
     return {'text': c.replace('http://wals.info', request.application_url)}
 
 
+def _valuesets(parameter):
+    return DBSession.query(ValueSet)\
+        .filter(ValueSet.parameter_pk == parameter.pk)\
+        .options(
+            joinedload(ValueSet.language),
+            joinedload_all(ValueSet.values, Value.domainelement))
+
+
+def parameter_detail_tab(context=None, request=None, **kw):
+    query = _valuesets(context).options(joinedload_all(
+        ValueSet.language, WalsLanguage.genus, Genus.family))
+    return dict(datapoints=query)
+
+
+def parameter_detail_georss(context=None, request=None, **kw):
+    return dict(datapoints=_valuesets(context))
+
+
+def parameter_detail_xml(context=None, request=None, **kw):
+    return dict(datapoints=_valuesets(context))
+
+
+def parameter_detail_kml(context=None, request=None, **kw):
+    return dict(datapoints=_valuesets(context))
+
+
 def parameter_detail_html(context=None, request=None, **kw):
     return dict(select=CombinationMultiSelect(request, selected=[context]))
 
@@ -103,7 +129,9 @@ def combination_detail_html(context=None, request=None, **kw):
     for i, de in enumerate(context.domain):
         param = 'v%s' % i
         if param in request.params:
-            de.icon = ICON_MAP[convert(request.params[param])]
+            name = convert(request.params[param])
+            if name in ICON_MAP:
+                de.icon = ICON_MAP[name]
 
     return dict(
         select=CombinationMultiSelect(request, combination=context),

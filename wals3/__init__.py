@@ -295,6 +295,27 @@ def main(global_config, **settings):
 
     config.add_route('sample', '/languoid/samples/{count}', factory=sample_factory)
 
+    config.register_adapter(adapter_factory(
+        'parameter/detail_tab.mako',
+        mimetype='application/vnd.clld.tab',
+        send_mimetype="text/plain",
+        extension='tab'), IParameter)
+    config.register_adapter(adapter_factory(
+        'parameter/detail_xml.mako',
+        mimetype='application/vnd.clld.xml',
+        send_mimetype="application/xml",
+        extension='xml'), IParameter)
+    config.register_adapter(adapter_factory(
+        'parameter/detail_georss.mako',
+        mimetype='application/vnd.clld.georss+xml',
+        send_mimetype="application/rdf+xml",
+        extension='georss'), IParameter)
+    config.register_adapter(adapter_factory(
+        'parameter/detail_kml.mako',
+        mimetype='application/vnd.google-earth.kml+xml',
+        send_mimetype="application/xml",
+        extension='kml'), IParameter)
+
     config.register_adapter(GeoJsonFeature, IParameter)
     config.add_route('feature_info', '/feature-info/{id}')
     config.add_route('genealogy', '/languoid/genealogy')

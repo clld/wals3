@@ -30,7 +30,7 @@ class FeatureMap(ParameterMap):
 
 class WalsMap(Map):
     def get_options(self):
-        res = {'max_zoom': 9, 'show_labels': True}
+        res = {'max_zoom': 9, 'show_labels': True, 'hash': True}
         res.update(map_params(self.req))
         return res
 
