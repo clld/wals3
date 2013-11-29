@@ -3,7 +3,10 @@ from __future__ import unicode_literals
 from sqlalchemy.orm import joinedload, joinedload_all
 
 from clld.web.adapters.geojson import (
-    GeoJsonParameter, GeoJsonLanguages, pacific_centered_coordinates
+    GeoJsonParameter,
+    GeoJsonLanguages,
+    GeoJsonCombinationDomainElement,
+    pacific_centered_coordinates,
 )
 from clld.web.adapters.download import CsvDump
 from clld.db.meta import DBSession
@@ -42,6 +45,11 @@ class GeoJsonLects(GeoJsonLanguages):
             # special handling for domain elements of feature combinations
             return {'icon': ctx.icon_url}
 
+    def get_coordinates(self, language):
+        return pacific_centered_coordinates(language)
+
+
+class GeoJsonCDE(GeoJsonCombinationDomainElement):
     def get_coordinates(self, language):
         return pacific_centered_coordinates(language)
 

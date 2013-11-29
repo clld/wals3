@@ -35,7 +35,7 @@ ${request.map.render()}
                 <tbody>
                     % for language in genus.languages:
                     <tr>
-                        <td>${u.link_to_map(language)}</td>
+                        <td>${h.link_to_map(language)}</td>
                         <td>${h.link(request, language)}</td>
                     </tr>
                     % endfor

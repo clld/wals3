@@ -32,13 +32,13 @@
     ${h.cite_button(request, ctx.chapter)}
 </p>
 <div>
-    <form>
+    <form action="${request.route_url('select_combination')}">
         <fieldset>
             <p>
                 You may combine this feature with another one. Start typing the
                 feature name or number in the field below.
             </p>
-            ${select.render(selected=[ctx])}
+            ${select.render()}
             <button class="btn" type="submit">Submit</button>
         </fieldset>
     </form>

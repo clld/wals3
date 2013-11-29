@@ -8,13 +8,13 @@
 
 % if len(ctx.parameters) < 4:
 <div>
-    <form>
+    <form action="${request.route_url('select_combination')}">
         <fieldset>
             <p>
                 You may combine these features with another one. Start typing the
                 feature name in the field below.
             </p>
-            ${select.render(selected=ctx.parameters)}
+            ${select.render()}
             <button class="btn" type="submit">Submit</button>
         </fieldset>
     </form>
@@ -25,7 +25,7 @@
 ${map.render()}
 % endif
 
-% if domain:
+% if ctx.domain:
 <div id="list-container">
     <table class="table table-nonfluid">
         <thead>
@@ -35,8 +35,7 @@ ${map.render()}
             <th>Number of languages</th>
         </thead>
         <tbody>
-            % for i, de in enumerate(sorted(domain.keys())):
-            <% de = domain[de] %>
+            % for i, de in enumerate(ctx.domain):
             <tr>
                 <td>
                     % if de.languages:
@@ -49,7 +48,7 @@ ${map.render()}
                 <td>
                     % if de.languages:
                     <a id="iconselect${i}" data-toggle="popover" data-placement="right" href="#">
-                        <img height="20" width="20" src="${de.icon_url}" title="click to select a different map marker"/>
+                        <img height="20" width="20" src="${de.icon.url(request)}" title="click to select a different map marker"/>
                     </a>
                     % endif
                 </td>
@@ -60,7 +59,7 @@ ${map.render()}
                             <tbody>
                                 % for language in de.languages:
                                 <tr>
-                                    <td>${u.link_to_map(language)}</td>
+                                    <td>${h.link_to_map(language)}</td>
                                     <td>${h.link(request, language)}</td>
                                 </tr>
                                 % endfor
@@ -79,7 +78,7 @@ $(document).ready(function() {
     $('.expand-collapse').click(function(){ //you can give id or class name here for $('button')
         $(this).children('i').toggleClass('icon-minus icon-plus');
     });
-    % for i, de in enumerate(sorted(domain.keys())):
+    % for i, de in enumerate(ctx.domain):
     $('#iconselect${i}').clickover({'html': true, 'content': '${u.icons(request, "v"+str(i))|n}'});
     % endfor
 });

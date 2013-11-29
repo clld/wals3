@@ -1,8 +1,7 @@
-from clld.web.maps import ParameterMap, Map, Layer
+from clld.web.maps import ParameterMap, Map, Layer, CombinationMap
 from clld.web.util.helpers import JS, map_marker_img
-from clld.web.util.htmllib import HTML
 
-from wals3.adapters import GeoJsonLects
+from wals3.adapters import GeoJsonLects, GeoJsonCDE
 
 
 def map_params(req):
@@ -70,17 +69,8 @@ class SampleMap(Map):
         yield Layer('sample', 'Sample', geojson.render(self.ctx, self.req, dump=False))
 
 
-class CombinedMap(Map):
-    def get_layers(self):
-        for id_ in sorted(self.ctx.keys()):
-            de = self.ctx[id_]
-            if de.languages:
-                geojson = GeoJsonLects(de)
-                yield Layer(
-                    '-'.join(map(str, de.id)),
-                    de.name,
-                    geojson.render(de, self.req, dump=False),
-                    marker=HTML.img(src=de.icon_url, height='20', width='20'))
+class CombinedMap(CombinationMap):
+    __geojson__ = GeoJsonCDE
 
     def get_options(self):
         res = {'icon_size': 20, 'hash': True}

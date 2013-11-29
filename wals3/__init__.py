@@ -111,7 +111,6 @@ def sample_factory(req):
 #    Redirect("/feature/{fid}A.tab", "/feature/tab/{fid:[0-9]+}", code=301),
 #
 #    Route('feature.combined.query',     "/feature/combined/{id1}", requirements=dict(id1=FEATURE_ID_PATTERN)),
-#    Route('feature.combined',           "/feature/combined/{id1}/{id2}", requirements=dict(id1=FEATURE_ID_PATTERN, id2=FEATURE_ID_PATTERN)),
 #    Route('feature.combined.alt',       "/feature/combined/{id1}/{id2}.{extension}", requirements=dict(id1=FEATURE_ID_PATTERN, id2=FEATURE_ID_PATTERN)),
 #
 #    Route('feature.metadata',           "/feature/metadata/{id}", requirements={"id": FEATURE_ID_PATTERN}),
