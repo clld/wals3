@@ -74,6 +74,17 @@ class WalsCtxFactoryQuery(CtxFactoryQuery):
                 # route match for 2008-style URL: redirect!
                 raise HTTPMovedPermanently(
                     req.route_url('contribution', id=req.matchdict['id']))
+        if model == Source:
+            try:
+                # redirect legacy refdb URLs formed with numeric id:
+                rec = Source.get(int(req.matchdict['id']), default=None)
+                if rec:
+                    raise HTTPMovedPermanently(
+                        req.route_url('source', id=rec.id))
+                else:
+                    raise HTTPNotFound()
+            except ValueError:
+                pass
         return query
 
 
@@ -326,6 +337,9 @@ def main(global_config, **settings):
     config.add_301(
         '/.{ext}',
         lambda req: req.route_url('dataset_alt', ext=req.matchdict['ext']))
+    config.add_301(
+        '/example/{fid}/all',
+        lambda req: req.route_url('parameter', id=req.matchdict['fid']))
 
     # we redirect legacy urls for datapoints because they could not be expressed
     # with a single id.
