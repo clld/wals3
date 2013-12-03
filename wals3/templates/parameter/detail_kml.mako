@@ -8,7 +8,9 @@
     </atom:author>
     <open>1</open>
     <description>
-      Values for language feature ${h.link(request, ctx)|x} from ${h.link(request, request.dataset)|x}.
+      <![CDATA[
+      Values for language feature ${h.link(request, ctx)} from ${h.link(request, request.dataset)}.
+      ]]>
     </description>
     <atom:link href="${request.resource_url(ctx, ext='kml')}"/>
     <TimeStamp><when>${ctx.updated.isoformat().split('+')[0]}Z</when></TimeStamp>
@@ -37,8 +39,10 @@
       <Placemark>
         <name>${vs.language.name}</name>
         <description>
-          ${h.link(request, vs.language)|x}: Feature ${h.link(request, ctx)|x}
+          <![CDATA[
+          ${h.link(request, vs.language)}: Feature ${h.link(request, ctx)}
           (value "${vs.values[0].domainelement.name}")
+          ]]>
         </description>
         <ExtendedData>
           <wals:code>${vs.language.id}</wals:code>
