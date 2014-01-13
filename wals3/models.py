@@ -100,3 +100,8 @@ class Feature(Parameter, CustomModelMixin, Versioned):
     representation = Column(Integer)
     chapter = relationship(Chapter, lazy='joined', backref="features")
     ordinal_qualifier = Column(String)
+
+    def __solr__(self, req):
+        res = Parameter.__solr__(self, req)
+        res.update(area_t=self.chapter.area.name)
+        return res

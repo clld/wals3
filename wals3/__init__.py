@@ -310,22 +310,29 @@ def main(global_config, **settings):
         'parameter/detail_tab.mako',
         mimetype='application/vnd.clld.tab',
         send_mimetype="text/plain",
-        extension='tab'), IParameter)
+        extension='tab',
+        name='tab-separated values'), IParameter)
     config.register_adapter(adapter_factory(
         'parameter/detail_xml.mako',
         mimetype='application/vnd.clld.xml',
         send_mimetype="application/xml",
-        extension='xml'), IParameter)
+        extension='xml',
+        name='WALS XML',
+        __doc__="Custom XML format."), IParameter)
     config.register_adapter(adapter_factory(
         'parameter/detail_georss.mako',
         mimetype='application/vnd.clld.georss+xml',
         send_mimetype="application/rdf+xml",
-        extension='georss'), IParameter)
+        extension='georss',
+        name="GeoRSS",
+        __doc__="RSS with location information (see http://en.wikipedia.org/wiki/GeoRSS)."), IParameter)
     config.register_adapter(adapter_factory(
         'parameter/detail_kml.mako',
         mimetype='application/vnd.google-earth.kml+xml',
         send_mimetype="application/xml",
-        extension='kml'), IParameter)
+        extension='kml',
+        name='KML',
+        __doc__="Keyhole Markup Language"), IParameter)
 
     config.register_adapter(GeoJsonFeature, IParameter)
     config.add_route('feature_info', '/feature-info/{id}')

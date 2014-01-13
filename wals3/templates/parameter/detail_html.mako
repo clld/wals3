@@ -26,6 +26,8 @@
 
 <h2>Feature ${ctx.id}: ${ctx.name}</h2>
 
+<div>${h.alt_representations(req, ctx, doc_position='right', exclude=['snippet.html'])|n}</div>
+
 <p>
     In chapter ${ctx.chapter.id}: ${h.link(request, ctx.chapter)}
     by ${h.linked_contributors(request, ctx.chapter)}
