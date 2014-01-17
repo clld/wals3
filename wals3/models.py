@@ -73,6 +73,10 @@ class WalsLanguage(Language, CustomModelMixin, Versioned):
     iso_codes = Column(String)
     genus = relationship(Genus, backref=backref("languages", order_by="Language.name"))
 
+    def __rdf__(self, request):
+        for country in self.countries:
+            yield 'dcterms:spatial', 'http://www.geonames.org/countries/%s/' % country.id
+
 
 @implementer(interfaces.IContribution)
 class Chapter(Contribution, CustomModelMixin, Versioned):
@@ -85,6 +89,10 @@ class Chapter(Contribution, CustomModelMixin, Versioned):
     wp_slug = Column(Unicode)
     area_pk = Column(Integer, ForeignKey('area.pk'))
     area = relationship(Area, lazy='joined')
+
+    def __rdf__(self, request):
+        if self.area.dbpedia_url:
+            yield 'dcterms:subject', self.area.dbpedia_url
 
 
 @implementer(interfaces.IParameter)
@@ -105,3 +113,7 @@ class Feature(Parameter, CustomModelMixin, Versioned):
         res = Parameter.__solr__(self, req)
         res.update(area_t=self.chapter.area.name)
         return res
+
+    def __rdf__(self, request):
+        if self.chapter.area.dbpedia_url:
+            yield 'dcterms:subject', self.chapter.area.dbpedia_url
