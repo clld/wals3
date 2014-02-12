@@ -17,7 +17,7 @@ ${request.map.render()}
 
 <h3>Genera</h3>
 <div id="list-container" class="row-fluid">
-    % for genera in u.partitioned(h.DBSession.query(Genus).filter(Genus.family_pk == ctx.pk).order_by(Genus.name).options(joinedload(Genus.languages)).all()):
+    % for genera in h.partitioned(h.DBSession.query(Genus).filter(Genus.family_pk == ctx.pk).order_by(Genus.name).options(joinedload(Genus.languages)).all()):
     <div class="span4">
         % for genus in filter(None, genera):
         <h4>
