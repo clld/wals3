@@ -136,18 +136,3 @@ def combination_detail_html(context=None, request=None, **kw):
     return dict(
         select=CombinationMultiSelect(request, combination=context),
         map=CombinedMap(context, request))
-
-
-def partitioned(items, n=3):
-    max_items_per_bucket, rem = divmod(len(items), n)
-    if rem:
-        max_items_per_bucket += 1
-    bucket = []
-
-    for item in items:
-        if len(bucket) >= max_items_per_bucket:
-            yield bucket
-            bucket = []
-        bucket.append(item)
-
-    yield bucket

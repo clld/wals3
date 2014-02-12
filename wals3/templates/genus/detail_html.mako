@@ -21,7 +21,7 @@ ${request.map.render()}
 
 <h3>Languages</h3>
 <div id="list-container" class="row-fluid">
-    % for languages in u.partitioned(ctx.languages):
+    % for languages in h.partitioned(ctx.languages):
     <div class="span4">
         <table class="table table-condensed table-nonfluid">
             <tbody>
