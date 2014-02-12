@@ -291,7 +291,7 @@ def main(global_config, **settings):
         ('contributors', partial(menu_item, 'contributors')),
         #('blog', lambda ctx, req: (req.blog.url('category/news/'), 'Newsblog')),
     )
-
+    config.include('clldmpg')
     config.include('wals3.maps')
     config.include('wals3.datatables')
 

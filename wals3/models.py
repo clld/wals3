@@ -58,6 +58,18 @@ class Area(Base, IdNameDescriptionMixin):
     dbpedia_url = Column(String)
 
 
+class LanguageMacroarea(Base):
+    __table_args__ = (UniqueConstraint('macroarea_pk', 'language_pk'),)
+
+    macroarea_pk = Column(Integer, ForeignKey('macroarea.pk'))
+    language_pk = Column(Integer, ForeignKey('language.pk'))
+
+
+class Macroarea(Base, IdNameDescriptionMixin):
+    languages = relationship(
+        Language, secondary=LanguageMacroarea.__table__, backref='macroareas')
+
+
 #-----------------------------------------------------------------------------
 # specialized common mapper classes
 #-----------------------------------------------------------------------------

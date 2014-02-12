@@ -41,6 +41,10 @@ def icons(req, param):
 
 
 class LanguoidSelect(MultiSelect):
+    """
+    >>> ls = LanguoidSelect(None, None, None)
+    >>> assert ls.get_options()
+    """
     def format_result(self, l):
         return dict(
             id='%s-%s' % (l.mapper_name().lower()[0], l.id),

@@ -17,7 +17,7 @@ from clld.db.models import common
 from clld.db.util import compute_language_sources
 from clld.scripts.util import initializedb, Data, gbs_func
 from clld.lib.bibtex import EntryType
-from clld.lib.dsv import rows
+from clld.lib.dsv import reader
 from clld.util import LGR_ABBRS
 
 import wals3
@@ -358,7 +358,7 @@ def teaser(html):
 
 def get_vs2008(args):
     vs2008 = {}
-    for row in rows(args.data_file('datapoints_2008.csv'), delimiter=','):
+    for row in reader(args.data_file('datapoints_2008.csv'), delimiter=','):
         vs2008[(row[0], '%sA' % row[1])] = int(row[2])
     return vs2008
 
@@ -795,7 +795,7 @@ def prime_cache(args):
             value.updated = E2011
             VersionedDBSession.flush()
 
-    for row in rows(args.data_file('corrections_2013.tab'), namedtuples=True, newline='\r'):
+    for row in reader(args.data_file('corrections_2013.tab'), namedtuples=True, newline='\r'):
         valueset = VersionedDBSession.query(common.ValueSet)\
             .join(common.Language)\
             .join(common.Parameter)\

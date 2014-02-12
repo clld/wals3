@@ -21,9 +21,6 @@ class Blog(object):
     def _set_category(self, **cat):
         return self.wp.set_categories([cat]).values()[0]
 
-    #
-    # TODO: the whole blog implementation is wals specific and should be moved there!
-    #
     def post_url(self, obj, req, create=False):
         res = self.url('%s/' % obj.wp_slug)
         if create and not self.wp.get_post_id_from_path(res):
