@@ -102,3 +102,45 @@ a.Contributor:visited { color: #4a1c08; }
 
 /* route specific rules */
 #r-language div.dt-before-table {display: none;}
+
+/* Mobile Responsive CSS */
+@media (max-width: 550px) {
+  body > #top {
+    display: table-header-group;
+  }
+  body > #contextnavbar {
+    display: table-footer-group;
+  }
+  body > .container-fluid {
+    display: table-row-group;
+  }
+  .row-fluid .span4, .row-fluid .span8 {
+    width: 100%;
+    float: none;
+  }
+  .span4 h3 {
+    font-size: 17.5px;
+  }
+  .btn-group {
+    display: none;
+  }
+  .navbar .nav>li>a {
+    font-weight: normal;
+    padding: 10px;
+  }
+
+  /* homepage */
+  #r-dataset .row-fluid .span4 {
+    display: table-header-group;
+  }
+  #r-dataset .row-fluid .span8 {
+    display: table-footer-group;
+  }
+
+  /* language */
+  .codes .label {
+    font-size: 14px;
+    font-weight: normal;
+    padding: 8px;
+  }
+}
