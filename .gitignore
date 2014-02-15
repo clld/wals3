@@ -31,3 +31,6 @@ nosetests.xml
 .project
 .pydevproject
 .idea
+
+# Mac OS
+*.DS_Store
