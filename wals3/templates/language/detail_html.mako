@@ -29,6 +29,7 @@ ${request.get_datatable('values', h.models.Value, language=ctx).render()}
     % if ctx.sources:
     <%util:well title="Sources">
         ${util.sources_list(sorted(list(ctx.sources), key=lambda s: s.name))}
+        <div style="clear: both;"></div>
     </%util:well>
     % endif
     ##    <%util:accordion_group eid="acc-names" parent="sidebar-accordion" title="Alternative names">
