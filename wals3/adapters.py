@@ -1,7 +1,10 @@
 from __future__ import unicode_literals
+from itertools import groupby
 
 from sqlalchemy.orm import joinedload, joinedload_all
 
+from clld.interfaces import ILanguage, IParameter, IIndex
+from clld.web.adapters.base import Index
 from clld.web.adapters.geojson import (
     GeoJsonParameter,
     GeoJsonLanguages,
@@ -9,6 +12,8 @@ from clld.web.adapters.geojson import (
     pacific_centered_coordinates,
 )
 from clld.web.adapters.download import CsvDump
+from clld.web.maps import GeoJsonSelectedLanguages, SelectedLanguagesMap, Layer
+from clld.web.util.helpers import map_marker_img
 from clld.db.meta import DBSession
 from clld.db.models.common import Value, DomainElement, ValueSet, Language, Parameter
 from wals3.models import WalsLanguage, Genus
@@ -90,3 +95,40 @@ class Matrix(CsvDump):
             values[name] = getter(item) or ''
         values['URL'] = req.resource_url(item)
         return [values.get(p, '') for p in self.get_fields(req)]
+
+
+class _GeoJsonSelectedLanguages(GeoJsonSelectedLanguages):
+    def get_coordinates(self, language):
+        return pacific_centered_coordinates(language)
+
+
+class _SelectedLanguagesMap(SelectedLanguagesMap):
+    def get_layers(self):
+        for genus, languages in groupby(
+                sorted(self.languages, key=lambda l: l.genus_pk), key=lambda l: l.genus):
+            languages = list(languages)
+            yield Layer(
+                genus.id,
+                genus.name,
+                self.geojson_impl(languages).render(self.ctx, self.req, dump=False),
+                marker=map_marker_img(self.req, genus),
+                representation=len(languages))
+
+
+class MapView(Index):
+    extension = str('map.html')
+    mimetype = str('text/vnd.clld.map+html')
+    send_mimetype = str('text/html')
+    template = 'language/map_html.mako'
+
+    def template_context(self, ctx, req):
+        languages = list(ctx.get_query(limit=8000))
+        return {
+            'map': _SelectedLanguagesMap(
+                ctx, req, languages, geojson_impl=_GeoJsonSelectedLanguages),
+            'languages': languages}
+
+
+def includeme(config):
+    config.register_adapter(GeoJsonFeature, IParameter)
+    config.register_adapter(MapView, ILanguage, IIndex)

@@ -149,7 +149,9 @@ class Languages(datatables.Languages):
             Col(self, 'iso_codes', model_col=WalsLanguage.iso_codes),
             LinkCol(self, 'genus', model_col=Genus.name, get_object=lambda i: i.genus),
             LinkCol(self, 'family', model_col=Family.name, get_object=lambda i: i.genus.family),
-            MacroareaCol(self, 'macroarea')
+            MacroareaCol(self, 'macroarea'),
+            Col(self, 'latitude'),
+            Col(self, 'longitude'),
         ]
 
 

@@ -16,7 +16,7 @@ from clld.web.app import get_configurator, menu_item, CtxFactoryQuery
 from clld.db.models.common import Contribution, ContributionReference, Parameter, Language, Source
 
 from wals3.blog import Blog
-from wals3.adapters import GeoJsonFeature, Matrix
+from wals3.adapters import Matrix
 from wals3.models import Family, Country, WalsLanguage, Genus
 from wals3.interfaces import IFamily, ICountry, IGenus
 
@@ -294,6 +294,7 @@ def main(global_config, **settings):
     config.include('clldmpg')
     config.include('wals3.maps')
     config.include('wals3.datatables')
+    config.include('wals3.adapters')
 
     config.register_resource('family', Family, IFamily)
     config.register_adapter(adapter_factory('family/detail_html.mako'), IFamily)
@@ -334,7 +335,6 @@ def main(global_config, **settings):
         name='KML',
         __doc__="Keyhole Markup Language"), IParameter)
 
-    config.register_adapter(GeoJsonFeature, IParameter)
     config.add_route('feature_info', '/feature-info/{id}')
     config.add_route('genealogy', '/languoid/genealogy')
 
