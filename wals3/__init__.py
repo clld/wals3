@@ -384,6 +384,7 @@ def main(global_config, **settings):
     config.add_301('/languoid/family', lambda req: req.route_url('languages'))
     config.add_301('/languoid/genus', lambda req: req.route_url('languages'))
     config.add_301('/supplement/1', lambda req: req.route_url('contribution', id='s1'))
+    config.add_301('/supplement/3', lambda req: req.route_url('contribution', id='s1'))
     config.add_301('/supplement/5', lambda req: req.route_url('contribution', id='s5'))
     config.add_301('/supplement/6', lambda req: req.route_url('contribution', id='s6'))
     config.add_301('/supplement/7', lambda req: req.route_url('contribution', id='s7'))
