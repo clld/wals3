@@ -3,6 +3,7 @@ from itertools import groupby
 
 from sqlalchemy.orm import joinedload, joinedload_all
 
+from clld.util import cached_property
 from clld.interfaces import ILanguage, IParameter, IIndex
 from clld.web.adapters.base import Index
 from clld.web.adapters.geojson import (
@@ -72,18 +73,22 @@ class Matrix(CsvDump):
     ]
     _fields = []
 
+    @cached_property()
+    def _parameters(self):
+        return DBSession.query(Parameter).order_by(Parameter.pk).all()
+
     def query(self, req):
+        self._domainelements = DBSession.query(DomainElement).all()
         return DBSession.query(Language)\
             .order_by(Language.id)\
             .options(
-                joinedload(Language.valuesets),
+                joinedload_all(Language.valuesets, ValueSet.values),
                 joinedload_all(WalsLanguage.genus, Genus.family))
 
     def get_fields(self, req):  # pragma: no cover
         if not self._fields:
             self._fields = [f[0] for f in self.md_fields]
-            self._fields.extend(['{0.id} {0.name}'.format(p) for p in
-                                 DBSession.query(Parameter).order_by(Parameter.pk)])
+            self._fields.extend(['{0.id} {0.name}'.format(p) for p in self._parameters])
         return self._fields
 
     def row(self, req, fp, item, index):  # pragma: no cover
