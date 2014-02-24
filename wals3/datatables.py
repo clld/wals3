@@ -8,6 +8,7 @@ from clld.web.datatables.base import (
 )
 from clld.db.meta import DBSession
 from clld.db.models import common
+from clld.db.util import get_distinct_values
 from clld.web.util.helpers import linked_contributors, linked_references
 from clld.web.util.htmllib import HTML
 
@@ -124,19 +125,6 @@ class Features(datatables.Parameters):
         ]
 
 
-class MacroareaCol(Col):
-    def __init__(self, dt, name, **kw):
-        kw['bSortable'] = False
-        kw['choices'] = [r[0] for r in DBSession.query(Country.continent).distinct()]
-        super(MacroareaCol, self).__init__(dt, name, **kw)
-
-    def search(self, qs):
-        return Country.continent.__eq__(qs)
-
-    def format(self, item):
-        return ', '.join(set(c.continent for c in item.countries))
-
-
 class Languages(datatables.Languages):
     def base_query(self, query):
         return query.outerjoin(WalsLanguage.countries).join(Genus).join(Family).options(
@@ -149,7 +137,9 @@ class Languages(datatables.Languages):
             Col(self, 'iso_codes', model_col=WalsLanguage.iso_codes),
             LinkCol(self, 'genus', model_col=Genus.name, get_object=lambda i: i.genus),
             LinkCol(self, 'family', model_col=Family.name, get_object=lambda i: i.genus.family),
-            MacroareaCol(self, 'macroarea'),
+            Col(self, 'macroarea',
+                model_col=WalsLanguage.macroarea,
+                choices=get_distinct_values(WalsLanguage.macroarea)),
             Col(self, 'latitude'),
             Col(self, 'longitude'),
         ]

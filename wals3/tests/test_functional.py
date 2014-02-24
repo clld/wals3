@@ -45,6 +45,7 @@ class Tests(TestWithApp):
 
     def test_g(self):
         self.app.get('/languoid')
+        self.app.get('/languoid.tab')
         self.app.get('/languoid.map.html')
         self.app.get('/languoid/genus/berber')
         self.app.get('/languoid/family/arawakan')

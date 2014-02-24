@@ -16,7 +16,8 @@ from clld.web.adapters.download import CsvDump
 from clld.web.maps import GeoJsonSelectedLanguages, SelectedLanguagesMap, Layer
 from clld.web.util.helpers import map_marker_img
 from clld.db.meta import DBSession
-from clld.db.models.common import Value, DomainElement, ValueSet, Language, Parameter
+from clld.db.models.common import Value, DomainElement, ValueSet, Language, Parameter, LanguageIdentifier
+
 from wals3.models import WalsLanguage, Genus
 
 
@@ -134,6 +135,34 @@ class MapView(Index):
             'languages': languages}
 
 
+class LanguagesTab(Index):
+    extension = str('tab')
+    mimetype = str('text/vnd.clld.text+tsv')
+    send_mimetype = str('text/plain')
+
+    def render(self, ctx, req):
+        fields = [
+            ('wals code', lambda l: l.id),
+            ('glottocode', lambda l: l.glottocode),
+            ('name', lambda l: l.name),
+            ('latitude', lambda l: l.latitude),
+            ('longitude', lambda l: l.longitude),
+            ('macroarea', lambda l: l.macroarea),
+            ('genus', lambda l: l.genus.name),
+            ('family', lambda l: l.genus.family.name),
+            ('sample 100', lambda l: l.samples_100),
+            ('sample 200', lambda l: l.samples_200),
+        ]
+        lines = [[f[0] for f in fields]]
+        for lang in DBSession.query(Language).options(
+                joinedload_all(WalsLanguage.genus, Genus.family),
+                joinedload_all(Language.languageidentifier, LanguageIdentifier.identifier)
+        ):
+            lines.append([f[1](lang) for f in fields])
+        return '\n'.join('\t'.join(map(unicode, line)) for line in lines)
+
+
 def includeme(config):
     config.register_adapter(GeoJsonFeature, IParameter)
     config.register_adapter(MapView, ILanguage, IIndex)
+    config.register_adapter(LanguagesTab, ILanguage, IIndex)

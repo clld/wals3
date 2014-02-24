@@ -58,18 +58,6 @@ class Area(Base, IdNameDescriptionMixin):
     dbpedia_url = Column(String)
 
 
-class LanguageMacroarea(Base):
-    __table_args__ = (UniqueConstraint('macroarea_pk', 'language_pk'),)
-
-    macroarea_pk = Column(Integer, ForeignKey('macroarea.pk'))
-    language_pk = Column(Integer, ForeignKey('language.pk'))
-
-
-class Macroarea(Base, IdNameDescriptionMixin):
-    languages = relationship(
-        Language, secondary=LanguageMacroarea.__table__, backref='macroareas')
-
-
 #-----------------------------------------------------------------------------
 # specialized common mapper classes
 #-----------------------------------------------------------------------------
@@ -82,10 +70,13 @@ class WalsLanguage(Language, CustomModelMixin, Versioned):
     samples_100 = Column(Boolean, default=False)
     samples_200 = Column(Boolean, default=False)
 
+    macroarea = Column(Unicode)
     iso_codes = Column(String)
     genus = relationship(Genus, backref=backref("languages", order_by="Language.name"))
 
     def __rdf__(self, request):
+        if self.macroarea:
+            yield 'dcterms:spatial', self.macroarea
         for country in self.countries:
             yield 'dcterms:spatial', 'http://www.geonames.org/countries/%s/' % country.id
 
