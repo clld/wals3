@@ -132,9 +132,9 @@ class Languages(datatables.Languages):
 
     def col_defs(self):
         return [
-            IdCol(self, 'id'),
             LinkCol(self, 'name'),
-            Col(self, 'iso_codes', model_col=WalsLanguage.iso_codes),
+            IdCol(self, 'id', sTitle='WALS code', sClass='left'),
+            Col(self, 'iso_codes', sTitle='ISO 639-3', model_col=WalsLanguage.iso_codes),
             LinkCol(self, 'genus', model_col=Genus.name, get_object=lambda i: i.genus),
             LinkCol(self, 'family', model_col=Family.name, get_object=lambda i: i.genus.family),
             Col(self, 'macroarea',
