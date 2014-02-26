@@ -12,7 +12,7 @@ from wals3 import models
 import wals3
 
 
-class Icons(object):
+class Icons(object):  # pragma: no cover
     filename_pattern = re.compile('(?P<spec>(c|d|s|f|t)[0-9a-f]{3})\.png')
 
     @staticmethod
@@ -36,12 +36,12 @@ class Icons(object):
 ICONS = Icons()
 
 
-def delete(session, obj, replacement=None, model=None):
+def delete(session, obj, replacement=None, model=None):  # pragma: no cover
     common.Config.add_replacement(obj, replacement, model=model, session=session)
     session.delete(obj)
 
 
-def merge_sources(session, timestamp, s1, s2, *attrs):
+def merge_sources(session, timestamp, s1, s2, *attrs):  # pragma: no cover
     s1 = common.Source.get(s1, session=session)
     s2 = common.Source.get(s2, session=session)
     for attr in attrs:
@@ -55,7 +55,7 @@ def merge_sources(session, timestamp, s1, s2, *attrs):
     delete(session, s1, replacement=s2)
 
 
-def get_vs(session, vs):
+def get_vs(session, vs):  # pragma: no cover
     if isinstance(vs, basestring):
         pid, lid = vs.split('-')
         return session.query(common.ValueSet)\
@@ -67,7 +67,7 @@ def get_vs(session, vs):
     return vs
 
 
-def vs_switch_lang(session, timestamp, vs, lang):
+def vs_switch_lang(session, timestamp, vs, lang):  # pragma: no cover
     if isinstance(lang, basestring):
         lang = common.Language.get(lang, session=session)
     vs1 = get_vs(session, vs)
@@ -107,7 +107,7 @@ def vs_switch_lang(session, timestamp, vs, lang):
     delete(session, vs1)
 
 
-def vs_copy_lang(session, timestamp, vs, lang):
+def vs_copy_lang(session, timestamp, vs, lang):  # pragma: no cover
     if isinstance(lang, basestring):
         lang = common.Language.get(lang, session=session)
     vs1 = get_vs(session, vs)
@@ -147,7 +147,7 @@ def vs_copy_lang(session, timestamp, vs, lang):
             description=ref.description))
 
 
-def vs_delete(session, timestamp, vs):
+def vs_delete(session, timestamp, vs):  # pragma: no cover
     vs = get_vs(session, vs)
     delete(session, vs.values[0])
     for ref in vs.references:
@@ -155,7 +155,7 @@ def vs_delete(session, timestamp, vs):
     delete(session, vs)
 
 
-def update_iso(session, timestamp, lang, *obsolete, **new):
+def update_iso(session, timestamp, lang, *obsolete, **new):  # pragma: no cover
     if isinstance(lang, basestring):
         lang = common.Language.get(lang, session=session)
     lang.updated = timestamp
@@ -185,7 +185,7 @@ def update_iso(session, timestamp, lang, *obsolete, **new):
     return lang
 
 
-def update_glottocode(session, timestamp, lang, gc):
+def update_glottocode(session, timestamp, lang, gc):  # pragma: no cover
     if isinstance(lang, basestring):
         lang = common.Language.get(lang, session=session)
     lang.updated = timestamp
@@ -213,7 +213,7 @@ def update_classification(session,
                           genus_name=None,
                           family_id=None,
                           family_name=None,
-                          subfamily=None):
+                          subfamily=None):  # pragma: no cover
     if family_id:
         family = models.Family.get(family_id, session=session, default=None)
         if not family:
@@ -243,7 +243,7 @@ def update_classification(session,
         lang.genus = genus
 
 
-def update_language(session, timestamp, lang, keep_old_name=False, **kw):
+def update_language(session, timestamp, lang, keep_old_name=False, **kw):  # pragma: no cover
     if isinstance(lang, basestring):
         lang = common.Language.get(lang, session=session)
 
@@ -255,7 +255,7 @@ def update_language(session, timestamp, lang, keep_old_name=False, **kw):
     return update_obj(session, timestamp, lang, **kw)
 
 
-def update_obj(session, timestamp, obj, **kw):
+def update_obj(session, timestamp, obj, **kw):  # pragma: no cover
     obj.updated = timestamp
     for k, v in kw.items():
         setattr(obj, k, v)
@@ -265,12 +265,12 @@ def update_obj(session, timestamp, obj, **kw):
 #
 # issues
 #
-def issue5(session, timestamp):
+def issue5(session, timestamp):  # pragma: no cover
     gul = update_iso(session, timestamp, 'gul', 'glu', kcm='Gula (Central African Republic)')
     update_glottocode(session, timestamp, gul, 'gula1266')
 
 
-def issue7(session, timestamp):
+def issue7(session, timestamp):  # pragma: no cover
     """
     wals3=# select id, name from language where name like 'Dangal%';
     id | name
@@ -293,7 +293,7 @@ def issue7(session, timestamp):
             session.delete(id_)
 
 
-def issue8(session, timestamp):
+def issue8(session, timestamp):  # pragma: no cover
     """
     It turns out that the data and sources for Yi (wals code yi) are actually for two
     completely different languages (both in the Burmese-Lolo genus, but in different branches).
@@ -340,14 +340,14 @@ def issue8(session, timestamp):
                 vs_switch_lang(session, timestamp, vs, nasu)
 
 
-def issue9(session, timestamp):
+def issue9(session, timestamp):  # pragma: no cover
     """
     the location of Bao'an is inaccurate. It should be changed to 35° 45′ N, 102° 50′ E.
     """
     update_language(session, timestamp, 'bao', latitude=35.75, longitude=102.8333333333333334)
 
 
-def issue10(session, timestamp):
+def issue10(session, timestamp):  # pragma: no cover
     """
     1. Nubian (Hill) -> Ghulfan. In the case of Ghulfan, we need to add Nubian (Hill) to the
     list of names under Other.
@@ -372,7 +372,7 @@ def issue10(session, timestamp):
     update_language(session, timestamp, 'emb', name='Emberá (Northern)', ascii_name='embera northern')
 
 
-def issue11(session, timestamp):
+def issue11(session, timestamp):  # pragma: no cover
     """
     Another name change:
     Kaugel (kgl) -> Umbu Ungu
@@ -399,7 +399,7 @@ def issue11(session, timestamp):
     update_glottocode(session, timestamp, bbf, 'nort2819')
 
 
-def issue13(session, timestamp):
+def issue13(session, timestamp):  # pragma: no cover
     """
     The name for what is now called Tamang should be changed to Tamang (Eastern).
     (We are splitting it into two varieties, but we will not add Western Tamang yet.)
@@ -421,14 +421,14 @@ def issue13(session, timestamp):
                 session.delete(ref)
 
 
-def issue14(session, timestamp):
+def issue14(session, timestamp):  # pragma: no cover
     update_classification(
         session, timestamp,
         ['dhm'],
         'dhimalic', genus_name='Dhimalic', family_id='sinotibetan', subfamily='Tibeto-Burman')
 
 
-def issue15(session, timestamp):
+def issue15(session, timestamp):  # pragma: no cover
     """
     the following languages should also be removed from Bodic and put into a new genus
     (also within the Tibeto-Burman subfamily of Sino-Tibetan) called Mahakiranti:
@@ -458,7 +458,7 @@ def issue15(session, timestamp):
         'mahakiranti', genus_name='Mahakiranti', family_id='sinotibetan', subfamily='Tibeto-Burman')
 
 
-def issue16(session, timestamp):
+def issue16(session, timestamp):  # pragma: no cover
     """
     (1) Greater Central Philippine;
     (2) Northern Luzon;
@@ -578,7 +578,7 @@ def issue16(session, timestamp):
         delete(session, models.Genus.get(genus, session=session), replacement=new)
 
 
-def issue17(session, timestamp):
+def issue17(session, timestamp):  # pragma: no cover
     """
     The language Moraori (wals code mri) should be taken out of the Morehead and Upper
     Maro Rivers family and placed in a new family and new genus both called Moraori.
@@ -589,7 +589,7 @@ def issue17(session, timestamp):
         'moraori', genus_name='Moraori', family_id='moraori', family_name='Moraori')
 
 
-def issue19(session, timestamp):
+def issue19(session, timestamp):  # pragma: no cover
     """
     First, the following two languages currently classified as Arawakan need to be removed
     and each put in their own families where the name of the family and the genus is the
@@ -668,13 +668,13 @@ def issue19(session, timestamp):
     delete(session, models.Genus.get('arawakan', session=session))
 
 
-def issue0(session, timestamp):
+def issue0(session, timestamp):  # pragma: no cover
     for i in session.query(common.Identifier)\
             .filter(common.Identifier.name == 'Bembe (CK if same Bembe)'):
         i.name = 'Bembe'
 
 
-def issue20(session, timestamp):
+def issue20(session, timestamp):  # pragma: no cover
     #    Datapoint http://wals.info/datapoint/121A/wals_code_bej should be changed to be
     # about Kemant (wals_code_kem). The same applies to the Rossini source for that
     # datapoint. (This is the only datapoint for this source.)
@@ -824,20 +824,20 @@ def issue20(session, timestamp):
         family_id='nigercongo')
 
 
-def issue27(session, timestamp):
+def issue27(session, timestamp):  # pragma: no cover
     merge_sources(session, timestamp, 'Ming-Chao-Gui-2000', 'Gui-2000')
 
 
-def issue28(session, timestamp):
+def issue28(session, timestamp):  # pragma: no cover
     merge_sources(session, timestamp, 'Lamwamu-1973', 'Lumwamu-1973', 'series', 'volume')
 
 
-def issue26(session, timestamp):
+def issue26(session, timestamp):  # pragma: no cover
     for lid, gid in [('rji', 'bodic'), ('moc', 'northomotic'), ('awk', 'kainji')]:
         update_classification(session, timestamp, [lid], gid)
 
 
-def issue24(session, timestamp):
+def issue24(session, timestamp):  # pragma: no cover
     #- Update language cea (name, coords, alternative names, iso code (and name))
     #Change name of Cree (Eastern) to Cree (Swampy)
     #Change coordinates to 56dN, 90dW

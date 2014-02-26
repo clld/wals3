@@ -42,11 +42,6 @@ class AreaCol(Col):
         return Area.name.contains(qs)
 
 
-class RefCol(Col):
-    def format(self, item):
-        return HTML.small(linked_references(self.dt.req, item.valueset))
-
-
 class Datapoints(datatables.Values):
     def base_query(self, query):
         query = super(Datapoints, self).base_query(query)
@@ -55,10 +50,6 @@ class Datapoints(datatables.Values):
                 .join(Chapter, Area)
         return query
 
-    #
-    # TODO: add columns:
-    # - references
-    #
     def col_defs(self):
         # remove the details link.
         cols = super(Datapoints, self).col_defs()[1:]
@@ -79,17 +70,6 @@ class Datapoints(datatables.Values):
 class ContributorsCol(Col):
     def format(self, item):
         return linked_contributors(self.dt.req, item.chapter)
-
-
-class RepresentationCol(Col):
-    def search(self, qs):
-        return filter_number(cast(common.Parameter_data.value, Integer), qs, type_=int)
-
-    def order(self):
-        return cast(common.Parameter_data.value, Integer)
-
-    def format(self, item):
-        return item.datadict()['representation']
 
 
 class _AreaCol(Col):

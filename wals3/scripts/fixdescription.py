@@ -21,7 +21,7 @@ def pattern(path):
     return re.compile('http\:\/\/wals\.info' + path)
 
 
-def url(path):
+def url(path):  # pragma: no cover
     return 'http://wals.info' + path
 
 
@@ -61,7 +61,7 @@ URL_PATTERNS = {
 }
 
 
-def fix(id_):
+def fix(id_):  # pragma: no cover
     print('chapter %s' % id_)
     p = path(wals3.__file__).dirname().joinpath(
         'static', 'descriptions', str(id_), 'body.xhtml')
@@ -266,5 +266,5 @@ def fix(id_):
             fp.write(c.encode('utf8'))
 
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # pragma: no cover
     map(fix, range(1, 145))

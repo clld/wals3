@@ -34,12 +34,6 @@ for k, v in uncited.MAP.items():
 DB = create_engine('postgresql://robert@/wals-vm42')
 REFDB = create_engine('postgresql://robert@/walsrefs')
 GC = create_engine('postgresql://robert@/glottolog3')
-
-glottocodes = {}
-for row in GC.execute('select ll.hid, l.id from language as l, languoid as ll where ll.pk = l.pk'):
-    if row[0] and len(row[0]) == 3:
-        glottocodes[row[0]] = row[1]
-
 ABBRS = {
     "A": "agent-like argument",
     "ACCOMP": "accompanied ",
@@ -210,7 +204,7 @@ for k, v in LGR_ABBRS.items():
     ABBRS.setdefault(k, v)
 
 
-def get_source(id):
+def get_source(id):  # pragma: no cover
     """retrieve a source record from wals_refdb
     """
     field_map = {
@@ -300,7 +294,7 @@ where id = id_r_ref and citekey = '%s'""" % id
     return res
 
 
-def parse_igt(html):
+def parse_igt(html):  # pragma: no cover
     """
 <table class="IGT">
   <caption>
@@ -347,7 +341,7 @@ def parse_igt(html):
     return res
 
 
-def teaser(html):
+def teaser(html):  # pragma: no cover
     res = ''
     for s in BeautifulSoup(html).stripped_strings:
         res = '%s %s' % (res, s)
@@ -356,7 +350,7 @@ def teaser(html):
     return res.strip()
 
 
-def get_vs2008(args):
+def get_vs2008(args):  # pragma: no cover
     vs2008 = {}
     for row in reader(args.data_file('datapoints_2008.csv'), delimiter=','):
         vs2008[(row[0], '%sA' % row[1])] = int(row[2])
@@ -369,7 +363,7 @@ E2013 = utc.localize(datetime(2013, 11, 15))
 data = Data(created=E2008, updated=E2008)
 
 
-def migrate(from_, to_, converter):
+def migrate(from_, to_, converter):  # pragma: no cover
     for row in DB.execute("select * from %s" % from_):
         res = converter(row)
         if not res:
@@ -381,7 +375,12 @@ def migrate(from_, to_, converter):
     DBSession.flush()
 
 
-def main(args):
+def main(args):  # pragma: no cover
+    glottocodes = {}
+    for row in GC.execute('select ll.hid, l.id from language as l, languoid as ll where ll.pk = l.pk'):
+        if row[0] and len(row[0]) == 3:
+            glottocodes[row[0]] = row[1]
+
     icons = issues.Icons()
     old_db = DB
 
@@ -765,7 +764,7 @@ def main(args):
     print len(missing), 'missing datapoints for example_feature relations'
 
 
-def prime_cache(args):
+def prime_cache(args):  # pragma: no cover
     """
     we use a versioned session to insert the changes in value assignment
     """
@@ -859,5 +858,5 @@ def prime_cache(args):
     gbs_func('update', args)
 
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # pragma: no cover
     initializedb(create=main, prime_cache=prime_cache)
