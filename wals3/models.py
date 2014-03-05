@@ -94,7 +94,7 @@ class Chapter(Contribution, CustomModelMixin, Versioned):
     area = relationship(Area, lazy='joined')
 
     def __rdf__(self, request):
-        if self.area.dbpedia_url:
+        if self.area and self.area.dbpedia_url:
             yield 'dcterms:subject', self.area.dbpedia_url
 
 
