@@ -37,6 +37,7 @@ class Tests(TestWithApp):
 
     def test_g(self):
         self.app.get_html('/languoid')
+        self.app.get_dt('/languoid?sSearch_8=Australia')
         self.app.get('/languoid.tab')
         self.app.get_html('/languoid.map.html')
         self.app.get_html('/languoid/genus/berber')
