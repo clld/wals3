@@ -9,7 +9,7 @@ from clld.web.datatables.base import (
 from clld.db.meta import DBSession
 from clld.db.models import common
 from clld.db.util import get_distinct_values, icontains
-from clld.web.util.helpers import linked_contributors, linked_references
+from clld.web.util.helpers import linked_contributors, linked_references, link
 from clld.web.util.htmllib import HTML
 
 from wals3.models import WalsLanguage, Genus, Family, Chapter, Feature, Area, Country
@@ -109,7 +109,7 @@ class CountriesCol(Col):
     __kw__ = dict(bSortable=False)
 
     def format(self, item):
-        return HTML.ul(*[HTML.li(c.name) for c in item.countries], class_='unstyled')
+        return HTML.ul(*[HTML.li(link(self.dt.req, c)) for c in item.countries], class_='unstyled')
 
     def search(self, qs):
         return icontains(Country.name, qs)
