@@ -64,8 +64,8 @@ class GeoJsonCDE(GeoJsonCombinationDomainElement):
 class Matrix(CsvDump):
     md_fields = [
         ('wals_code', lambda p: p.id),
-        ('iso_code', lambda p: p.iso_code or ''),
-        ('glottocode', lambda p: p.glottocode or ''),
+        ('iso_code', lambda p: p.iso_code),
+        ('glottocode', lambda p: p.glottocode),
         ('Name', lambda p: p.name),
         ('latitude', lambda p: p.latitude),
         ('longitude', lambda p: p.longitude),
@@ -98,7 +98,8 @@ class Matrix(CsvDump):
             '{0.number} {0.name}'.format(v.values[0].domainelement)
             for v in item.valuesets}
         for name, getter in self.md_fields:
-            values[name] = getter(item) or ''
+            value = getter(item)
+            values[name] = value if value is not None else ''
         values['URL'] = req.resource_url(item)
         return [values.get(p, '') for p in self.get_fields(req)]
 
