@@ -46,7 +46,7 @@
 </p>
 <p>
     WALS Online is a publication of the
-    ${h.external_link('http://www.eva,mpg.de', label='Max Planck Institute for Evolutionary Anthropology')}.
+    ${h.external_link('http://www.eva.mpg.de', label='Max Planck Institute for Evolutionary Anthropology')}.
     It is a separate publication, edited by
     Dryer, Matthew S. & Haspelmath, Martin (Leipzig: Max Planck Institute for Evolutionary Anthropology, 2013)
     The main programmer is Robert Forkel.
