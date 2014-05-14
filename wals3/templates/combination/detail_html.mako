@@ -47,9 +47,9 @@ ${map.render()}
                 </td>
                 <td>
                     % if de.languages:
-                    <a id="iconselect${i}" data-toggle="popover" data-placement="right" href="#">
+                    <%util:iconselect id="iconselect${str(i)}" param="v${str(i)}" placement="right" tag="span">
                         <img height="20" width="20" src="${de.icon.url(request)}" title="click to select a different map marker"/>
-                    </a>
+                    </%util:iconselect>
                     % endif
                 </td>
                 <td>
@@ -78,9 +78,6 @@ $(document).ready(function() {
     $('.expand-collapse').click(function(){ //you can give id or class name here for $('button')
         $(this).children('i').toggleClass('icon-minus icon-plus');
     });
-    % for i, de in enumerate(ctx.domain):
-    $('#iconselect${i}').clickover({'html': true, 'content': '${u.icons(request, "v"+str(i))|n}'});
-    % endfor
 });
 </script>
 % endif

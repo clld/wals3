@@ -14,12 +14,3 @@ WALS3.formatLanguoid = function (obj) {
     }
     return '<' + tag + '>' + obj.text + '</' + tag + '>';
 }
-
-WALS3.reload = function (query) {
-    var url, current = document.location;
-    url = current.pathname;
-    if (current.search) {
-        query = $.extend({}, JSON.parse('{"' + decodeURI(current.search.replace('?', '').replace(/&/g, "\",\"").replace(/=/g,"\":\"")) + '"}'), query)
-    }
-    document.location.href = url + '?' + $.param(query);
-}

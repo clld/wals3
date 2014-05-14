@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup as soup
 from pyramid.httpexceptions import HTTPFound
 
 from clld import RESOURCES
-from clld.interfaces import IRepresentation
+from clld.interfaces import IRepresentation, IIconList
 from clld.web.adapters import get_adapter
 from clld.db.meta import DBSession
 from clld.db.models.common import DomainElement, Contribution, ValueSet, Value
@@ -19,25 +19,6 @@ from clld.web.icon import ICON_MAP
 import wals3
 from wals3.models import Feature, WalsLanguage, Genus
 from wals3.maps import CombinedMap
-
-
-def icons(req, param):
-    icon_map = req.registry.settings['icons']
-    td = lambda spec: HTML.td(
-        HTML.img(
-            src=req.static_url('clld:web/static/icons/' + icon_map[spec] + '.png'),
-            height='20',
-            width='20'),
-        onclick='WALS3.reload({"%s": "%s"})' % (param, spec))
-    rows = [
-        HTML.tr(*map(td, icons)) for c, icons in
-        groupby(sorted(icon_map.keys()), lambda spec: spec[0])]
-    return HTML.div(
-        HTML.table(
-            HTML.tbody(*rows),
-            class_="table table-condensed"
-        ),
-        button('Close', **{'data-dismiss': 'clickover'}))
 
 
 class LanguoidSelect(MultiSelect):

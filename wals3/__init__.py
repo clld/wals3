@@ -8,10 +8,11 @@ from pyramid.httpexceptions import HTTPNotFound, HTTPMovedPermanently
 
 from clld.interfaces import (
     IParameter, IMapMarker, IDomainElement, IValue, ILanguage,
-    ICtxFactoryQuery, IBlog,
+    ICtxFactoryQuery, IBlog, IIconList,
 )
 from clld.web.adapters.base import adapter_factory
 from clld.web.adapters.download import Download
+from clld.web.icon import Icon
 from clld.web.app import get_configurator, menu_item, CtxFactoryQuery
 from clld.db.models.common import Contribution, ContributionReference, Parameter, Language, Source
 
@@ -35,30 +36,25 @@ def map_marker(ctx, req):
     """to allow for user-selectable markers, we have to look up a possible custom
     selection from the url params.
     """
-    icon_map = req.registry.settings['icons']
+    icon_map = {i.name: i for i in req.registry.getUtility(IIconList)}
     icon = None
+
     if IValue.providedBy(ctx):
-        if 'v%s' % ctx.domainelement.number in req.params:
-            icon = icon_map.get(req.params['v%s' % ctx.domainelement.number])
-        else:
-            icon = ctx.domainelement.jsondata['icon']
+        icon = req.params.get(
+            'v%s' % ctx.domainelement.number,
+            ctx.domainelement.jsondata['icon'])
     elif IDomainElement.providedBy(ctx):
-        if 'v%s' % ctx.number in req.params:
-            icon = icon_map.get(req.params['v%s' % ctx.number])
-        else:
-            icon = ctx.jsondata['icon']
+        icon = req.params.get('v%s' % ctx.number, ctx.jsondata['icon'])
     elif ILanguage.providedBy(ctx):
-        if ctx.genus.id in req.params:
-            icon = icon_map.get(req.params[ctx.genus.id])
-        else:
-            icon = ctx.genus.icon
+        icon = req.params.get(ctx.genus.id, ctx.genus.icon)
     elif isinstance(ctx, Genus):
-        if ctx.id in req.params:
-            icon = icon_map.get(req.params[ctx.id])
-        else:
-            icon = ctx.icon
+        icon = req.params.get(ctx.id, ctx.icon)
+
     if icon:
-        return req.static_url('clld:web/static/icons/' + icon + '.png')
+        if len(icon) == 7:
+            icon = ''.join([icon[i] for i in [0, 2, 4, 6]])
+        if icon in icon_map:
+            return icon_map[icon].url(req)
 
 
 class WalsCtxFactoryQuery(CtxFactoryQuery):
@@ -103,6 +99,12 @@ def sample_factory(req):
             .order_by(WalsLanguage.name)
 
     return Sample()
+
+
+class WalsIcon(Icon):
+    @property
+    def asset_spec(self):
+        return 'wals3:static/icons/%s.png' % self.name
 
 
 #def legacy():
@@ -264,21 +266,20 @@ def main(global_config, **settings):
     }
     settings['sitemaps'] = 'contribution parameter source sentence valueset'.split()
 
-    convert = lambda spec: ''.join(c if i == 0 else c + c for i, c in enumerate(spec))
     filename_pattern = re.compile('(?P<spec>(c|d|s|f|t)[0-9a-f]{3})\.png')
-    icons = {}
+    icons = []
     for name in sorted(
         path(__file__).dirname().joinpath('static', 'icons').files()
     ):
         m = filename_pattern.match(name.splitall()[-1])
         if m:
-            icons[m.group('spec')] = convert(m.group('spec'))
-    settings['icons'] = icons
+            icons.append(WalsIcon(m.group('spec')))
 
     utilities = [
         (WalsCtxFactoryQuery(), ICtxFactoryQuery),
         (map_marker, IMapMarker),
         (Blog(settings), IBlog),
+        (icons, IIconList),
     ]
     config = get_configurator('wals3', *utilities, **dict(settings=settings))
     config.register_menu(

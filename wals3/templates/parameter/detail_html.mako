@@ -13,9 +13,9 @@
         <table class="table table-condensed">
             % for de in ctx.domain:
             <tr>
-                <td title="click to select a different map marker" id="iconselect${str(de.number)}" data-toggle="popover" data-placement="left">
+                <%util:iconselect id="iconselect${str(de.number)}" param="v${str(de.number)}">
                     ${h.map_marker_img(req, de)}
-                </td>
+                </%util:iconselect>
                 <td>${de}</td>
                 <td class="right">${len(de.values)}</td>
             </tr>
@@ -73,10 +73,3 @@ wals_parameter_map_on_init = function (map) {
 }
 </%block>
 
-<script>
-$(document).ready(function() {
-    % for de in ctx.domain:
-    $('#iconselect${str(de.number)}').clickover({'html': true, 'content': '${u.icons(request, "v" + str(de.number))}'});
-    % endfor
-});
-</script>
