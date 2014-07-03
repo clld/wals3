@@ -108,6 +108,8 @@ def changes(request):
     # changes in the 2011 edition: check values with an updated date after 2011 and before 2013
     E2009 = utc.localize(datetime(2009, 1, 1))
     E2012 = utc.localize(datetime(2012, 1, 1))
+    E2014 = utc.localize(datetime(2014, 6, 30))
+    E2015 = utc.localize(datetime(2015, 6, 30))
 
     history = inspect(Value.__history_mapper__).class_
     query = DBSession.query(Value)\
@@ -126,7 +128,12 @@ def changes(request):
             and_(history.updated != None, E2009 < history.updated, history.updated < E2012)))
 
     changes2013 = query.filter(or_(
-        E2012 < Value.updated, E2012 < history.updated))
+        and_(E2012 < Value.updated, Value.updated < E2014),
+        and_(E2012 < history.updated, history.updated < E2014)))
+
+    changes2014 = query.filter(or_(
+        and_(E2014 < Value.updated, Value.updated < E2015),
+        and_(E2014 < history.updated, history.updated < E2015)))
 
     #
     # TODO:
@@ -142,6 +149,7 @@ def changes(request):
     return {
         'changes2011': groupby([v.valueset for v in changes2011], lambda vs: vs.parameter),
         'changes2013': groupby([v.valueset for v in changes2013], lambda vs: vs.parameter),
+        'changes2014': groupby([v.valueset for v in changes2014], lambda vs: vs.parameter),
         'removals2013': removals2013}
 
 

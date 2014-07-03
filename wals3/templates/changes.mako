@@ -11,6 +11,9 @@
 <%def name="sidebar()">
     <%util:well title="Editions">
     <ul class="nav nav-pills nav-stacked">
+        <li class="active">
+            <a href="#e2014">2014</a>
+        </li>
       <li class="active">
         <a href="#e2013">2013</a>
       </li>
@@ -32,6 +35,32 @@
   <a href="${request.route_url('contact')}">contact us</a> or download the data from
   ${h.external_link('https://github.com/clld/wals-data', label='the github repository')}.
 </p>
+
+<%util:section title="WALS Online 2014" id="e2014" level="${4}">
+<%util:table items="${changes2014}" eid="t2014" args="item" class_="table-nonfluid">\
+    <%def name="head()">
+        <th> </th><th>Feature</th><th>Number of added/changed datapoints</th>
+    </%def>
+    <% vss = list(item[1]) %>
+    <td>
+      <button title="click to toggle display of datapoints"
+              type="button" class="btn btn-mini expand-collapse" data-toggle="collapse" data-target="#c2014-${item[0].pk}">
+        <i class="icon icon-plus"> </i>
+      </button>
+    </td>
+    <td>
+      ${h.link(request, item[0])}
+        <div id="c2014-${item[0].pk}" class="collapse">
+          ${util.stacked_links(vss)}
+        </div>
+    </td>
+    <td>${str(len(vss))}</td>
+</%util:table>
+<p>
+    Small corrections have been made to the classification mainly triggered by updates in
+    Glottolog's classification.
+</p>
+</%util:section>
 
 
 <%util:section title="WALS Online 2013" id="e2013" level="${4}">

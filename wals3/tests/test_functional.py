@@ -108,4 +108,5 @@ class Tests(TestWithApp):
         self.app.get_dt('/values?parameter=1A')
         self.app.get_dt('/values?parameter=1A&v1=c000')
         self.app.get_dt('/values?language=eng&iSortingCols=1&iSortCol_0=4')
+        self.app.get_dt('/values?language=eng&sSearch_1=noun&iSortingCols=1&iSortCol_0=1')
         self.app.get_dt('/values?language=eng&sSearch_4=phon')
