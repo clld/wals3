@@ -29,7 +29,8 @@
 <div>${h.alt_representations(req, ctx, doc_position='right', exclude=['snippet.html'])|n}</div>
 
 <p>
-    In chapter ${ctx.chapter.id}: ${h.link(request, ctx.chapter)}
+    In chapter ${ctx.chapter.id}:
+    <span class="badge badge-info">${h.link(request, ctx.chapter, style="color: white;")}</span>
     by ${h.linked_contributors(request, ctx.chapter)}
     ${h.cite_button(request, ctx.chapter)}
 </p>
