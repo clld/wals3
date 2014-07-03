@@ -6,6 +6,7 @@ from clld.web import datatables
 from clld.web.datatables.base import (
     Col, filter_number, LinkCol, DetailsRowLinkCol, IdCol,
 )
+from clld.web.datatables.value import ValueNameCol
 from clld.db.meta import DBSession
 from clld.db.models import common
 from clld.db.util import get_distinct_values, icontains
@@ -42,12 +43,24 @@ class AreaCol(Col):
         return Area.name.contains(qs)
 
 
+class _WalsValueNameCol(ValueNameCol):
+    def order(self):
+        return common.DomainElement.name
+
+    def search(self, qs):
+        return icontains(common.DomainElement.name, qs)
+
+
 class Datapoints(datatables.Values):
     def base_query(self, query):
         query = super(Datapoints, self).base_query(query)
         if self.language:
             query = query.join(Feature, Feature.pk == common.ValueSet.parameter_pk)\
-                .join(Chapter, Area)
+                .join(Chapter, Area)\
+                .join(common.DomainElement,
+                      common.Value.domainelement_pk == common.DomainElement.pk).options(
+                    joinedload(common.Value.domainelement),
+                    joinedload(common.Value.valueset, common.ValueSet.parameter))
         return query
 
     def col_defs(self):
@@ -55,8 +68,9 @@ class Datapoints(datatables.Values):
         cols = super(Datapoints, self).col_defs()[1:]
         if self.language:
             cols = [
-                FeatureIdCol2(self, 'fid', sClass='right', bSearchable=False)
-            ] + cols + [AreaCol(self, 'area', bSearchable=False)]
+                FeatureIdCol2(self, 'fid', sClass='right', bSearchable=False),
+                _WalsValueNameCol(self, 'value'),
+            ] + cols[1:] + [AreaCol(self, 'area', bSearchable=False)]
         return cols
 
     def get_options(self):
