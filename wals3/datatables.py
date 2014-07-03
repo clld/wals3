@@ -10,10 +10,11 @@ from clld.web.datatables.value import ValueNameCol
 from clld.db.meta import DBSession
 from clld.db.models import common
 from clld.db.util import get_distinct_values, icontains
-from clld.web.util.helpers import linked_contributors, linked_references, link
+from clld.web.util.helpers import linked_contributors, link, button, icon
 from clld.web.util.htmllib import HTML
 
 from wals3.models import WalsLanguage, Genus, Family, Chapter, Feature, Area, Country
+from wals3.util import comment_button
 
 
 class FeatureIdCol(LinkCol):
@@ -51,6 +52,16 @@ class _WalsValueNameCol(ValueNameCol):
         return icontains(common.DomainElement.name, qs)
 
 
+class CommentCol(Col):
+    __kw__ = {'bSortable': False, 'bSearchable': False, 'sTitle': ''}
+
+    def format(self, item):
+        l = self.dt.language or item.valueset.language
+        f = self.dt.parameter or item.valueset.parameter
+        return comment_button(
+            self.dt.req, f, l, class_='btn-mini' if self.dt.language else '')
+
+
 class Datapoints(datatables.Values):
     def base_query(self, query):
         query = super(Datapoints, self).base_query(query)
@@ -61,6 +72,9 @@ class Datapoints(datatables.Values):
                       common.Value.domainelement_pk == common.DomainElement.pk).options(
                     joinedload(common.Value.domainelement),
                     joinedload(common.Value.valueset, common.ValueSet.parameter))
+        if self.parameter:
+            query = query.options(
+                joinedload(common.Value.valueset, common.ValueSet.language))
         return query
 
     def col_defs(self):
@@ -71,6 +85,7 @@ class Datapoints(datatables.Values):
                 FeatureIdCol2(self, 'fid', sClass='right', bSearchable=False),
                 _WalsValueNameCol(self, 'value'),
             ] + cols[1:] + [AreaCol(self, 'area', bSearchable=False)]
+        cols.append(CommentCol(self, 'c'))
         return cols
 
     def get_options(self):

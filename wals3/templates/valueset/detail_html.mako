@@ -28,10 +28,10 @@ ${util.sentences(ctx.values[0])}
 
 <%def name="sidebar()">
     <div>
-        <form class="inline" method="POST" action="${request.route_url('datapoint', fid=ctx.parameter.id, lid=ctx.language.id)}">
+        <form class="inline">
             ${h.button('cite', onclick=h.JSModal.show(ctx.parameter.name, request.resource_url(ctx.parameter.chapter, ext='md.html')))}
-            <button type="submit" class="btn">comment</button>
         </form>
+        ${u.comment_button(request, ctx.parameter, ctx.language)}
     </div>
     <% value = ctx.values[0] %>
     <%util:feed title="Comments" url="${request.blog.feed_url(ctx, request)}">

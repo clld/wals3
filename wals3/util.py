@@ -21,6 +21,15 @@ from wals3.models import Feature, WalsLanguage, Genus
 from wals3.maps import CombinedMap
 
 
+def comment_button(req, feature, language, class_=''):
+    return HTML.form(
+        button(icon('comment'), type='submit', class_=class_, title='comment'),
+        class_='inline',
+        method='POST',
+        action=req.route_url('datapoint', fid=feature.id, lid=language.id),
+    )
+
+
 class LanguoidSelect(MultiSelect):
     """
     >>> ls = LanguoidSelect(None, None, None)
