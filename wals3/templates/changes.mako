@@ -59,6 +59,7 @@
 <p>
     Small corrections have been made to the classification mainly triggered by updates in
     Glottolog's classification.
+    ## https://github.com/clld/wals-data/issues?labels=wals-2014-7
 </p>
 </%util:section>
 

@@ -2,7 +2,6 @@ from zope.interface import implementer
 
 from clld.interfaces import IBlog
 from clld.lib import wordpress
-from clld.web.util.helpers import link
 
 
 @implementer(IBlog)
@@ -58,4 +57,5 @@ class Blog(object):
         return res
 
     def feed_url(self, obj, req):
-        return self.url('%s/feed' % (obj if isinstance(obj, basestring) else obj.wp_slug,))
+        return self.url(
+            '%s/feed' % (obj if isinstance(obj, basestring) else obj.wp_slug,))

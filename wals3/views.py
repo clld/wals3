@@ -9,7 +9,9 @@ from pyramid.httpexceptions import HTTPFound, HTTPNotFound
 from pytz import utc
 
 from clld.db.meta import DBSession
-from clld.db.models.common import Value, ValueSet, Source, Language, LanguageIdentifier, Identifier, Parameter
+from clld.db.models.common import (
+    Value, ValueSet, Source, Language, LanguageIdentifier, Identifier, Parameter,
+)
 from clld.db.util import icontains
 from clld.web.views.olac import OlacConfig, olac_with_cfg, Participant, Institution
 
@@ -20,7 +22,7 @@ from wals3.util import LanguoidSelect
 @view_config(route_name='languoids', renderer='json')
 def languoids(request):
     if request.params.get('id'):
-        if not '-' in request.params['id']:
+        if '-' not in request.params['id']:
             return HTTPNotFound()
         m, id_ = request.params['id'].split('-', 1)
         model = dict(w=Language, g=Genus, f=Family).get(m)
@@ -80,7 +82,8 @@ def info(request):
     feature = Feature.get(request.matchdict['id'])
     return {
         'name': feature.name,
-        'values': [{'name': d.name, 'number': i + 1} for i, d in enumerate(feature.domain)],
+        'values': [{'name': d.name, 'number': i + 1}
+                   for i, d in enumerate(feature.domain)],
     }
 
 
@@ -97,15 +100,17 @@ def comment(request):
 @view_config(route_name='genealogy', renderer='genealogy.mako')
 def genealogy(request):
     return dict(
-        families=DBSession.query(Family).order_by(Family.id)\
+        families=DBSession.query(Family).order_by(Family.id)
         .options(joinedload_all(Family.genera, Genus.languages)))
 
 
 def changes(request):
     """
-    select vs.id, v.updated, h.domainelement_pk, v.domainelement_pk from value_history as h, value as v, valueset as vs where h.pk = v.pk and v.valueset_pk = vs.pk;
+    select vs.id, v.updated, h.domainelement_pk, v.domainelement_pk from value_history \
+    as h, value as v, valueset as vs where h.pk = v.pk and v.valueset_pk = vs.pk;
     """
-    # changes in the 2011 edition: check values with an updated date after 2011 and before 2013
+    # changes in the 2011 edition: check values with an updated date after 2011 and
+    # before 2013
     E2009 = utc.localize(datetime(2009, 1, 1))
     E2012 = utc.localize(datetime(2012, 1, 1))
     E2014 = utc.localize(datetime(2014, 6, 30))
@@ -125,7 +130,8 @@ def changes(request):
         .filter(Parameter.id != '144A')\
         .filter(or_(
             and_(E2009 < Value.updated, Value.updated < E2012),
-            and_(history.updated != None, E2009 < history.updated, history.updated < E2012)))
+            and_(history.updated != None,
+                 E2009 < history.updated, history.updated < E2012)))
 
     changes2013 = query.filter(or_(
         and_(E2012 < Value.updated, Value.updated < E2014),
@@ -138,19 +144,21 @@ def changes(request):
     #
     # TODO:
     #
-    history = inspect(ValueSet.__history_mapper__).class_
-    current = DBSession.query(ValueSet.pk).subquery()
-    removals2013 = []#DBSession.query(Parameter.id, Parameter.name, count(history.pk))\
-        #.filter(Parameter.pk == history.parameter_pk)\
-        #.filter(not_(history.pk.in_(current)))\
-        #.group_by(Parameter.pk, Parameter.id, Parameter.name)\
-        #.order_by(Parameter.pk)
+    # history = inspect(ValueSet.__history_mapper__).class_
+    # current = DBSession.query(ValueSet.pk).subquery()
+    # removals2013 = DBSession.query(Parameter.id, Parameter.name, count(history.pk))\
+    # .filter(Parameter.pk == history.parameter_pk)\
+    # .filter(not_(history.pk.in_(current)))\
+    # .group_by(Parameter.pk, Parameter.id, Parameter.name)\
+    # .order_by(Parameter.pk)
 
+    grouped = lambda changes: groupby([v.valueset for v in changes2011],
+                                      lambda vs: vs.parameter)
     return {
-        'changes2011': groupby([v.valueset for v in changes2011], lambda vs: vs.parameter),
-        'changes2013': groupby([v.valueset for v in changes2013], lambda vs: vs.parameter),
-        'changes2014': groupby([v.valueset for v in changes2014], lambda vs: vs.parameter),
-        'removals2013': removals2013}
+        'changes2011': grouped(changes2011),
+        'changes2013': grouped(changes2013),
+        'changes2014': grouped(changes2014),
+        'removals2013': []}
 
 
 @view_config(route_name='sample', renderer='sample.mako')
@@ -183,7 +191,8 @@ class OlacConfigSource(OlacConfig):
     def format_identifier(self, req, item):
         """
         """
-        return self.delimiter.join([self.scheme, 'refdb.' + req.dataset.domain, str(item.pk)])
+        return self.delimiter.join(
+            [self.scheme, 'refdb.' + req.dataset.domain, str(item.pk)])
 
     def parse_identifier(self, req, id_):
         """
@@ -196,16 +205,21 @@ class OlacConfigSource(OlacConfig):
             'archiveURL': 'http://%s/refdb_oai' % req.dataset.domain,
             'participants': [
                 Participant("Admin", 'Robert Forkel', 'robert_forkel@eva.mpg.de'),
-            ] + [Participant("Editor", ed.contributor.name, ed.contributor.email or req.dataset.contact) for ed in req.dataset.editors],
+            ] + [Participant("Editor",
+                             ed.contributor.name,
+                             ed.contributor.email or req.dataset.contact)
+                 for ed in req.dataset.editors],
             'institution': Institution(
                 req.dataset.publisher_name,
                 req.dataset.publisher_url,
                 '%s, Germany' % req.dataset.publisher_place,
             ),
-            'synopsis': 'The World Atlas of Language Structures Online is a large database '
+            'synopsis':
+                'The World Atlas of Language Structures Online is a large database '
             'of structural (phonological, grammatical, lexical) properties of languages '
             'gathered from descriptive materials (such as reference grammars). The RefDB '
-            'archive contains bibliographical records for all resources cited in WALS Online.',
+            'archive contains bibliographical records for all resources cited in WALS '
+            'Online.',
         }
 
 

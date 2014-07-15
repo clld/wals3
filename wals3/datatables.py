@@ -1,16 +1,12 @@
 from sqlalchemy.orm import joinedload, joinedload_all
-from sqlalchemy.sql.expression import cast
-from sqlalchemy.types import Integer
 
 from clld.web import datatables
-from clld.web.datatables.base import (
-    Col, filter_number, LinkCol, DetailsRowLinkCol, IdCol,
-)
+from clld.web.datatables.base import Col, LinkCol, DetailsRowLinkCol, IdCol
 from clld.web.datatables.value import ValueNameCol
 from clld.db.meta import DBSession
 from clld.db.models import common
 from clld.db.util import get_distinct_values, icontains
-from clld.web.util.helpers import linked_contributors, link, button, icon
+from clld.web.util.helpers import linked_contributors, link
 from clld.web.util.htmllib import HTML
 
 from wals3.models import WalsLanguage, Genus, Family, Chapter, Feature, Area, Country
@@ -138,7 +134,8 @@ class CountriesCol(Col):
     __kw__ = dict(bSortable=False)
 
     def format(self, item):
-        return HTML.ul(*[HTML.li(link(self.dt.req, c)) for c in item.countries], class_='unstyled')
+        return HTML.ul(
+            *[HTML.li(link(self.dt.req, c)) for c in item.countries], class_='unstyled')
 
     def search(self, qs):
         return icontains(Country.name, qs)
@@ -156,7 +153,9 @@ class Languages(datatables.Languages):
             IdCol(self, 'id', sTitle='WALS code', sClass='left'),
             Col(self, 'iso_codes', sTitle='ISO 639-3', model_col=WalsLanguage.iso_codes),
             LinkCol(self, 'genus', model_col=Genus.name, get_object=lambda i: i.genus),
-            LinkCol(self, 'family', model_col=Family.name, get_object=lambda i: i.genus.family),
+            LinkCol(self, 'family',
+                    model_col=Family.name,
+                    get_object=lambda i: i.genus.family),
             Col(self, 'macroarea',
                 model_col=WalsLanguage.macroarea,
                 choices=get_distinct_values(WalsLanguage.macroarea)),

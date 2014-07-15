@@ -1,5 +1,4 @@
 import codecs
-from itertools import groupby
 
 from sqlalchemy.orm import joinedload_all, joinedload
 from path import path
@@ -7,11 +6,11 @@ from bs4 import BeautifulSoup as soup
 from pyramid.httpexceptions import HTTPFound
 
 from clld import RESOURCES
-from clld.interfaces import IRepresentation, IIconList
+from clld.interfaces import IRepresentation
 from clld.web.adapters import get_adapter
 from clld.db.meta import DBSession
 from clld.db.models.common import DomainElement, Contribution, ValueSet, Value
-from clld.web.util.helpers import button, icon, JS_CLLD, get_referents, JS
+from clld.web.util.helpers import button, icon, get_referents, JS
 from clld.web.util.multiselect import MultiSelect, CombinationMultiSelect
 from clld.web.util.htmllib import HTML
 from clld.web.icon import ICON_MAP
@@ -71,7 +70,8 @@ def contribution_detail_html(context=None, request=None, **kw):
     if context.id == 's4':
         raise HTTPFound(request.route_url('genealogy'))
 
-    p = path(wals3.__file__).dirname().joinpath('static', 'descriptions', str(context.id), 'body.xhtml')
+    p = path(wals3.__file__).dirname().joinpath(
+        'static', 'descriptions', str(context.id), 'body.xhtml')
     c = codecs.open(p, encoding='utf8').read()
 
     adapter = get_adapter(IRepresentation, Feature(), request, ext='snippet.html')
@@ -80,7 +80,8 @@ def contribution_detail_html(context=None, request=None, **kw):
             .filter(Feature.contribution_pk == context.pk)\
             .options(joinedload_all(Feature.domain, DomainElement.values)):
         table = soup(adapter.render(feature, request))
-        values = '\n'.join(unicode(table.find(tag).extract()) for tag in ['thead', 'tbody'])
+        values = '\n'.join(unicode(table.find(tag).extract())
+                           for tag in ['thead', 'tbody'])
         c = c.replace('__values_%s__' % feature.id, values)
 
     return {'text': c.replace('http://wals.info', request.application_url)}

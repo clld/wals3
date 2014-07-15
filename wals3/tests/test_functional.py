@@ -24,14 +24,14 @@ class Tests(TestWithApp):
         self.app.get('/languoid/samples/x', status=404)
 
     def test_resources(self):
-        for path in [
+        for _path in [
             '/languoid/lect/wals_code_apk',
             '/chapter/144',
             '/feature/2A',
             '/languoid/family/afroasiatic',
             '/country/ID',
         ]:
-            self.app.get_html(path)
+            self.app.get_html(_path)
         self.app.get('/chapter/s4', status=302)
         self.app.get_dt('/values?iSortingCols=1&iSortCol_0=1&sSortDir_0=desc')
 

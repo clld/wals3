@@ -16,7 +16,9 @@ from clld.web.adapters.download import CsvDump
 from clld.web.maps import GeoJsonSelectedLanguages, SelectedLanguagesMap, Layer
 from clld.web.util.helpers import map_marker_img
 from clld.db.meta import DBSession
-from clld.db.models.common import Value, DomainElement, ValueSet, Language, Parameter, LanguageIdentifier
+from clld.db.models.common import (
+    Value, DomainElement, ValueSet, Language, Parameter, LanguageIdentifier,
+)
 
 from wals3.models import WalsLanguage, Genus
 
@@ -27,8 +29,7 @@ class GeoJsonFeature(GeoJsonParameter):
             .filter(DomainElement.id == req.params.get('domainelement'))\
             .options(
                 joinedload_all(Value.valueset, ValueSet.language),
-                joinedload(Value.domainelement),
-            )
+                joinedload(Value.domainelement))
 
     def get_language(self, ctx, req, value):
         return value.valueset.language

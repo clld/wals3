@@ -50,7 +50,8 @@ class Country(Base, IdNameDescriptionMixin):
 class Genus(Base, IdNameDescriptionMixin):
     family_pk = Column(Integer, ForeignKey('family.pk'))
     subfamily = Column(Unicode)
-    family = relationship(Family, backref=backref("genera", order_by="Genus.subfamily, Genus.name"))
+    family = relationship(
+        Family, backref=backref("genera", order_by="Genus.subfamily, Genus.name"))
     icon = Column(String(7))
 
 
@@ -58,9 +59,9 @@ class Area(Base, IdNameDescriptionMixin):
     dbpedia_url = Column(String)
 
 
-#-----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 # specialized common mapper classes
-#-----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 @implementer(interfaces.ILanguage)
 class WalsLanguage(Language, CustomModelMixin, Versioned):
     pk = Column(Integer, ForeignKey('language.pk'), primary_key=True)
@@ -87,7 +88,6 @@ class Chapter(Contribution, CustomModelMixin, Versioned):
     corresponding values and a descriptive text.
     """
     pk = Column(Integer, ForeignKey('contribution.pk'), primary_key=True)
-    #id = Column(Integer, unique=True)
     sortkey = Column(Integer)
     wp_slug = Column(Unicode)
     area_pk = Column(Integer, ForeignKey('area.pk'))
