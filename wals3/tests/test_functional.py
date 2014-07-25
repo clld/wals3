@@ -1,6 +1,7 @@
 from path import path
 
 from clld.tests.util import TestWithApp
+from clld.db.meta import DBSession
 
 import wals3
 
@@ -77,7 +78,8 @@ class Tests(TestWithApp):
         self.app.get('/refdb/record/555555', status=404)
         self.app.get_html('/refdb/record/Abega-1970')
         self.app.get_html('/feature/20A.snippet.html?v1=c000', docroot='div')
-        self.app.get_html('/combinations/1A_2A?v1=c000')
+        if str(DBSession.get_bind().url).startswith('postgresql'):
+            self.app.get_html('/combinations/1A_2A?v1=c000')
         self.app.get_html('/languoid/family/sepik?sepikhill=c000')
 
     def test_redirects(self):
