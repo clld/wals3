@@ -74,7 +74,7 @@ def languoids(request):
             res.append(l)
 
     ms = LanguoidSelect(request, None, None, url='x')
-    return dict(results=map(ms.format_result, res), context={}, more=False)
+    return dict(results=list(map(ms.format_result, res)), context={}, more=False)
 
 
 @view_config(route_name='feature_info', renderer='json')

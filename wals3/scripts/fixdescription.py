@@ -1,7 +1,9 @@
+from __future__ import print_function, unicode_literals
 import codecs
 import re
 from xml.etree import ElementTree as et
 from sqlite3.dbapi2 import connect
+from io import open
 
 from path import path
 from bs4 import BeautifulSoup as soup
@@ -104,13 +106,13 @@ def fix(id_):  # pragma: no cover
         tag.clear()
         for c in content:
             tag.append(c)
-    c = unicode(s)
+    c = '%s' % s
     c = c.replace('<?xml version="1.0"?>\n', '').strip()
     try:
         et.fromstring(c.encode('utf8'))
     finally:
-        with open(p.dirname().joinpath('body.xhtml'), 'w') as fp:
-            fp.write(c.encode('utf8'))
+        with open(p.dirname().joinpath('body.xhtml'), 'w', encoding='utf8') as fp:
+            fp.write(c)
     return
 
     #
@@ -246,7 +248,7 @@ def fix(id_):  # pragma: no cover
             del tag[attr]
 
     #c = s.prettify()
-    c = unicode(s)
+    c = '%s' % s
     c = c.replace('<?xml version="1.0"?>\n', '').strip()
     #c = re.sub(
     #    '\<p\s+class\=\"example\-start\"\>',
@@ -262,9 +264,9 @@ def fix(id_):  # pragma: no cover
     try:
         et.fromstring(c.encode('utf8'))
     finally:
-        with open(p.dirname().joinpath('body.xhtml'), 'w') as fp:
-            fp.write(c.encode('utf8'))
+        with open(p.dirname().joinpath('body.xhtml'), 'w', encoding='utf8') as fp:
+            fp.write(c)
 
 
 if __name__ == '__main__':  # pragma: no cover
-    map(fix, range(1, 145))
+    list(map(fix, range(1, 145)))

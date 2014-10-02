@@ -1,4 +1,5 @@
 from zope.interface import implementer
+from six import string_types
 
 from clld.interfaces import IBlog
 from clld.lib import wordpress
@@ -18,7 +19,7 @@ class Blog(object):
         return 'http://%s%s' % (self.host, path)
 
     def _set_category(self, **cat):
-        return self.wp.set_categories([cat]).values()[0]
+        return list(self.wp.set_categories([cat]).values())[0]
 
     def post_url(self, obj, req, create=False):
         res = self.url('%s/' % obj.wp_slug)
@@ -58,4 +59,4 @@ class Blog(object):
 
     def feed_url(self, obj, req):
         return self.url(
-            '%s/feed' % (obj if isinstance(obj, basestring) else obj.wp_slug,))
+            '%s/feed' % (obj if isinstance(obj, string_types) else obj.wp_slug,))

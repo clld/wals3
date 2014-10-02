@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 import codecs
 
 from sqlalchemy.orm import joinedload_all, joinedload
@@ -80,7 +81,7 @@ def contribution_detail_html(context=None, request=None, **kw):
             .filter(Feature.contribution_pk == context.pk)\
             .options(joinedload_all(Feature.domain, DomainElement.values)):
         table = soup(adapter.render(feature, request))
-        values = '\n'.join(unicode(table.find(tag).extract())
+        values = '\n'.join('%s' % table.find(tag).extract()
                            for tag in ['thead', 'tbody'])
         c = c.replace('__values_%s__' % feature.id, values)
 

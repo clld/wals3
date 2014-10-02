@@ -1,3 +1,5 @@
+from six import string_types
+
 from clld.db.models.common import Identifier, LanguageIdentifier, Language, IdentifierType
 from clld.db.migration import Connection as BaseConnection
 
@@ -46,13 +48,13 @@ class Connection(BaseConnection):
         if family:
             if isinstance(family, (tuple, list)):
                 family = self.insert(Family, id=family[0], name=family[1])
-            elif isinstance(family, basestring):
+            elif isinstance(family, string_types):
                 family = self.pk(Family, family)
 
         if isinstance(genus, (tuple, list)):
             assert family
             genus = self.insert(Genus, id=genus[0], name=genus[1], family_pk=family)
-        elif isinstance(genus, basestring):
+        elif isinstance(genus, string_types):
             genus = self.pk(Genus, genus)
 
         self.update(WalsLanguage, dict(genus_pk=genus), pk=lpk)

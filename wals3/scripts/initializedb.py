@@ -1,4 +1,4 @@
-from __future__ import unicode_literals
+from __future__ import unicode_literals, print_function
 import sys
 import transaction
 from itertools import groupby, cycle
@@ -233,7 +233,7 @@ where id = id_r_ref and citekey = '%s'""" % id
             if id[-1] in ['a', 'b', 'c', 'd']:
                 refdb_id = UNCITED_MAP.get(id[:-1].lower())
             if not refdb_id:
-                print 'missing ref', id
+                print('missing ref', id)
                 return {}
 
     res['pk'] = int(refdb_id)
@@ -403,7 +403,7 @@ def main(args):  # pragma: no cover
                 max_id += 1
 
             if bibdata['pk'] in refdb_ids:
-                print 'already seen:', row['id'], 'as', refdb_ids[bibdata['pk']]
+                print('already seen:', row['id'], 'as', refdb_ids[bibdata['pk']])
                 data['Source'][row['id']] = data['Source'][refdb_ids[bibdata['pk']]]
                 continue
             refdb_ids[bibdata['pk']] = row['id']
@@ -649,7 +649,7 @@ def main(args):  # pragma: no cover
         value_numeric = row['value_numeric']
         if (language.id, parameter.id) in vs2008:
             if vs2008[(language.id, parameter.id)] != row['value_numeric']:
-                print '~~~', id_, vs2008[(language.id, parameter.id)], '-->', row['value_numeric']
+                print('~~~', id_, vs2008[(language.id, parameter.id)], '-->', row['value_numeric'])
                 value_numeric = vs2008[(language.id, parameter.id)]
             else:
                 same += 1
@@ -672,8 +672,8 @@ def main(args):  # pragma: no cover
             valueset=valueset,
             **kw)
 
-    print same, 'datapoints did not change'
-    print added, 'datapoints added to existing features'
+    print(same, 'datapoints did not change')
+    print(added, 'datapoints added to existing features')
 
     DBSession.flush()
 
@@ -711,7 +711,7 @@ def main(args):  # pragma: no cover
 
     for row in old_db.execute("select * from example"):
         if not row['language_id']:
-            print 'example without language:', row['id']
+            print('example without language:', row['id'])
             continue
 
         _igts = igts[row['id']]
@@ -740,28 +740,26 @@ def main(args):  # pragma: no cover
                 try:
                     sentence = data['Sentence'][igt['id']]
                 except KeyError:
-                    print 'missing sentence:', row['example_id']
+                    print('missing sentence:', row['example_id'])
                     continue
                 try:
                     value = data['Value']['%s-%s' % (row['feature_id'], sentence.language.id)]
                     DBSession.add(common.ValueSentence(sentence=sentence, value=value))
                 except KeyError:
                     missing[(row['feature_id'], sentence.language.id)] = 1
-                    #print 'missing datapoint:', '%s-%s' % (row['feature_id'], sentence.language.id)
         else:
             try:
                 sentence = data['Sentence'][row['example_id']]
             except KeyError:
-                print 'missing sentence:', row['example_id']
+                print('missing sentence:', row['example_id'])
                 continue
             try:
                 value = data['Value']['%s-%s' % (row['feature_id'], sentence.language.id)]
                 DBSession.add(common.ValueSentence(sentence=sentence, value=value))
             except KeyError:
                 missing[(row['feature_id'], sentence.language.id)] = 1
-                #print 'missing datapoint:', '%s-%s' % (row['feature_id'], sentence.language.id)
 
-    print len(missing), 'missing datapoints for example_feature relations'
+    print(len(missing), 'missing datapoints for example_feature relations')
 
 
 def prime_cache(args):  # pragma: no cover
@@ -804,11 +802,11 @@ def prime_cache(args):  # pragma: no cover
         value = valueset.values[0]
 
         if value.domainelement.number == int(row.new):
-            print '**** old news', valueset.language.id, valueset.parameter.id
+            print('**** old news', valueset.language.id, valueset.parameter.id)
             continue
 
         if value.domainelement.number != int(row.old):
-            print '--->', valueset.language.id, valueset.parameter.id, value.domainelement.number
+            print('--->', valueset.language.id, valueset.parameter.id, value.domainelement.number)
         for de in valueset.parameter.domain:
             if de.number == int(row.new):
                 value.domainelement = de
@@ -817,7 +815,7 @@ def prime_cache(args):  # pragma: no cover
         valueset.updated = E2013
         value.updated = E2013
         VersionedDBSession.flush()
-    print 'corrections 2013 done'
+    print('corrections 2013 done')
 
     for issue in ['0', '9', '10', '11', '13', '14', '15', '16', '17', '19', '20', '24', '26', '27', '28']:
         issue = getattr(issues, 'issue' + issue)
@@ -834,7 +832,7 @@ def prime_cache(args):  # pragma: no cover
             DBSession.query(common.ValueSet).order_by(common.ValueSet.parameter_pk),
             lambda vs: vs.parameter):
         parameter.representation = str(len(set(v.language_pk for v in valuesets)))
-    print 'recomputation of representation done'
+    print('recomputation of representation done')
     transaction.commit()
     transaction.begin()
 
@@ -847,7 +845,7 @@ def prime_cache(args):  # pragma: no cover
             if identifier.type == common.IdentifierType.iso.value:
                 iso_codes.append(identifier.name)
         language.iso_codes = ', '.join(sorted(set(iso_codes)))
-    print 'recomputation of iso codes done'
+    print('ecomputation of iso codes done')
     transaction.commit()
     transaction.begin()
 

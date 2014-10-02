@@ -8,7 +8,7 @@ def map_params(req):
     res = {}
     try:
         if 'lat' in req.params and 'lng' in req.params:
-            res['center'] = map(float, [req.params['lat'], req.params['lng']])
+            res['center'] = list(map(float, [req.params['lat'], req.params['lng']]))
         if 'z' in req.params:
             res['zoom'] = int(req.params['z'])
     except (ValueError, TypeError):

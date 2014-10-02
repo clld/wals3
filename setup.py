@@ -2,13 +2,10 @@ import os
 
 from setuptools import setup, find_packages
 
-here = os.path.abspath(os.path.dirname(__file__))
-README = open(os.path.join(here, 'README.txt')).read()
-CHANGES = open(os.path.join(here, 'CHANGES.txt')).read()
 
 requires = [
-    'clld>=0.9',
-    'clldmpg',
+    'clld>=0.18',
+    'clldmpg>=0.4',
     'pyramid',
     'SQLAlchemy',
     'transaction',
@@ -21,10 +18,15 @@ requires = [
     'BeautifulSoup4',
     ]
 
+tests_require = [
+    'WebTest >= 1.3.1', # py3 compat
+    'mock',
+]
+
 setup(name='wals3',
       version='0.0',
       description='wals3',
-      long_description=README + '\n\n' +  CHANGES,
+      long_description='',
       classifiers=[
         "Programming Language :: Python",
         "Framework :: Pyramid",
@@ -40,6 +42,7 @@ setup(name='wals3',
       zip_safe=False,
       test_suite='wals3',
       install_requires=requires,
+      tests_require=tests_require,
       entry_points="""\
       [paste.app_factory]
       main = wals3:main

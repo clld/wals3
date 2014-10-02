@@ -76,6 +76,7 @@ class WalsLanguage(Language, CustomModelMixin, Versioned):
     genus = relationship(Genus, backref=backref("languages", order_by="Language.name"))
 
     def __rdf__(self, request):
+        yield 'skos:broader', request.resource_url(self.genus)
         if self.macroarea:
             yield 'dcterms:spatial', self.macroarea
         for country in self.countries:

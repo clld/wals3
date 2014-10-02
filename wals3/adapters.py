@@ -161,7 +161,7 @@ class LanguagesTab(Index):
                 joinedload_all(Language.languageidentifier, LanguageIdentifier.identifier)
         ):
             lines.append([f[1](lang) for f in fields])
-        return '\n'.join('\t'.join(map(unicode, line)) for line in lines)
+        return '\n'.join('\t'.join(['%s' % l for l in line]) for line in lines)
 
 
 def includeme(config):
