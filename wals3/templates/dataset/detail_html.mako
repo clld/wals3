@@ -102,7 +102,7 @@
     The World Atlas of Language Structures was published as a book with a CD-ROM in summer 2005.
     The CD-ROM contains the "Interactive Reference Tool (WALS program)" as a standalone application
     for Mac OSX, Mac OS9.2 and Windows 2000, XP written by
-    ${h.external_link('http://www.eva.mpg.de/lingua/staff/bibiko.php', label='Hans-Jörg Bibiko'.decode('utf8'))}.
+    ${h.external_link('http://www.eva.mpg.de/lingua/staff/bibiko.php', label=u'Hans-Jörg Bibiko')}.
     To download the
     "Interactive Reference Tool (WALS program)" please follow the link
     ${h.external_link('http://www.eva.mpg.de/lingua/research/tool.php')}.
