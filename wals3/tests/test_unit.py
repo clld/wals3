@@ -21,8 +21,8 @@ class Tests2(TestWithDb):
         conn.insert(Language, id='zzz')
         conn.update_iso('zzz', 'deu', eng='English')
         conn.update_iso('zzz', 'eng', deu='German')
-        conn.update_genus('zzz', ('genus', 'Genus'), ('family', 'Family'))
-        conn.update_genus('zzz', ('othergenus', 'Other Genus'), 'family')
+        conn.update_genus('zzz', ('genus', u'Genus'), ('family', u'Family'))
+        conn.update_genus('zzz', ('othergenus', u'Other Genus'), 'family')
         conn.update_genus('zzz', 'genus')
 
 
