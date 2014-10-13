@@ -89,9 +89,9 @@ def info(request):
 
 @view_config(route_name='datapoint', request_method='POST')
 def comment(request):
-    """
-    check whether a blog post for the datapoint does exist, if not, create one and
-    redirect there.
+    """check whether a blog post for the datapoint does exist.
+
+    if not, create one and redirect there.
     """
     vs = ValueSet.get('%(fid)s-%(lid)s' % request.matchdict)
     return HTTPFound(request.blog.post_url(vs, request, create=True) + '#comment')
@@ -105,10 +105,6 @@ def genealogy(request):
 
 
 def changes(request):
-    """
-    select vs.id, v.updated, h.domainelement_pk, v.domainelement_pk from value_history \
-    as h, value as v, valueset as vs where h.pk = v.pk and v.valueset_pk = vs.pk;
-    """
     # changes in the 2011 edition: check values with an updated date after 2011 and
     # before 2013
     E2009 = utc.localize(datetime(2009, 1, 1))
@@ -174,8 +170,6 @@ class OlacConfigSource(OlacConfig):
         return self._query(req).order_by(Source.updated, Source.pk).first()
 
     def get_record(self, req, identifier):
-        """
-        """
         rec = Source.get(self.parse_identifier(req, identifier), default=None)
         assert rec
         return rec
@@ -189,14 +183,10 @@ class OlacConfigSource(OlacConfig):
         return q
 
     def format_identifier(self, req, item):
-        """
-        """
         return self.delimiter.join(
             [self.scheme, 'refdb.' + req.dataset.domain, str(item.pk)])
 
     def parse_identifier(self, req, id_):
-        """
-        """
         assert self.delimiter in id_
         return int(id_.split(self.delimiter)[-1])
 

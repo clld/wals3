@@ -2,15 +2,15 @@ from zope.interface import Interface
 
 
 class IFamily(Interface):
-    """marker
-    """
+
+    """marker."""
 
 
 class IGenus(Interface):
-    """marker
-    """
+
+    """marker."""
 
 
 class ICountry(Interface):
-    """marker
-    """
+
+    """marker."""

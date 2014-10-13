@@ -31,10 +31,13 @@ def comment_button(req, feature, language, class_=''):
 
 
 class LanguoidSelect(MultiSelect):
-    """
+
+    """Allow selection of languoids by name.
+
     >>> ls = LanguoidSelect(None, None, None)
     >>> assert ls.get_options()
     """
+
     def format_result(self, l):
         return dict(
             id='%s-%s' % (l.mapper_name().lower()[0], l.id),
@@ -119,8 +122,7 @@ def parameter_detail_html(context=None, request=None, **kw):
 
 
 def combination_detail_html(context=None, request=None, **kw):
-    """feature combination view
-    """
+    """feature combination view."""
     convert = lambda spec: ''.join(c if i == 0 else c + c for i, c in enumerate(spec))
     for i, de in enumerate(context.domain):
         param = 'v%s' % i
@@ -130,5 +132,7 @@ def combination_detail_html(context=None, request=None, **kw):
                 de.icon = ICON_MAP[name]
 
     return dict(
-        select=CombinationMultiSelect(request, combination=context),
-        map=CombinedMap(context, request))
+        iconselect=True,
+        #select=CombinationMultiSelect(request, combination=context),
+        #map=CombinedMap(context, request)
+        )

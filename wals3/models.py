@@ -85,9 +85,12 @@ class WalsLanguage(Language, CustomModelMixin, Versioned):
 
 @implementer(interfaces.IContribution)
 class Chapter(Contribution, CustomModelMixin, Versioned):
-    """Contributions in WALS are chapters chapters. These comprise a set of features with
-    corresponding values and a descriptive text.
+
+    """Contributions in WALS are chapters chapters.
+
+    These comprise a set of features with corresponding values and a descriptive text.
     """
+
     pk = Column(Integer, ForeignKey('contribution.pk'), primary_key=True)
     sortkey = Column(Integer)
     wp_slug = Column(Unicode)
@@ -101,8 +104,9 @@ class Chapter(Contribution, CustomModelMixin, Versioned):
 
 @implementer(interfaces.IParameter)
 class Feature(Parameter, CustomModelMixin, Versioned):
-    """Parameters in WALS are called feature. They are always related to one chapter.
-    """
+
+    """Parameters in WALS are called feature. They are always related to one chapter."""
+
     __table_args__ = (UniqueConstraint('contribution_pk', 'ordinal_qualifier'),)
 
     pk = Column(Integer, ForeignKey('parameter.pk'), primary_key=True)

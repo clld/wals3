@@ -84,3 +84,4 @@ def includeme(config):
     config.register_map('genus', GenusMap)
     config.register_map('country', CountryMap)
     config.register_map('sample', SampleMap)
+    config.register_map('combination', CombinedMap)

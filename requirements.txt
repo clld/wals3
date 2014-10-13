@@ -10,8 +10,8 @@ WebTest==2.0.9
 alembic==0.6.2
 argparse==1.2.1
 beautifulsoup4==4.3.2
-clld>=0.15.2
-clldmpg
+clld==0.19
+clldmpg==0.5
 colander==0.9.9
 distribute==0.6.24
 ecdsa==0.10

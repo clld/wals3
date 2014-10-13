@@ -35,8 +35,9 @@ _('Sentences')
 
 
 def map_marker(ctx, req):
-    """to allow for user-selectable markers, we have to look up a possible custom
-    selection from the url params.
+    """allow for user-selectable markers.
+
+    we have to look up a possible custom selection from the url params.
     """
     icon_map = {i.name: i for i in req.registry.getUtility(IIconList)}
     icon = None
@@ -61,9 +62,6 @@ def map_marker(ctx, req):
 
 class WalsCtxFactoryQuery(CtxFactoryQuery):
     def refined_query(self, query, model, req):
-        """Derived classes may override this method to add model-specific query
-        refinements of their own.
-        """
         if model == Contribution:
             return query.options(joinedload_all(
                 Contribution.references, ContributionReference.source))
@@ -110,8 +108,7 @@ class WalsIcon(Icon):
 
 
 def main(global_config, **settings):
-    """ This function returns a Pyramid WSGI application.
-    """
+    """return a Pyramid WSGI application."""
     settings['route_patterns'] = {
         'languages': '/languoid',
         'language': '/languoid/lect/wals_code_{id:[^/\.]+}',
