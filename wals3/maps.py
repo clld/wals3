@@ -64,6 +64,11 @@ class CountryMap(WalsMap):
 
 
 class SampleMap(Map):
+    def get_options(self):
+        res = {'icon_size': 20}
+        res.update(map_params(self.req))
+        return res
+
     def get_layers(self):
         geojson = GeoJsonLects(self.ctx)
         yield Layer('sample', 'Sample', geojson.render(self.ctx, self.req, dump=False))
