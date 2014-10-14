@@ -158,8 +158,13 @@ def changes(request):
 
 
 @view_config(route_name='sample', renderer='sample.mako')
-def sample(ctx, request):
+def sample(ctx, _):
     return {'ctx': ctx}
+
+
+@view_config(route_name='sample_alt', renderer='json')
+def sample_alt(ctx, _):
+    return ctx
 
 
 class OlacConfigSource(OlacConfig):

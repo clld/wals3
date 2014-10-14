@@ -22,6 +22,7 @@ class Tests(TestWithApp):
     def test_samples(self):
         for count in [100, 200]:
             self.app.get_html('/languoid/samples/%s' % count)
+            self.app.get_json('/languoid/samples/%s.json' % count)
         self.app.get('/languoid/samples/x', status=404)
 
     def test_resources(self):

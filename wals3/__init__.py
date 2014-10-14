@@ -98,6 +98,12 @@ def sample_factory(req):
             .options(joinedload_all(WalsLanguage.genus, Genus.family))\
             .order_by(WalsLanguage.name)
 
+        def __json__(self, req):
+            return {
+                'name': self.name,
+                'languages': list(self.languages),
+            }
+
     return Sample()
 
 
@@ -173,7 +179,10 @@ def main(global_config, **settings):
     config.register_resource('country', Country, ICountry)
     config.register_adapter(adapter_factory('country/detail_html.mako'), ICountry)
 
-    config.add_route('sample', '/languoid/samples/{count}', factory=sample_factory)
+    config.add_route(
+        'sample_alt', '/languoid/samples/{count}.{ext}', factory=sample_factory)
+    config.add_route(
+        'sample', '/languoid/samples/{count}', factory=sample_factory)
 
     config.register_adapter(adapter_factory(
         'parameter/detail_tab.mako',
