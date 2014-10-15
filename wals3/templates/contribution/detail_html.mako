@@ -12,7 +12,7 @@ ${text|n}
 
 <%def name="sidebar()">
     % if ctx.features:
-    <%util:well title="Features">
+    <%util:well title="Related map(s)">
         ${util.stacked_links(ctx.features)}
     </%util:well>
     % endif
