@@ -1,6 +1,5 @@
 *.py[cod]
 development.ini
-*/static/download
 
 
 # C extensions
