@@ -18,11 +18,13 @@ import sqlalchemy as sa
 
 
 def upgrade():
-    update_pmtype(['language', 'contribution', 'parameter'], 'base', 'custom')
+    update_pmtype(['language', 'language_history', 'contribution', 'contribution_history',
+        'parameter', 'parameter_history'], 'base', 'custom')
 
 
 def downgrade():
-    update_pmtype(['language', 'contribution', 'parameter'], 'custom', 'base')
+    update_pmtype(['language', 'language_history', 'contribution', 'contribution_history',
+        'parameter', 'parameter_history'], 'custom', 'base')
 
 
 def update_pmtype(tablenames, before, after):
