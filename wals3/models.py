@@ -63,7 +63,7 @@ class Area(Base, IdNameDescriptionMixin):
 # specialized common mapper classes
 # ----------------------------------------------------------------------------
 @implementer(interfaces.ILanguage)
-class WalsLanguage(Language, CustomModelMixin, Versioned):
+class WalsLanguage(CustomModelMixin, Language, Versioned):
     pk = Column(Integer, ForeignKey('language.pk'), primary_key=True)
 
     ascii_name = Column(String)
@@ -84,7 +84,7 @@ class WalsLanguage(Language, CustomModelMixin, Versioned):
 
 
 @implementer(interfaces.IContribution)
-class Chapter(Contribution, CustomModelMixin, Versioned):
+class Chapter(CustomModelMixin, Contribution, Versioned):
 
     """Contributions in WALS are chapters chapters.
 
@@ -103,7 +103,7 @@ class Chapter(Contribution, CustomModelMixin, Versioned):
 
 
 @implementer(interfaces.IParameter)
-class Feature(Parameter, CustomModelMixin, Versioned):
+class Feature(CustomModelMixin, Parameter, Versioned):
 
     """Parameters in WALS are called feature. They are always related to one chapter."""
 
