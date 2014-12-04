@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 from itertools import groupby
 
-from sqlalchemy.orm import joinedload, joinedload_all
+from sqlalchemy.orm import joinedload, joinedload_all, subqueryload_all
 
 from clld.util import cached_property
 from clld.interfaces import ILanguage, IParameter, IIndex
@@ -72,6 +72,8 @@ class Matrix(CsvDump):
         ('longitude', lambda p: p.longitude),
         ('genus', lambda p: p.genus.name),
         ('family', lambda p: p.genus.family.name),
+        ('macroarea', lambda p: p.macroarea),
+        ('countrycodes', lambda p: ' '.join(c.id for c in p.countries)),
     ]
     _fields = []
 
@@ -84,6 +86,8 @@ class Matrix(CsvDump):
         return DBSession.query(Language)\
             .order_by(Language.id)\
             .options(
+                subqueryload_all('languageidentifier', 'identifier'),
+                subqueryload_all('countries'),
                 joinedload_all(Language.valuesets, ValueSet.values),
                 joinedload_all(WalsLanguage.genus, Genus.family))
 
