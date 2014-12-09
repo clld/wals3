@@ -40,9 +40,9 @@ class LanguoidSelect(MultiSelect):
 
     def format_result(self, l):
         return dict(
-            id='%s-%s' % (l.mapper_name().lower()[0], l.id),
+            id='%s-%s' % (l.__class__.__name__.lower()[0], l.id),
             text=l.name,
-            type=l.mapper_name())
+            type=l.__class__.__name__)
 
     def get_options(self):
         return {
