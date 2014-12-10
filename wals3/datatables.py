@@ -1,4 +1,4 @@
-from sqlalchemy.orm import joinedload, joinedload_all
+from sqlalchemy.orm import joinedload, joinedload_all, contains_eager, subqueryload
 
 from clld.web import datatables
 from clld.web.datatables.base import Col, LinkCol, DetailsRowLinkCol, IdCol
@@ -117,7 +117,7 @@ class FeatureAreaCol(_AreaCol):
 class Features(datatables.Parameters):
     def base_query(self, query):
         return query.join(Chapter).join(Area)\
-            .options(joinedload_all(Feature.chapter, Chapter.area))
+            .options(contains_eager(Feature.chapter, Chapter.area))
 
     def col_defs(self):
         return [
@@ -138,14 +138,14 @@ class CountriesCol(Col):
             *[HTML.li(link(self.dt.req, c)) for c in item.countries], class_='unstyled')
 
     def search(self, qs):
-        return icontains(Country.name, qs)
+        return WalsLanguage.countries.any(icontains(Country.name, qs))
 
 
 class Languages(datatables.Languages):
     def base_query(self, query):
-        return query.outerjoin(WalsLanguage.countries).join(Genus).join(Family).options(
-            joinedload_all(WalsLanguage.genus, Genus.family),
-            joinedload(WalsLanguage.countries)).distinct()
+        return query.join(Genus).join(Family).options(
+            contains_eager(WalsLanguage.genus, Genus.family),
+            subqueryload(WalsLanguage.countries))
 
     def col_defs(self):
         return [
@@ -180,7 +180,7 @@ class ChapterAreaCol(_AreaCol):
 
 class Chapters(datatables.Contributions):
     def base_query(self, query):
-        return query.outerjoin(Area).options(joinedload(Chapter.area))
+        return query.outerjoin(Area).options(contains_eager(Chapter.area))
 
     def col_defs(self):
         cols = datatables.Contributions.col_defs(self)
