@@ -12,6 +12,7 @@
 </ul>
 
 <h2>Language ${ctx.name}</h2>
+<span class="badge">WALS code: ${ctx.id}</span>
 
 ${request.get_datatable('values', h.models.Value, language=ctx).render()}
 
