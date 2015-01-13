@@ -1,20 +1,8 @@
-import os
-
 from setuptools import setup, find_packages
 
-
 requires = [
-    'clld>=0.24',
+    'clld>=0.28',
     'clldmpg>=0.5',
-    'pyramid',
-    'SQLAlchemy',
-    'transaction',
-    'pyramid_tm',
-    'pyramid_debugtoolbar',
-    'zope.sqlalchemy',
-    'waitress',
-    'gunicorn',
-    'psycopg2',
     'BeautifulSoup4',
     ]
 
