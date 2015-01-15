@@ -1,4 +1,4 @@
-from sqlalchemy.orm import joinedload, joinedload_all, contains_eager, subqueryload
+from sqlalchemy.orm import joinedload, contains_eager, subqueryload
 
 from clld.web import datatables
 from clld.web.datatables.base import Col, LinkCol, DetailsRowLinkCol, IdCol

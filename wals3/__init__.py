@@ -1,8 +1,9 @@
-from functools import partial
+from __future__ import unicode_literals, absolute_import, division, print_function
 from string import ascii_uppercase
 import re
 
 from path import path
+from sqlalchemy import true
 from sqlalchemy.orm import joinedload_all
 from pyramid.httpexceptions import HTTPNotFound, HTTPMovedPermanently
 
@@ -10,10 +11,9 @@ from clld.interfaces import (
     IParameter, IMapMarker, IDomainElement, IValue, ILanguage,
     ICtxFactoryQuery, IBlog, IIconList,
 )
-from clld.web.adapters.base import adapter_factory
 from clld.web.adapters.download import Download
 from clld.web.icon import Icon
-from clld.web.app import get_configurator, menu_item, CtxFactoryQuery
+from clld.web.app import get_configurator, CtxFactoryQuery
 from clld.db.models.common import (
     Contribution, ContributionReference, Parameter, Language, Source,
 )
@@ -94,15 +94,12 @@ def sample_factory(req):
 
     class Sample(object):
         name = '%s-language sample' % req.matchdict['count']
-        languages = req.db.query(WalsLanguage).filter(col == True)\
+        languages = req.db.query(WalsLanguage).filter(col == true())\
             .options(joinedload_all(WalsLanguage.genus, Genus.family))\
             .order_by(WalsLanguage.name)
 
         def __json__(self, req):
-            return {
-                'name': self.name,
-                'languages': list(self.languages),
-            }
+            return {'name': self.name, 'languages': list(self.languages)}
 
     return Sample()
 
@@ -156,62 +153,55 @@ def main(global_config, **settings):
     ]
     config = get_configurator('wals3', *utilities, **dict(settings=settings))
     config.register_menu(
-        ('dataset', partial(menu_item, 'dataset', label='Home')),
-        ('parameters', partial(menu_item, 'parameters')),
-        ('contributions', partial(menu_item, 'contributions')),
-        ('languages', partial(menu_item, 'languages')),
-        ('sources', partial(menu_item, 'sources')),
-        # ('examples', partial(menu_item, 'sentences')),
-        ('contributors', partial(menu_item, 'contributors')),
-        # ('blog', lambda ctx, req: (req.blog.url('category/news/'), 'Newsblog')),
+        ('dataset', dict(label='Home')),
+        'parameters',
+        'contributions',
+        'languages',
+        'sources',
+        'contributors',
     )
     config.include('clldmpg')
-    config.include('wals3.maps')
-    config.include('wals3.datatables')
-    config.include('wals3.adapters')
 
     config.register_resource('family', Family, IFamily)
-    config.register_adapter(adapter_factory('family/detail_html.mako'), IFamily)
-
     config.register_resource('genus', Genus, IGenus)
-    config.register_adapter(adapter_factory('genus/detail_html.mako'), IGenus)
-
     config.register_resource('country', Country, ICountry)
-    config.register_adapter(adapter_factory('country/detail_html.mako'), ICountry)
 
     config.add_route(
         'sample_alt', '/languoid/samples/{count}.{ext}', factory=sample_factory)
     config.add_route(
         'sample', '/languoid/samples/{count}', factory=sample_factory)
 
-    config.register_adapter(adapter_factory(
-        'parameter/detail_tab.mako',
-        mimetype='application/vnd.clld.tab',
-        send_mimetype="text/plain",
-        extension='tab',
-        name='tab-separated values'), IParameter)
-    config.register_adapter(adapter_factory(
-        'parameter/detail_xml.mako',
-        mimetype='application/vnd.clld.xml',
-        send_mimetype="application/xml",
-        extension='xml',
-        name='WALS XML',
-        __doc__="Custom XML format."), IParameter)
-    config.register_adapter(adapter_factory(
-        'parameter/detail_georss.mako',
-        mimetype='application/vnd.clld.georss+xml',
-        send_mimetype="application/rdf+xml",
-        extension='georss',
-        name="GeoRSS",
-        __doc__="RSS with location information (http://en.wikipedia.org/wiki/GeoRSS)."),
-        IParameter)
-    config.register_adapter(adapter_factory(
-        'parameter/detail_kml.mako',
-        mimetype='application/vnd.google-earth.kml+xml',
-        send_mimetype="application/xml",
-        extension='kml',
-        name='KML',
-        __doc__="Keyhole Markup Language"), IParameter)
+    for spec in [
+        dict(
+            template='parameter/detail_tab.mako',
+            mimetype='application/vnd.clld.tab',
+            send_mimetype="text/plain",
+            extension='tab',
+            name='tab-separated values'),
+        dict(
+            template='parameter/detail_xml.mako',
+            mimetype='application/vnd.clld.xml',
+            send_mimetype="application/xml",
+            extension='xml',
+            name='WALS XML',
+            __doc__="Custom XML format."),
+        dict(
+            template='parameter/detail_georss.mako',
+            mimetype='application/vnd.clld.georss+xml',
+            send_mimetype="application/rdf+xml",
+            extension='georss',
+            name="GeoRSS",
+            __doc__="RSS with location information "
+                    "(http://en.wikipedia.org/wiki/GeoRSS)."),
+        dict(
+            template='parameter/detail_kml.mako',
+            mimetype='application/vnd.google-earth.kml+xml',
+            send_mimetype="application/xml",
+            extension='kml',
+            name='KML',
+            __doc__="Keyhole Markup Language"),
+    ]:
+        config.register_adapter(spec, IParameter)
 
     config.add_route('feature_info', '/feature-info/{id}')
     config.add_route('genealogy', '/languoid/genealogy')

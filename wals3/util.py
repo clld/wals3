@@ -18,7 +18,6 @@ from clld.web.icon import ICON_MAP
 
 import wals3
 from wals3.models import Feature, WalsLanguage, Genus
-from wals3.maps import CombinedMap
 
 
 def comment_button(req, feature, language, class_=''):
@@ -131,8 +130,4 @@ def combination_detail_html(context=None, request=None, **kw):
             if name in ICON_MAP:
                 de.icon = ICON_MAP[name]
 
-    return dict(
-        iconselect=True,
-        #select=CombinationMultiSelect(request, combination=context),
-        #map=CombinedMap(context, request)
-        )
+    return dict(iconselect=True)
