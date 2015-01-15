@@ -13,7 +13,7 @@ ${text|n}
 <%def name="sidebar()">
     % if ctx.features:
     <%util:well title="Related map(s)">
-        ${util.stacked_links(ctx.features)}
+        ${util.stacked_links(sorted(ctx.features, key=lambda f: f.id))}
     </%util:well>
     % endif
     <%util:feed title="Comments" url="${request.blog.feed_url(ctx, request)}">
