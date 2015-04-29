@@ -1,3 +1,4 @@
+data
 *.py[cod]
 development.ini
 
@@ -33,6 +34,7 @@ nosetests.xml
 .project
 .pydevproject
 .idea
+.eggs
 
 # Mac OS
 *.DS_Store

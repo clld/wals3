@@ -151,6 +151,8 @@ def changes(request):
     grouped = lambda changes: groupby([v.valueset for v in changes2011],
                                       lambda vs: vs.parameter)
     return {
+        'db_version':
+            list(DBSession.execute("select version_num from alembic_version"))[0][0],
         'changes2011': grouped(changes2011),
         'changes2013': grouped(changes2013),
         'changes2014': grouped(changes2014),

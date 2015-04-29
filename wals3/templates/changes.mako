@@ -35,6 +35,16 @@
   <a href="${request.route_url('contact')}">contact us</a> or download the data from
   ${h.external_link('https://github.com/clld/wals-data', label='the github repository')}.
 </p>
+<p>
+    Changes of non-core data, e.g. language names or classification, may occur anytime.
+    These changed are tracked via
+    ${h.external_link('https://github.com/clld/wals-data/issues', label='issues on GitHub')}
+    and applied to the database by running
+    ${h.external_link('https://github.com/clld/wals3/tree/master/migrations/versions', label='migration scripts')}.
+    The current version number of the database is
+    <strong><span style="font-family: monospace">${db_version}</span></strong>
+    (cf. the ${h.external_link('https://github.com/clld/wals3/blob/master/migrations/README', label='version history of the database')}).
+</p>
 
 <%util:section title="WALS Online 2014" id="e2014" level="${4}">
 <%util:table items="${changes2014}" eid="t2014" args="item" class_="table-nonfluid">\
