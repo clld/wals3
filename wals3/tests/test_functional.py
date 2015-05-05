@@ -16,6 +16,9 @@ class Tests(TestWithApp):
         self.app.get_html('/changes')
         self.app.get_xml('/refdb_oai?verb=Identify')
 
+    def test_cldf(self):
+        self.app.get('/void.cldf.csv')
+
     def test_genealogy(self):
         self.app.get_html('/languoid/genealogy')
 
