@@ -148,7 +148,7 @@ def changes(request):
     # .group_by(Parameter.pk, Parameter.id, Parameter.name)\
     # .order_by(Parameter.pk)
 
-    grouped = lambda changes: groupby([v.valueset for v in changes2011],
+    grouped = lambda changes: groupby([v.valueset for v in changes],
                                       lambda vs: vs.parameter)
     return {
         'db_version':
