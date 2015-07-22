@@ -36,7 +36,7 @@
     The second online version was published in April 2011.
 </p>
 <p>
-  The 2013 edition of WALS corrects a number of coding errors expecially in Chapters 1 and 3.
+  The 2013 edition of WALS corrects a number of coding errors especially in Chapters 1 and 3.
   A full list of changes is available <a href="${request.route_url('changes')}">here</a>.
 </p>
 <p>
