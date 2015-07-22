@@ -1,38 +1,22 @@
 from clld.web.maps import ParameterMap, Map, Layer, CombinationMap
 from clld.web.util.helpers import JS, map_marker_img
 
-from wals3.adapters import GeoJsonLects, GeoJsonCDE
-
-
-def map_params(req):
-    res = {}
-    try:
-        if 'lat' in req.params and 'lng' in req.params:
-            res['center'] = list(map(float, [req.params['lat'], req.params['lng']]))
-        if 'z' in req.params:
-            res['zoom'] = int(req.params['z'])
-    except (ValueError, TypeError):
-        pass
-    return res
+from wals3.adapters import GeoJsonLects
 
 
 class FeatureMap(ParameterMap):
     def get_options(self):
-        res = {
+        return {
             'icon_size': 20,
             'max_zoom': 9,
             'worldCopyJump': True,
             'on_init': JS('wals_parameter_map_on_init'),
             'info_query': {'parameter': self.ctx.pk}}
-        res.update(map_params(self.req))
-        return res
 
 
 class WalsMap(Map):
     def get_options(self):
-        res = {'max_zoom': 9, 'show_labels': True, 'hash': True}
-        res.update(map_params(self.req))
-        return res
+        return {'max_zoom': 9, 'show_labels': True, 'hash': True}
 
 
 class FamilyMap(WalsMap):
@@ -65,9 +49,7 @@ class CountryMap(WalsMap):
 
 class SampleMap(Map):
     def get_options(self):
-        res = {'icon_size': 20}
-        res.update(map_params(self.req))
-        return res
+        return {'icon_size': 20}
 
     def get_layers(self):
         geojson = GeoJsonLects(self.ctx)
@@ -75,12 +57,8 @@ class SampleMap(Map):
 
 
 class CombinedMap(CombinationMap):
-    __geojson__ = GeoJsonCDE
-
     def get_options(self):
-        res = {'icon_size': 20, 'hash': True}
-        res.update(map_params(self.req))
-        return res
+        return {'icon_size': 20, 'hash': True}
 
 
 def includeme(config):

@@ -6,6 +6,7 @@ from path import path
 from sqlalchemy import true
 from sqlalchemy.orm import joinedload_all
 from pyramid.httpexceptions import HTTPNotFound, HTTPMovedPermanently
+from pyramid.config import Configurator
 
 from clld.interfaces import (
     IParameter, IMapMarker, IDomainElement, IValue, ILanguage,
@@ -13,7 +14,7 @@ from clld.interfaces import (
 )
 from clld.web.adapters.download import Download
 from clld.web.icon import Icon
-from clld.web.app import get_configurator, CtxFactoryQuery
+from clld.web.app import CtxFactoryQuery
 from clld.db.models.common import (
     Contribution, ContributionReference, Parameter, Language, Source,
 )
@@ -145,13 +146,15 @@ def main(global_config, **settings):
         if m:
             icons.append(WalsIcon(m.group('spec')))
 
-    utilities = [
+    config = Configurator(**dict(settings=settings))
+    config.include('clldmpg')
+    for utility, interface in [
         (WalsCtxFactoryQuery(), ICtxFactoryQuery),
         (map_marker, IMapMarker),
         (Blog(settings), IBlog),
         (icons, IIconList),
-    ]
-    config = get_configurator('wals3', *utilities, **dict(settings=settings))
+    ]:
+        config.registry.registerUtility(utility, interface)
     config.register_menu(
         ('dataset', dict(label='Home')),
         'parameters',
@@ -160,7 +163,6 @@ def main(global_config, **settings):
         'sources',
         'contributors',
     )
-    config.include('clldmpg')
 
     config.register_resource('family', Family, IFamily)
     config.register_resource('genus', Genus, IGenus)

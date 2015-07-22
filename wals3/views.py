@@ -12,7 +12,7 @@ from clld.db.meta import DBSession
 from clld.db.models.common import (
     Value, ValueSet, Source, Language, LanguageIdentifier, Identifier, Parameter,
 )
-from clld.db.util import icontains
+from clld.db.util import icontains, get_alembic_version
 from clld.web.views.olac import OlacConfig, olac_with_cfg, Participant, Institution
 
 from wals3.models import Family, Genus, Feature, WalsLanguage
@@ -151,8 +151,7 @@ def changes(request):
     grouped = lambda changes: groupby([v.valueset for v in changes],
                                       lambda vs: vs.parameter)
     return {
-        'db_version':
-            list(DBSession.execute("select version_num from alembic_version"))[0][0],
+        'db_version': get_alembic_version(DBSession),
         'changes2011': grouped(changes2011),
         'changes2013': grouped(changes2013),
         'changes2014': grouped(changes2014),

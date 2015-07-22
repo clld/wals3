@@ -6,19 +6,13 @@ from sqlalchemy.orm import joinedload, joinedload_all, subqueryload_all
 from clld.util import cached_property
 from clld.interfaces import ILanguage, IParameter, IIndex, IDataset
 from clld.web.adapters.base import Index, Representation
-from clld.web.adapters.geojson import (
-    GeoJsonParameter,
-    GeoJsonLanguages,
-    GeoJsonCombinationDomainElement,
-    pacific_centered_coordinates,
-)
+from clld.web.adapters.geojson import GeoJsonParameter, GeoJsonLanguages
 from clld.web.adapters.download import CsvDump
-from clld.web.maps import GeoJsonSelectedLanguages, SelectedLanguagesMap, Layer
+from clld.web.maps import SelectedLanguagesMap, Layer
 from clld.web.util.helpers import map_marker_img
 from clld.db.meta import DBSession
 from clld.db.models.common import (
-    Value, DomainElement, ValueSet, Language, Parameter, LanguageIdentifier, Identifier,
-    IdentifierType,
+    Value, DomainElement, ValueSet, Language, Parameter, LanguageIdentifier,
 )
 from clld.lib.dsv import UnicodeWriter
 
@@ -36,9 +30,6 @@ class GeoJsonFeature(GeoJsonParameter):
     def get_language(self, ctx, req, value):
         return value.valueset.language
 
-    def get_coordinates(self, language):
-        return pacific_centered_coordinates(language)
-
     def feature_properties(self, ctx, req, value):
         return {
             'value_numeric': value.domainelement.number,
@@ -54,14 +45,6 @@ class GeoJsonLects(GeoJsonLanguages):
         if hasattr(ctx, 'icon_url'):  # pragma: no cover
             # special handling for domain elements of feature combinations
             return {'icon': ctx.icon_url}
-
-    def get_coordinates(self, language):
-        return pacific_centered_coordinates(language)
-
-
-class GeoJsonCDE(GeoJsonCombinationDomainElement):
-    def get_coordinates(self, language):
-        return pacific_centered_coordinates(language)
 
 
 class Matrix(CsvDump):
@@ -111,11 +94,6 @@ class Matrix(CsvDump):
         return [values.get(p, '') for p in self.get_fields(req)]
 
 
-class _GeoJsonSelectedLanguages(GeoJsonSelectedLanguages):
-    def get_coordinates(self, language):
-        return pacific_centered_coordinates(language)
-
-
 class _SelectedLanguagesMap(SelectedLanguagesMap):
     def get_layers(self):
         for genus, languages in groupby(
@@ -136,11 +114,8 @@ class MapView(Index):
     template = 'language/map_html.mako'
 
     def template_context(self, ctx, req):
-        languages = list(ctx.get_query(limit=8000))
-        return {
-            'map': _SelectedLanguagesMap(
-                ctx, req, languages, geojson_impl=_GeoJsonSelectedLanguages),
-            'languages': languages}
+        langs = list(ctx.get_query(limit=8000))
+        return {'map': _SelectedLanguagesMap(ctx, req, langs), 'languages': langs}
 
 
 class LanguagesTab(Index):
