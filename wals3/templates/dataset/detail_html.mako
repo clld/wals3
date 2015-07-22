@@ -17,7 +17,6 @@
   </script>
   <gcse:search></gcse:search>
   </div>
-  ${util.feed('WALS News', request.blog.feed_url('category/news', request), eid='news', numEntries=1)}
   ${util.feed('Latest Comments', request.blog.feed_url('comments', request), eid='comments')}
 </%def>
 
