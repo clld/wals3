@@ -1,6 +1,7 @@
 from setuptools import setup, find_packages
 
 requires = [
+    'clld>=1.1.0',
     'clldmpg>=1.0.0',
     'BeautifulSoup4',
     ]
