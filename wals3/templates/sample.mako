@@ -13,10 +13,11 @@ ${req.map.render()}
 
 <%util:table items="${ctx.languages}" args="item">\
     <%def name="head()">
-        <th>Code</th><th>Name</th><th>Genus</th><th>Family</th>
+        <th>&nbsp;</th><th>Code</th><th>Name</th><th>Genus</th><th>Family</th>
     </%def>
+    <td>${h.link_to_map(item)}</td>
     <td>${h.link(request, item, label=item.id)}</td>
     <td>${h.link(request, item)}</td>
-    <td>${item.genus.name}</td>
+    <td>${h.map_marker_img(request, item.genus)} ${item.genus.name}</td>
     <td>${h.link(request, item.genus.family)}</td>
 </%util:table>

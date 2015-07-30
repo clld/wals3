@@ -19,32 +19,32 @@ class WalsMap(Map):
         return {'max_zoom': 9, 'show_labels': True, 'hash': True}
 
 
+def get_geojson(req, obj, ctx=None):
+    return GeoJsonLects(obj).render(ctx or obj, req, dump=False)
+
+
 class FamilyMap(WalsMap):
     def get_layers(self):
-        geojson = GeoJsonLects(self.ctx)
         for genus in self.ctx.genera:
             yield Layer(
                 genus.id,
                 genus.name,
-                geojson.render(genus, self.req, dump=False),
+                get_geojson(self.req, self.ctx, genus),
                 marker=map_marker_img(self.req, genus))
 
 
 class GenusMap(WalsMap):
     def get_layers(self):
-        geojson = GeoJsonLects(self.ctx)
         yield Layer(
             self.ctx.id,
             self.ctx.name,
-            geojson.render(self.ctx, self.req, dump=False),
+            get_geojson(self.req, self.ctx),
             marker=map_marker_img(self.req, self.ctx))
 
 
 class CountryMap(WalsMap):
     def get_layers(self):
-        geojson = GeoJsonLects(self.ctx)
-        yield Layer(
-            self.ctx.id, self.ctx.name, geojson.render(self.ctx, self.req, dump=False))
+        yield Layer(self.ctx.id, self.ctx.name, get_geojson(self.req, self.ctx))
 
 
 class SampleMap(Map):
@@ -52,8 +52,7 @@ class SampleMap(Map):
         return {'icon_size': 20}
 
     def get_layers(self):
-        geojson = GeoJsonLects(self.ctx)
-        yield Layer('sample', 'Sample', geojson.render(self.ctx, self.req, dump=False))
+        yield Layer('sample', 'Sample', get_geojson(self.req, self.ctx))
 
 
 class CombinedMap(CombinationMap):

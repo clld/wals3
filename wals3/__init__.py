@@ -155,14 +155,6 @@ def main(global_config, **settings):
         (icons, IIconList),
     ]:
         config.registry.registerUtility(utility, interface)
-    config.register_menu(
-        ('dataset', dict(label='Home')),
-        'parameters',
-        'contributions',
-        'languages',
-        'sources',
-        'contributors',
-    )
 
     config.register_resource('family', Family, IFamily)
     config.register_resource('genus', Genus, IGenus)

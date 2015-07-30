@@ -6,7 +6,7 @@ from sqlalchemy.orm import joinedload, joinedload_all, subqueryload_all
 from clld.util import cached_property
 from clld.interfaces import ILanguage, IParameter, IIndex, IDataset
 from clld.web.adapters.base import Index, Representation
-from clld.web.adapters.geojson import GeoJsonParameter, GeoJsonLanguages
+from clld.web.adapters.geojson import GeoJsonParameter, GeoJson
 from clld.web.adapters.download import CsvDump
 from clld.web.maps import SelectedLanguagesMap, Layer
 from clld.web.util.helpers import map_marker_img
@@ -36,11 +36,7 @@ class GeoJsonFeature(GeoJsonParameter):
             'value_name': value.domainelement.name}
 
 
-class GeoJsonLects(GeoJsonLanguages):
-    def feature_iterator(self, ctx, req):
-        for language in ctx.languages:
-            yield language
-
+class GeoJsonLects(GeoJson):
     def feature_properties(self, ctx, req, language):
         if hasattr(ctx, 'icon_url'):  # pragma: no cover
             # special handling for domain elements of feature combinations
