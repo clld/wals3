@@ -135,8 +135,6 @@ def main(global_config, **settings):
         'olac': '/languoid/oai',
         'credits': '/about/credits',
     }
-    settings['sitemaps'] = 'contribution parameter source sentence valueset'.split()
-
     filename_pattern = re.compile('(?P<spec>(c|d|s|f|t)[0-9a-f]{3})\.png')
     icons = []
     for name in sorted(
