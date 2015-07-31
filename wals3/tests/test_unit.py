@@ -14,6 +14,8 @@ import wals3
 
 
 class Tests2(TestWithDb):
+    __with_custom_language__ = False
+
     def test_migration(self):
         from wals3.migration import Connection
 
@@ -29,6 +31,7 @@ class Tests2(TestWithDb):
 class Tests(TestWithEnv):
     __cfg__ = path(wals3.__file__).dirname().joinpath('..', 'development.ini').abspath()
     __setup_db__ = False
+    __with_custom_language__ = False
 
     def test_comment(self):
         from wals3.views import comment

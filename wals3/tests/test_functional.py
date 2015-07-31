@@ -9,6 +9,7 @@ import wals3
 class Tests(TestWithApp):
     __cfg__ = path(wals3.__file__).dirname().joinpath('..', 'development.ini').abspath()
     __setup_db__ = False
+    __with_custom_language__ = False
 
     def test_home(self):
         self.app.get_html('/')
