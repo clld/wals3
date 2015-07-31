@@ -118,7 +118,7 @@ def main(global_config, **settings):
         'language': '/languoid/lect/wals_code_{id:[^/\.]+}',
         'source': '/refdb/record/{id:[^/\.]+}',
         'sources': '/refdb',
-        'familys': '/languoid',
+        'familys': '/languoid/family',
         'family': '/languoid/family/{id:[^/\.]+}',
         'genus': '/languoid/genus/{id:[^/\.]+}',
         'parameters': '/feature',
