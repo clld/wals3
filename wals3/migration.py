@@ -18,6 +18,21 @@ class Connection(BaseConnection):
         values.update(where)
         return self.insert(model, **values)
 
+    def update_glottocode(self, lid, gc):
+        lpk = self.pk(Language, lid)
+
+        for li in self.select(LanguageIdentifier, language_pk=lpk):
+            i = self.get(Identifier, li.identifier_pk)
+            if i.type == 'glottolog':
+                self.update(Identifier, dict(name=gc), pk=i.pk)
+                break
+        else:
+            ipk = self.insert_if_missing(
+                Identifier,
+                dict(id=gc),
+                dict(name=gc, description=gc, type='glottolog'))
+            self.insert(LanguageIdentifier, identifier_pk=ipk, language_pk=lpk)
+
     def update_iso(self, lid, *obsolete, **new):  # pragma: no cover
         lpk = self.pk(Language, lid)
 
