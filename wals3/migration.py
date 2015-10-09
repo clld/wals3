@@ -1,7 +1,10 @@
 from six import string_types
 
-from clld.db.models.common import Identifier, LanguageIdentifier, Language, IdentifierType
+from clld.db.models.common import (
+    Identifier, LanguageIdentifier, Language, IdentifierType, Source,
+)
 from clld.db.migration import Connection as BaseConnection
+from clld.util import slug
 
 from wals3.models import Family, Genus, WalsLanguage
 
@@ -53,8 +56,19 @@ class Connection(BaseConnection):
 
         if isinstance(genus, (tuple, list)):
             assert family
-            genus = self.insert(Genus, id=genus[0], name=genus[1], family_pk=family)
+            genus = self.insert(
+                Genus, id=genus[0], name=genus[1], icon=genus[2], family_pk=family)
         elif isinstance(genus, string_types):
             genus = self.pk(Genus, genus)
 
         self.update(WalsLanguage, dict(genus_pk=genus), pk=lpk)
+
+    def update_name(self, lid, newname):
+        lpk = self.pk(Language, lid)
+        self.update(Language, dict(name=newname), pk=lpk)
+        self.update(
+            WalsLanguage, dict(ascii_name=slug(newname, remove_whitespace=False)), pk=lpk)
+
+    def update_source(self, sid, **kw):
+        pk = self.pk(Source, sid)
+        self.update(Source, kw, pk=pk)
