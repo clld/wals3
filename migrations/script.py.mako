@@ -6,6 +6,7 @@ Revises: ${down_revision}
 Create Date: ${create_date}
 
 """
+from __future__ import unicode_literals
 
 # revision identifiers, used by Alembic.
 revision = ${repr(up_revision)}
