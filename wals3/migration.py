@@ -43,7 +43,7 @@ class Connection(BaseConnection):
                 i = self.pk(Identifier, code)
                 li = self.first(LanguageIdentifier, identifier_pk=i, language_pk=lpk)
                 if li:
-                    self.delete(LanguageIdentifier, identifier_pk=li.pk, language_pk=lpk)
+                    self.delete(LanguageIdentifier, pk=li.pk)
 
         for code, name in new.items():
             ipk = self.insert_if_missing(
@@ -80,12 +80,20 @@ class Connection(BaseConnection):
 
         self.update(WalsLanguage, dict(genus_pk=genus), pk=lpk)
 
-    def update_name(self, lid, newname):
+    def update_name(self, lid, newname, other=None):
         lpk = self.pk(Language, lid)
         self.update(Language, dict(name=newname), pk=lpk)
         self.update(
             WalsLanguage, dict(ascii_name=slug(newname, remove_whitespace=False)), pk=lpk)
+        if other:
+            ipk = self.insert(Identifier, name=other, description='other', type='name')
+            self.insert(LanguageIdentifier, identifier_pk=ipk, language_pk=lpk)
 
     def update_source(self, sid, **kw):
+        if 'year' in kw:
+            try:
+                kw.setdefault('year_int', int(kw['year']))
+            except ValueError:
+                pass
         pk = self.pk(Source, sid)
         self.update(Source, kw, pk=pk)
