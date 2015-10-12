@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from six import string_types
 
 from clld.db.models.common import (
