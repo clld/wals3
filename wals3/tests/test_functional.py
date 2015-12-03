@@ -1,5 +1,7 @@
 from path import path
 
+from pyramid.response import Response
+from mock import patch, Mock
 from clld.tests.util import TestWithApp
 from clld.db.meta import DBSession
 
@@ -117,3 +119,9 @@ class Tests(TestWithApp):
         self.app.get_dt('/values?language=eng&iSortingCols=1&iSortCol_0=4')
         self.app.get_dt('/values?language=eng&sSearch_1=noun&iSortingCols=1&iSortCol_0=1')
         self.app.get_dt('/values?language=eng&sSearch_4=phon')
+
+    def test_blog_feed(self):
+        self.app.get('/blog', status=404)
+        with patch('wals3.views.atom_feed', Mock(return_value=Response('test'))):
+            res = self.app.get('/blog?path=test')
+            self.assertIn('test', res)

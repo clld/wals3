@@ -28,6 +28,8 @@ def blog_feed(request):
 
     We also convert RSS to ATOM so that clld's javascript Feed component can read them.
     """
+    if not request.params.get('path'):
+        raise HTTPNotFound()
     path = URL(request.params['path'])
     assert not path.host()
     return atom_feed(request, request.blog.url(path.as_string()))
