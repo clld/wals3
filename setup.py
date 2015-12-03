@@ -1,10 +1,10 @@
 from setuptools import setup, find_packages
 
 requires = [
-    'clld>=1.5.0',
+    'clld>=1.7.0',
     'clldmpg>=1.0.0',
     'BeautifulSoup4',
-    ]
+]
 
 tests_require = [
     'WebTest >= 1.3.1',  # py3 compat

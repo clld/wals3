@@ -57,6 +57,5 @@ class Blog(object):
                 wp_slug=obj.wp_slug)
         return res
 
-    def feed_url(self, obj, req):
-        return self.url(
-            '%s/feed' % (obj if isinstance(obj, string_types) else obj.wp_slug,))
+    def feed_path(self, obj, req):
+        return '%s/feed' % (obj if isinstance(obj, string_types) else obj.wp_slug,)

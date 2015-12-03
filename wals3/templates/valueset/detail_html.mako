@@ -34,7 +34,7 @@ ${util.sentences(ctx.values[0])}
         ${u.comment_button(request, ctx.parameter, ctx.language)}
     </div>
     <% value = ctx.values[0] %>
-    <%util:feed title="Comments" url="${request.blog.feed_url(ctx, request)}">
+    <%util:feed title="Comments" url="${request.route_url('blog_feed', _query=dict(path=request.blog.feed_path(ctx, request)))}">
         No comments have been posted.
     </%util:feed>
     <%util:history obj_="${value}" args="item">

@@ -262,6 +262,7 @@ def main(global_config, **settings):
 
     config.add_route('olac.source', '/refdb_oai')
     config.add_route('languoids', '/languoids')
+    config.add_route('blog_feed', '/blog')
 
     config.register_download(
         Matrix(Language, 'wals3', description="Feature values CSV"))

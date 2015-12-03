@@ -1,6 +1,7 @@
 from datetime import datetime
 from itertools import groupby
 
+from purl import URL
 from sqlalchemy import or_, and_
 from sqlalchemy.orm import joinedload_all
 from sqlalchemy.inspection import inspect
@@ -13,10 +14,23 @@ from clld.db.models.common import (
     Value, ValueSet, Source, Language, LanguageIdentifier, Identifier, Parameter,
 )
 from clld.db.util import icontains, get_alembic_version
+from clld.web.views import atom_feed
 from clld.web.views.olac import OlacConfig, olac_with_cfg, Participant, Institution
 
 from wals3.models import Family, Genus, Feature, WalsLanguage
 from wals3.util import LanguoidSelect
+
+
+@view_config(route_name='blog_feed')
+def blog_feed(request):
+    """
+    Proxy feeds from the blog, so they can be accessed via XHR requests.
+
+    We also convert RSS to ATOM so that clld's javascript Feed component can read them.
+    """
+    path = URL(request.params['path'])
+    assert not path.host()
+    return atom_feed(request, request.blog.url(path.as_string()))
 
 
 @view_config(route_name='languoids', renderer='json')
