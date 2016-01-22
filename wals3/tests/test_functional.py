@@ -1,7 +1,6 @@
-from path import path
-
 from pyramid.response import Response
 from mock import patch, Mock
+from clldutils.path import Path
 from clld.tests.util import TestWithApp
 from clld.db.meta import DBSession
 
@@ -9,7 +8,7 @@ import wals3
 
 
 class Tests(TestWithApp):
-    __cfg__ = path(wals3.__file__).dirname().joinpath('..', 'development.ini').abspath()
+    __cfg__ = Path(wals3.__file__).parent.joinpath('..', 'development.ini').resolve()
     __setup_db__ = False
     __with_custom_language__ = False
 

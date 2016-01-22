@@ -1,9 +1,9 @@
 from clld.web.assets import environment
-from path import path
+from clldutils.path import Path
 
 import wals3
 
 
 environment.append_path(
-    path(wals3.__file__).dirname().joinpath('static'), url='/wals3:static/')
+    Path(wals3.__file__).parent.joinpath('static').as_posix(), url='/wals3:static/')
 environment.load_path = list(reversed(environment.load_path))

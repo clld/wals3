@@ -3,7 +3,8 @@ from itertools import groupby
 
 from sqlalchemy.orm import joinedload, joinedload_all, subqueryload_all
 
-from clld.util import cached_property
+from clldutils.misc import cached_property
+from clldutils.dsv import UnicodeWriter
 from clld.interfaces import ILanguage, IParameter, IIndex, IDataset
 from clld.web.adapters.base import Index, Representation
 from clld.web.adapters.geojson import GeoJsonParameter, GeoJson
@@ -14,7 +15,6 @@ from clld.db.meta import DBSession
 from clld.db.models.common import (
     Value, DomainElement, ValueSet, Language, Parameter, LanguageIdentifier,
 )
-from clld.lib.dsv import UnicodeWriter
 
 from wals3.models import WalsLanguage, Genus
 

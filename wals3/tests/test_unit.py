@@ -1,10 +1,10 @@
 from collections import defaultdict
 from tempfile import mktemp
 
-from path import path
 from mock import Mock, patch
 from pyramid.httpexceptions import HTTPFound
 
+from clldutils.path import Path, remove
 from clld.tests.util import TestWithEnv, TestWithDb
 from clld.interfaces import IBlog
 from clld.db.models.common import ValueSet, Language
@@ -29,7 +29,7 @@ class Tests2(TestWithDb):
 
 
 class Tests(TestWithEnv):
-    __cfg__ = path(wals3.__file__).dirname().joinpath('..', 'development.ini').abspath()
+    __cfg__ = Path(wals3.__file__).parent.joinpath('..', 'development.ini').resolve()
     __setup_db__ = False
     __with_custom_language__ = False
 
@@ -73,7 +73,7 @@ class Tests(TestWithEnv):
     def test_Matrix(self):
         from wals3.adapters import Matrix
 
-        p = path(mktemp())
+        p = Path(mktemp())
         assert not p.exists()
 
         class TestMatrix(Matrix):
@@ -86,4 +86,4 @@ class Tests(TestWithEnv):
         m = TestMatrix(Language, 'wals3', description="Feature values CSV")
         m.create(self.env['request'], verbose=False)
         assert p.exists()
-        p.remove()
+        remove(p)

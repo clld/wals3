@@ -2,12 +2,12 @@ from __future__ import unicode_literals, absolute_import, division, print_functi
 from string import ascii_uppercase
 import re
 
-from path import path
 from sqlalchemy import true
 from sqlalchemy.orm import joinedload_all
 from pyramid.httpexceptions import HTTPNotFound, HTTPMovedPermanently
 from pyramid.config import Configurator
 
+from clldutils.path import Path
 from clld.interfaces import (
     IParameter, IMapMarker, IDomainElement, IValue, ILanguage,
     ICtxFactoryQuery, IBlog, IIconList,
@@ -137,10 +137,10 @@ def main(global_config, **settings):
     }
     filename_pattern = re.compile('(?P<spec>(c|d|s|f|t)[0-9a-f]{3})\.png')
     icons = []
-    for name in sorted(
-        path(__file__).dirname().joinpath('static', 'icons').files()
-    ):
-        m = filename_pattern.match(name.splitall()[-1])
+    for p in sorted(
+            Path(__file__).parent.joinpath('static', 'icons').iterdir(),
+            key=lambda p: p.name):
+        m = filename_pattern.match(p.name)
         if m:
             icons.append(WalsIcon(m.group('spec')))
 
@@ -268,4 +268,5 @@ def main(global_config, **settings):
         Matrix(Language, 'wals3', description="Feature values CSV"))
     config.register_download(
         Download(Source, 'wals3', ext='bib', description="Sources as BibTeX"))
+
     return config.make_wsgi_app()

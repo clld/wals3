@@ -6,7 +6,7 @@ from clld.db.models.common import (
     Identifier, LanguageIdentifier, Language, IdentifierType, Source,
 )
 from clld.db.migration import Connection as BaseConnection
-from clld.util import slug
+from clldutils.misc import slug
 
 from wals3.models import Family, Genus, WalsLanguage
 
