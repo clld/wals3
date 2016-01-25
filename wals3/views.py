@@ -1,6 +1,7 @@
 from datetime import datetime
 from itertools import groupby
 
+from requests.exceptions import ConnectionError
 from purl import URL
 from sqlalchemy import or_, and_
 from sqlalchemy.orm import joinedload_all
@@ -32,7 +33,10 @@ def blog_feed(request):
         raise HTTPNotFound()
     path = URL(request.params['path'])
     assert not path.host()
-    return atom_feed(request, request.blog.url(path.as_string()))
+    try:
+        return atom_feed(request, request.blog.url(path.as_string()))
+    except ConnectionError:
+        raise HTTPNotFound()
 
 
 @view_config(route_name='languoids', renderer='json')
