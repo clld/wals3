@@ -4,11 +4,11 @@ from itertools import groupby
 from sqlalchemy.orm import joinedload, joinedload_all, subqueryload_all
 
 from clldutils.misc import cached_property
-from clldutils.dsv import UnicodeWriter
-from clld.interfaces import ILanguage, IParameter, IIndex, IDataset
-from clld.web.adapters.base import Index, Representation
+from clld.interfaces import ILanguage, IParameter, IIndex, IContribution, ICldfDataset
+from clld.web.adapters.base import Index
 from clld.web.adapters.geojson import GeoJsonParameter, GeoJson
 from clld.web.adapters.download import CsvDump
+from clld.web.adapters.cldf import CldfDataset
 from clld.web.maps import SelectedLanguagesMap, Layer
 from clld.web.util.helpers import map_marker_img
 from clld.db.meta import DBSession
@@ -141,28 +141,12 @@ class LanguagesTab(Index):
         return '\n'.join('\t'.join(['%s' % l for l in line]) for line in lines)
 
 
-class Cldf(Representation):
-    extension = str('cldf.csv')
-    mimetype = str('text/csv')  # FIXME: declare header?
-
-    def render(self, ctx, req):
-        fid = req.route_url('parameter', id='xxx').replace('xxx', '{0}')
-        lid = req.route_url('language', id='xxx').replace('xxx', '{0}')
-        with UnicodeWriter() as writer:
-            writer.writerow(['Language_ID', 'Feature_ID', 'Value'])
-            for _lid, _fid, v in DBSession.query(
-                        Language.id, Parameter.id, DomainElement.name)\
-                    .filter(Language.pk == ValueSet.language_pk)\
-                    .filter(Parameter.pk == ValueSet.parameter_pk)\
-                    .filter(Value.valueset_pk == ValueSet.pk)\
-                    .filter(Value.domainelement_pk == DomainElement.pk)\
-                    .order_by(Parameter.pk, Language.id):
-                writer.writerow([lid.format(_lid), fid.format(_fid), v])
-            return writer.read()
+class CldfChapter(CldfDataset):
+    pass
 
 
 def includeme(config):
     config.register_adapter(GeoJsonFeature, IParameter)
     config.register_adapter(MapView, ILanguage, IIndex)
     config.register_adapter(LanguagesTab, ILanguage, IIndex)
-    config.register_adapter(Cldf, IDataset)
+    config.register_adapter(CldfChapter, IContribution, ICldfDataset, name='cldf')
