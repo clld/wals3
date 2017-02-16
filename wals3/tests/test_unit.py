@@ -1,11 +1,12 @@
 from collections import defaultdict
 from tempfile import mktemp
+from unittest import TestCase
 
 from mock import Mock, patch
 from pyramid.httpexceptions import HTTPFound
 
 from clldutils.path import Path, remove
-from clld.tests.util import TestWithEnv, TestWithDb
+from clld.tests.util import TestWithEnv, WithDbMixin, WithDbAndDataMixin
 from clld.interfaces import IBlog
 from clld.db.models.common import ValueSet, Language
 from clld.db.meta import DBSession
@@ -13,9 +14,7 @@ from clld.db.meta import DBSession
 import wals3
 
 
-class Tests2(TestWithDb):
-    __with_custom_language__ = False
-
+class Tests2(TestCase, WithDbMixin):
     def test_migration(self):
         from wals3.migration import Connection
 
@@ -28,10 +27,8 @@ class Tests2(TestWithDb):
         conn.update_genus('zzz', 'genus')
 
 
-class Tests(TestWithEnv):
+class Tests(TestWithEnv, WithDbAndDataMixin):
     __cfg__ = Path(wals3.__file__).parent.joinpath('..', 'development.ini').resolve()
-    __setup_db__ = False
-    __with_custom_language__ = False
 
     def test_comment(self):
         from wals3.views import comment
