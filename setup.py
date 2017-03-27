@@ -21,7 +21,7 @@ setup(
     test_suite='wals3',
     install_requires=[
         'pycldf>=0.5.2',
-        'clld>=3.2',
+        'clld>=3.2.4',
         'clldmpg>=2.0.0',
         'BeautifulSoup4',
     ],
