@@ -12,7 +12,7 @@ import datetime
 from alembic import op
 import sqlalchemy as sa
 
-from clld.util import slug
+#from clld.util import slug
 from clld.db.models.common import Config, Language
 
 from wals3.migration import Connection
