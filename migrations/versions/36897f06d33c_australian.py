@@ -10,7 +10,7 @@ from __future__ import unicode_literals
 
 from alembic import op
 
-from clld.util import slug
+#from clld.util import slug
 from clld.db.models.common import Config, Language
 
 from wals3.migration import Connection

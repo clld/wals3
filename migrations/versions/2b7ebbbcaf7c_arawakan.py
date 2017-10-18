@@ -19,7 +19,7 @@ import datetime
 from alembic import op
 import sqlalchemy as sa
 
-from clld.util import slug
+#from clld.util import slug
 from clld.db.models.common import (
     Language, Source, LanguageSource, ValueSet, ValueSetReference, Config,
 )
