@@ -1,14 +1,30 @@
 from __future__ import unicode_literals
 
+import string
+import unicodedata
+
 from six import string_types
 
 from clld.db.models.common import (
     Identifier, LanguageIdentifier, Language, IdentifierType, Source,
 )
 from clld.db.migration import Connection as BaseConnection
-from clldutils.misc import slug
 
 from wals3.models import Family, Genus, WalsLanguage
+
+
+def ascii_name(s, _whitelist=set(string.ascii_lowercase + ' ()0123456789')):
+    """
+
+    >>> print(ascii_name('Bobo Madar\xe9 (Northern)'))
+    bobo madare (northern)
+
+    >>> print(ascii_name('Chumash (Barbare\xf1o)'))
+    chumash (barbareno)
+    """
+    s = ''.join(c for c in unicodedata.normalize('NFD', s)
+                if not unicodedata.combining(c))
+    return ''.join(c for c in s.lower() if c in _whitelist)
 
 
 class Connection(BaseConnection):
@@ -84,7 +100,7 @@ class Connection(BaseConnection):
         lpk = self.pk(Language, lid)
         self.update(Language, dict(name=newname), pk=lpk)
         self.update(
-            WalsLanguage, dict(ascii_name=slug(newname, remove_whitespace=False)), pk=lpk)
+            WalsLanguage, dict(ascii_name=ascii_name(newname)), pk=lpk)
         if other:
             ipk = self.insert(Identifier, name=other, description='other', type='name')
             self.insert(LanguageIdentifier, identifier_pk=ipk, language_pk=lpk)
