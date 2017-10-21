@@ -35,28 +35,28 @@ def upgrade():
     licols = ['created', 'updated', 'active', 'version', 'language_pk', 'identifier_pk']
     li = sa.table('languageidentifier', *map(sa.column, licols))
 
-    update_latlon = sa.update(l, bind=conn)\
-        .where(l.c.id == sa.bindparam('id_'))\
+    lwhere = (l.c.id == sa.bindparam('id_'))
+
+    update_latlon = l.update(bind=conn).where(lwhere)\
         .where(l.c.latitude == sa.bindparam('lat_before'))\
         .where(l.c.longitude == sa.bindparam('lon_before'))\
         .values(updated=sa.func.now(),
                 latitude=sa.bindparam('lat_after'), longitude=sa.bindparam('lon_after'))
 
-    lwhere = (l.c.id == sa.bindparam('id_'))
     iwhere = sa.and_(i.c.type == 'iso639-3', i.c.name == sa.bindparam('iso'))
 
-    unlink_iso = sa.delete(li, bind=conn)\
-        .where(sa.exists().where(sa.and_(li.c.language_pk == l.c.pk, lwhere)))\
-        .where(sa.exists().where(sa.and_(li.c.identifier_pk == i.c.pk, iwhere)))
+    liwhere = sa.exists()\
+        .where(li.c.language_pk == l.c.pk).where(lwhere)\
+        .where(li.c.identifier_pk == i.c.pk).where(iwhere)
 
-    l_pk = sa.select([l.c.pk]).where(lwhere).as_scalar()
-    i_pk = sa.select([i.c.pk]).where(iwhere).as_scalar()
+    unlink_iso = li.delete(bind=conn).where(liwhere)
 
-    link_iso = sa.insert(li, bind=conn).from_select(licols,
+    l_pk = l.select().with_only_columns([l.c.pk]).where(lwhere).as_scalar()
+    i_pk = i.select().with_only_columns([i.c.pk]).where(iwhere).as_scalar()
+
+    link_iso = li.insert(bind=conn).from_select(licols,
         sa.select([sa.func.now(), sa.func.now(), True, 1, l_pk, i_pk])
-        .where(~sa.exists()
-            .where(li.c.language_pk == l_pk)
-            .where(li.c.identifier_pk == i_pk)))
+        .where(~liwhere))
 
     update_latlon.execute(id_=ID,
                           lat_before=LAT_BEFORE, lon_before=LON_BEFORE,

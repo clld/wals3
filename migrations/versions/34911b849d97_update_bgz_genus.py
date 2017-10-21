@@ -28,25 +28,24 @@ def upgrade():
     w = sa.table('walslanguage', *map(sa.column, ['pk', 'genus_pk']))
     g = sa.table('genus', *map(sa.column, ['pk', 'id']))
 
-    g_before = sa.select([g.c.pk]).where(g.c.id == sa.bindparam('before'))
-    update_lang = sa.update(l, bind=conn)\
-        .where(l.c.id == sa.bindparam('id_'))\
-        .where(sa.exists().where(sa.and_(
-            w.c.pk == l.c.pk,
-            w.c.genus_pk == g_before)))\
+    lwhere = (l.c.id == sa.bindparam('id_'))
+
+    gbefore, gafter = (g.c.id == sa.bindparam(n) for n in ['before', 'after'])
+
+    wwhere = sa.and_(
+        sa.exists()
+            .where(w.c.pk == l.c.pk).where(lwhere)
+            .where(w.c.genus_pk == g.c.pk).where(gbefore),
+        sa.exists().where(gafter))
+
+    update_lang = l.update(bind=conn).where(lwhere)\
+        .where(wwhere)\
         .values(updated=sa.func.now())
 
-    g_after = sa.select([g.c.pk]).where(g.c.id == sa.bindparam('after'))
-    update_wals = sa.update(w, bind=conn)\
-        .where(sa.exists().where(sa.and_(
-            l.c.pk == w.c.pk,
-            l.c.id == sa.bindparam('id_'))))\
-        .where(sa.exists().where(sa.and_(
-            g.c.pk == w.c.genus_pk,
-            g.c.id == sa.bindparam('before'))))\
-        .values(genus_pk=g_after)
+    update_wals = w.update(bind=conn).where(wwhere)\
+        .values(genus_pk=g.select().with_only_columns([g.c.pk]).where(gafter))
 
-    update_lang.execute(id_=ID, before=BEFORE)
+    update_lang.execute(id_=ID, before=BEFORE, after=AFTER)
     update_wals.execute(id_=ID, before=BEFORE, after=AFTER)
     
 

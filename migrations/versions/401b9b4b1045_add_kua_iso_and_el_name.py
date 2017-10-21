@@ -36,32 +36,39 @@ def upgrade():
     licols = ['created', 'updated', 'active', 'version', 'language_pk', 'identifier_pk']
     li = sa.table('languageidentifier', *map(sa.column, licols))
 
-    l_pk = sa.select([l.c.pk]).where(l.c.id == sa.bindparam('id_')).as_scalar()
-    i_pk = sa.select([i.c.pk]).where(sa.and_(i.c.type == 'iso639-3', i.c.name == sa.bindparam('iso'))).as_scalar()
+    lwhere = (l.c.id == sa.bindparam('id_'))
+    iwhere = sa.and_(i.c.type == 'iso639-3', i.c.name == sa.bindparam('iso'))
 
-    link_iso = sa.insert(li, bind=conn).from_select(licols,
+    l_pk = l.select().with_only_columns([l.c.pk]).where(lwhere).as_scalar()
+    i_pk = i.select().with_only_columns([i.c.pk]).where(iwhere).as_scalar()
+
+    link_iso = li.insert(bind=conn).from_select(licols,
         sa.select([sa.func.now(), sa.func.now(), True, 1, l_pk, i_pk])
-        .where(~sa.exists().where(sa.and_(li.c.language_pk == l_pk, li.c.identifier_pk == i_pk))))
+        .where(~sa.exists()
+            .where(li.c.language_pk == l.c.pk).where(lwhere)
+            .where(li.c.identifier_pk == i.c.pk).where(iwhere)))
 
     itype, idesc, ilang = (sa.bindparam(*a) for a in [('type', 'name'), ('description', 'ethnologue'), ('lang', 'en')])
     iid, iname = map(sa.bindparam, ['id_', 'name'])
 
     iwhere = sa.and_(i.c.type == itype, i.c.description == idesc, i.c.name == iname)
 
-    insert_ident = sa.insert(i, bind=conn).from_select(icols,
+    insert_ident = i.insert(bind=conn).from_select(icols,
         sa.select([sa.func.now(), sa.func.now(), True, 1, iid, itype, idesc, ilang, iname])
         .where(~sa.exists().where(iwhere)))
 
-    i_pk = sa.select([i.c.pk]).where(iwhere).as_scalar()
+    i_pk = i.select().with_only_columns([i.c.pk]).where(iwhere).as_scalar()
 
-    insert_lang_ident = sa.insert(li, bind=conn).from_select(licols,
+    insert_lang_ident = li.insert(bind=conn).from_select(licols,
         sa.select([sa.func.now(), sa.func.now(), True, 1, l_pk, i_pk])
-        .where(~sa.exists().where(sa.and_(li.c.language_pk == l_pk, li.c.identifier_pk == i_pk))))
-    
+        .where(~sa.exists()
+            .where(li.c.language_pk == l.c.pk).where(lwhere)
+            .where(li.c.identifier_pk == i.c.pk).where(iwhere)))
+
     link_iso.execute(id_=ID, iso=ISO)
     insert_ident.execute(id_=EL_ID, name=EL_NAME)
     insert_lang_ident.execute(id_=ID, name=EL_NAME)
-   
+
 
 def downgrade():
     pass

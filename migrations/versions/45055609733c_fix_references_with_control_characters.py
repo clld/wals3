@@ -117,8 +117,7 @@ def upgrade():
     cols = ['id', 'updated'] + sorted({name for fields in ID_BEFORE.values() for name in fields})
     source = sa.table('source', *map(sa.column, cols))
     for id_, fields in sorted(ID_BEFORE.items()):
-        update = sa.update(source)\
-            .where(source.c.id == id_)\
+        update = source.update().where(source.c.id == id_)\
             .where(sa.and_(source.c[f] == before for f, before in fields.items()))\
             .values(updated=sa.func.now())\
             .values({f: sa.func.regexp_replace(source.c[f], CC_RE, '', 'g') for f in fields})
