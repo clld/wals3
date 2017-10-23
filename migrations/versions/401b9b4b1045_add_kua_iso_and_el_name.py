@@ -24,7 +24,7 @@ ID = 'kua'
 ISO = 'sdm'
 
 EL_ID = 'ethnologue-sdm'
-EL_NAME = 'Semandang (dialect)'
+EL_NAME = 'Semandang'
 
 
 def upgrade():
