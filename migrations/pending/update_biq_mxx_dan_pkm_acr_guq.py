@@ -30,6 +30,15 @@ ID_BEFORE_AFTER = {
     'dan': {  # https://github.com/clld/wals-data/issues/97
         'iso': (['daf'], 'dnj'),
     },
+    'pkm': {  # https://github.com/clld/wals-data/issues/88
+        'iso': (['pob', 'poh'], 'poh'),
+    },
+    'acr': {  # https://github.com/clld/wals-data/issues/86
+        'iso': (['acc', 'acr'], 'acr'),
+    },
+    'guq': {  # https://github.com/clld/wals-data/issues/80
+        'iso': ([], 'cbd'),
+    },
 }
 
 
