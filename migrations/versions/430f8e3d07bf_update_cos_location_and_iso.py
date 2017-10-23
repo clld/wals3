@@ -24,7 +24,7 @@ LAT_BEFORE, LON_BEFORE = (37.0, -122.0)
 
 LAT_AFTER, LON_AFTER = (36.83333333333333333, -121.75)
 
-ISO_BEFORE = 'cst'
+ISO_BEFORE, ISO_AFTER = ('cst', 'css')
 
 
 def upgrade():
@@ -62,6 +62,7 @@ def upgrade():
                           lat_before=LAT_BEFORE, lon_before=LON_BEFORE,
                           lat_after=LAT_AFTER, lon_after=LON_AFTER)
     unlink_iso.execute(id_=ID, iso=ISO_BEFORE)
+    link_iso.execute(id_=ID, iso=ISO_AFTER)
 
 
 def downgrade():
