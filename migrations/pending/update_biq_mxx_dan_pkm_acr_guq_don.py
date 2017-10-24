@@ -1,5 +1,5 @@
-# coding=utf-8
-"""update biq mxx dan
+# coding=ascii
+"""update biq mxx dan pkm acr guq don
 
 Revision ID: 
 Revises: 
@@ -39,6 +39,10 @@ ID_BEFORE_AFTER = {
     'guq': {  # https://github.com/clld/wals-data/issues/80
         'iso': ([], 'cbd'),
     },
+    'don': {  # https://github.com/clld/wals-data/issues/71
+        'name': ('Dong', 'Dong (Southern)'),
+        'iso': (['doc', 'kmc'], 'doc'),
+    },
 }
 
 
@@ -68,6 +72,19 @@ def upgrade():
     update_wals = w.update(bind=conn).where(wwhere)\
         .where(w.c.ascii_name == sa.bindparam('ascii_before'))\
         .values(ascii_name=sa.bindparam('ascii_name'))
+
+    iotherwhere = sa.and_(
+        i.c.type == sa.bindparam('type', 'name'),
+        i.c.description == sa.bindparam('description', 'other'),
+        i.c.name == sa.bindparam('after'))
+
+    delete_li = li.delete(bind=conn)\
+        .where(sa.exists()
+            .where(li.c.language_pk == l.c.pk).where(lwhere)
+            .where(li.c.identifier_pk == i.c.pk).where(iotherwhere))
+
+    delete_i = i.delete(bind=conn).where(iotherwhere)\
+        .where(~sa.exists().where(li.c.identifier_pk == i.c.pk))
 
     add_lang_ma = l.update(bind=conn).where(lwhere)\
         .where(sa.exists().where(l.c.pk == w.c.pk)
@@ -108,6 +125,8 @@ def upgrade():
             before, after = fields['name']
             update_lang.execute(id_=id_, before=before, after=after)
             update_wals.execute(id_=id_, ascii_before=ascii_name(before), ascii_name=ascii_name(after))
+            delete_li.execute(id_=id_, after=after)
+            delete_i.execute(id_=id_, after=after)
         if 'macroarea' in fields:
             before, after = fields['macroarea']
             assert before is None
