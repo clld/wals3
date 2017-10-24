@@ -63,8 +63,8 @@ ID_BEFORE_AFTER = {
     },
     'kiw': {
         'name': ('Kiwai', ' Kiwai (Southern)'),
-        'iso': (['kiw', 'kjd'], 'kiw'),
-        # FIXME: also none -> nort2930?
+        'iso': (['kiw', 'kjd'], 'kjd'),
+        # FIXME: also none -> sout2949?
     },
     'amu': {
         'name': ("Yanesha'", 'Amuesha'),
