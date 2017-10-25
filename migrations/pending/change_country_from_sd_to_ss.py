@@ -58,13 +58,8 @@ UNCHANGED_SD = [  # 32
 BEFORE, AFTER, NAME, CONTINENT = 'SD', 'SS', 'South Sudan', 'Africa'
 
 
-def upgrade(verbose=True):
+def upgrade():
     conn = op.get_bind()
-
-    if verbose:
-        @sa.event.listens_for(conn, 'after_execute', named=True)
-        def receive_after_execute(result, **kw):
-            print(result.rowcount)
 
     l = sa.table('language', *map(sa.column, ['pk', 'id', 'name']))
     ccols = ['created', 'updated', 'active', 'id', 'name', 'continent']

@@ -22,7 +22,6 @@ ID_BEFORE_AFTER = {
     'biq': {  # https://github.com/clld/wals-data/issues/112
         'name': ('Bilaan', 'Bilaan (Koronadal)'),
         'iso': (['bps', 'smk'], 'bpr'),
-        # FIXME: drop bps smk intended?
     },
     'mxx': {  # https://github.com/clld/wals-data/issues/100
         'macroarea': (None, 'North America'),
@@ -32,8 +31,7 @@ ID_BEFORE_AFTER = {
         'iso': (['daf'], 'dnj'),
     },
     'pkm': {  # https://github.com/clld/wals-data/issues/88 also in reassign_iso_codes_glottocodes_and_el.py
-        'iso': (['pob', 'poh'], 'poh'),
-        # FIXME: drop pob intended?
+        'iso': (['pob', 'poh'], 'poh'),  # FIXME: drop pob intended?
     },
     'aci': {  # https://github.com/clld/wals-data/issues/86 also in reassign_iso_codes_glottocodes_and_el.py
         'iso': (['acc', 'acr'], 'acr'),
@@ -47,7 +45,7 @@ ID_BEFORE_AFTER = {
     },
     'krd': {
         'iso': (['kmr'], 'ckb'),
-        # FIXME: also nort2641 -> cent1972?
+        'gcode': (['nort2641'], 'cent1972'),  # FIXME: also this?
     },
     'khv': {
         'name': ('Khvarshi', ' Khwarshi'),
@@ -64,7 +62,7 @@ ID_BEFORE_AFTER = {
     'kiw': {
         'name': ('Kiwai', ' Kiwai (Southern)'),
         'iso': (['kiw', 'kjd'], 'kjd'),
-        # FIXME: also none -> sout2949?
+        'gcode': (['nort2930', 'sout2949'], 'sout2949'),  # FIXME: also this?
     },
     'amu': {
         'name': ("Yanesha'", 'Amuesha'),
@@ -76,7 +74,7 @@ ID_BEFORE_AFTER = {
     'don': {  # https://github.com/clld/wals-data/issues/71
         'name': ('Dong', 'Dong (Southern)'),
         'iso': (['doc', 'kmc'], 'kmc'),
-        # FIXME: also none -> sout2741?
+        'gcode': (['nort2735', 'sout2741'], 'sout2741'),  # FIXME: also this?
     },
 }
 
@@ -136,30 +134,35 @@ def upgrade():
         .where(w.c.macroarea == None)\
         .values(macroarea=sa.bindparam('after'))
 
-    itype, ilang = (sa.bindparam(*a) for a in [('type', 'iso639-3'), ('lang', 'en')])
-    iwhere = (i.c.type == itype)
+    l_pk = sa.select([l.c.pk]).where(lwhere).as_scalar()
 
-    liwhere = sa.exists()\
-        .where(li.c.language_pk == l.c.pk).where(lwhere)\
-        .where(li.c.identifier_pk == i.c.pk).where(iwhere)
-
+    iid, idesc, ilang = sa.bindparam('after'), None, sa.bindparam('lang', 'en')
     before, after = map(sa.bindparam, ['before', 'after'])
 
-    unlink_iso = li.delete(bind=conn)\
-        .where(liwhere.where(i.c.name.op('IN')(before)).where(i.c.name != after))
+    def unlink_insert_link(type_):
+        itype = sa.bindparam('type', type_)
+        iwhere = (i.c.type == itype)
 
-    iid, idesc = (sa.bindparam('after') for _ in range(2))
+        liwhere = sa.exists()\
+            .where(li.c.language_pk == l.c.pk).where(lwhere)\
+            .where(li.c.identifier_pk == i.c.pk).where(iwhere)
 
-    insert_iso = i.insert(bind=conn).from_select(icols,
-        sa.select([sa.func.now(), sa.func.now(), True, 1, iid, itype, idesc, ilang, after])
-        .where(~sa.exists().where(iwhere).where(i.c.name == after)))
+        unlink = li.delete(bind=conn)\
+            .where(liwhere.where(i.c.name.op('IN')(before)).where(i.c.name != after))
 
-    l_pk = sa.select([l.c.pk]).where(lwhere).as_scalar()
-    i_pk = sa.select([i.c.pk]).where(iwhere).where(i.c.name == after).as_scalar()
+        insert = i.insert(bind=conn).from_select(icols,
+            sa.select([sa.func.now(), sa.func.now(), True, 1, iid, itype, idesc, ilang, after])
+            .where(~sa.exists().where(iwhere).where(i.c.name == after)))
 
-    link_iso = li.insert(bind=conn).from_select(licols,
-        sa.select([sa.func.now(), sa.func.now(), True, 1, l_pk, i_pk])
-        .where(~liwhere.where(i.c.name == after)))
+        i_pk = sa.select([i.c.pk]).where(iwhere).where(i.c.name == after).as_scalar()
+
+        link = li.insert(bind=conn).from_select(licols,
+            sa.select([sa.func.now(), sa.func.now(), True, 1, l_pk, i_pk])
+            .where(~liwhere.where(i.c.name == after)))
+
+        return unlink, insert, link
+
+    field_ops = [(f, unlink_insert_link(t)) for f, t in [('iso', 'iso639-3'), ('gcode', 'glottolog')]]
 
     for id_, fields in sorted(ID_BEFORE_AFTER.items()):
         if 'name' in fields:
@@ -177,12 +180,13 @@ def upgrade():
             assert before is None
             add_lang_ma.execute(id_=id_)
             add_wals_ma.execute(id_=id_, after=after).rowcount
-        if 'iso' in fields:
-            before, after = fields['iso']
-            if before:
-                unlink_iso.execute(id_=id_, before=tuple(before), after=after)
-            insert_iso.execute(after=after)
-            link_iso.execute(id_=id_, after=after)
+        for f, (unlink, insert, link) in field_ops:
+            if f in fields:
+                before, after = fields[f]
+                if before:
+                    unlink.execute(id_=id_, before=tuple(before), after=after)
+                insert.execute(after=after)
+                link.execute(id_=id_, after=after)
  
     raise NotImplementedError
 

@@ -272,32 +272,37 @@ def upgrade():
         ('elname', sa.and_(i.c.type == t_nam, i.c.description == d_el), [None, t_nam, d_el, sa.literal('en')]),
     ]
 
-    def iter_link_insert_unlink():
-        l_pk = sa.select([l.c.pk]).where(lwhere).as_scalar()
-        before, after = map(sa.bindparam, ['before', 'after'])
-        for field, iw, itdl  in iwheres_itdl:
-            liwhere = sa.exists()\
-                .where(li.c.language_pk == l.c.pk).where(lwhere)\
-                .where(li.c.identifier_pk == i.c.pk).where(iw)
-            unlink_li = li.delete(bind=conn)\
-                .where(liwhere.where(i.c.name.op('IN')(before)).where(i.c.name != after))
-            insert_i = i.insert(bind=conn).from_select(icols,
-                sa.select([sa.func.now(), sa.func.now(), True, 1] + itdl + [after])
-                .where(~sa.exists().where(iw).where(i.c.name == after)))
-            i_pk = sa.select([i.c.pk]).where(iw).where(i.c.name == after).as_scalar()
-            link_li = li.insert(bind=conn).from_select(licols,
-                sa.select([sa.func.now(), sa.func.now(), True, 1, l_pk, i_pk])
-                .where(~liwhere.where(i.c.name == after)))
-            yield field, unlink_li, insert_i, link_li
+    l_pk = sa.select([l.c.pk]).where(lwhere).as_scalar()
+    before, after = map(sa.bindparam, ['before', 'after'])
 
-    field_link_unlink = list(iter_link_insert_unlink())
+    def unlink_insert_link(iw, itdl):
+        liwhere = sa.exists()\
+            .where(li.c.language_pk == l.c.pk).where(lwhere)\
+            .where(li.c.identifier_pk == i.c.pk).where(iw)
+
+        unlink_li = li.delete(bind=conn)\
+            .where(liwhere.where(i.c.name.op('IN')(before)).where(i.c.name != after))
+
+        insert_i = i.insert(bind=conn).from_select(icols,
+            sa.select([sa.func.now(), sa.func.now(), True, 1] + itdl + [after])
+            .where(~sa.exists().where(iw).where(i.c.name == after)))
+
+        i_pk = sa.select([i.c.pk]).where(iw).where(i.c.name == after).as_scalar()
+
+        link_li = li.insert(bind=conn).from_select(licols,
+            sa.select([sa.func.now(), sa.func.now(), True, 1, l_pk, i_pk])
+            .where(~liwhere.where(i.c.name == after)))
+
+        return unlink_li, insert_i, link_li
+
+    field_ops = [(f, unlink_insert_link(iw, itdl)) for f, iw, itdl in iwheres_itdl]
 
     for id_, fields in sorted(ID_BEFORE_AFTER.items()):
         name_before, name_after = fields.pop('name')
         if name_after is not None:
             update_lang.execute(id_=id_, before=name_before, after=name_after)
             update_wals.execute(id_=id_, ascii_before=ascii_name(name_before), ascii_name=ascii_name(name_after))
-        for f, unlink, insert, link in field_link_unlink:
+        for f, (unlink, insert, link) in field_ops:
             before, after = fields.get(f, (None, None))
             if after is not None:
                 if before:
