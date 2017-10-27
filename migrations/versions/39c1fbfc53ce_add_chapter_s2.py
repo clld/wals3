@@ -1,23 +1,23 @@
 # coding=ascii
 """add chapter s2
 
-Revision ID: 
-Revises: 
-Create Date: 
+Revision ID: 39c1fbfc53ce
+Revises: 401b9b4b1045
+Create Date: 2017-10-27 16:09:27.590000
 
 """
 from __future__ import unicode_literals
 
 # revision identifiers, used by Alembic.
-revision = ''
-down_revision = ''
+revision = '39c1fbfc53ce'
+down_revision = u'401b9b4b1045'
 
 import datetime
 
 from alembic import op
 import sqlalchemy as sa
 
-
+# https://github.com/clld/wals3/issues/48
 ID, NAME, SORTKEY = 's2', 'List of abbreviations', 992
 
 def upgrade():
@@ -49,8 +49,6 @@ def upgrade():
 
     insert_co.execute(id_=ID, name=NAME)
     insert_ch.execute(id_=ID, name=NAME, sortkey=SORTKEY)
-
-    raise NotImplementedError
 
 
 def downgrade():
