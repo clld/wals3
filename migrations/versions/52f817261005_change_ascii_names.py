@@ -34,7 +34,7 @@ def ascii_name(s, _whitelist=set(string.ascii_lowercase + ' ()0123456789')):
     return ''.join(c for c in s.lower() if c in _whitelist)
 
 
-def upgrade(verbose=True):
+def upgrade(verbose=False):
     conn = op.get_bind()
 
     l = sa.table('language', *map(sa.column, ['pk', 'id', 'name']))
