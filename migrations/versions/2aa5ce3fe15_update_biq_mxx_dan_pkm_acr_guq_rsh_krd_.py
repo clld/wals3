@@ -1,16 +1,16 @@
 # coding=ascii
 """update biq mxx dan pkm acr guq rsh krd khv wuc keo mug kiw amu prc don
 
-Revision ID: 
-Revises: 
-Create Date: 
+Revision ID: 2aa5ce3fe15
+Revises: 299f89bc1fc1
+Create Date: 2017-11-08 15:53:22.820000
 
 """
 from __future__ import unicode_literals
 
 # revision identifiers, used by Alembic.
-revision = ''
-down_revision = ''
+revision = '2aa5ce3fe15'
+down_revision = u'299f89bc1fc1'
 
 import string
 import datetime
@@ -31,7 +31,7 @@ ID_BEFORE_AFTER = {
         'iso': (['daf'], 'dnj'),
     },
     'pkm': {  # https://github.com/clld/wals-data/issues/88 also in reassign_iso_codes_glottocodes_and_el.py
-        'iso': (['pob', 'poh'], 'poh'),  # FIXME: drop pob intended?
+        'iso': (['pob', 'poh'], 'poh'),
     },
     'aci': {  # https://github.com/clld/wals-data/issues/86 also in reassign_iso_codes_glottocodes_and_el.py
         'iso': (['acc', 'acr'], 'acr'),
@@ -45,7 +45,7 @@ ID_BEFORE_AFTER = {
     },
     'krd': {
         'iso': (['kmr'], 'ckb'),
-        'gcode': (['nort2641'], 'cent1972'),  # FIXME: also this?
+        'gcode': (['nort2641'], 'cent1972'),
     },
     'khv': {
         'name': ('Khvarshi', ' Khwarshi'),
@@ -62,7 +62,7 @@ ID_BEFORE_AFTER = {
     'kiw': {
         'name': ('Kiwai', ' Kiwai (Southern)'),
         'iso': (['kiw', 'kjd'], 'kjd'),
-        'gcode': (['nort2930', 'sout2949'], 'sout2949'),  # FIXME: also this?
+        'gcode': (['nort2930', 'sout2949'], 'sout2949'),
     },
     'amu': {
         'name': ("Yanesha'", 'Amuesha'),
@@ -74,7 +74,7 @@ ID_BEFORE_AFTER = {
     'don': {  # https://github.com/clld/wals-data/issues/71
         'name': ('Dong', 'Dong (Southern)'),
         'iso': (['doc', 'kmc'], 'kmc'),
-        'gcode': (['nort2735', 'sout2741'], 'sout2741'),  # FIXME: also this?
+        'gcode': (['nort2735', 'sout2741'], 'sout2741'),
     },
 }
 
@@ -188,8 +188,6 @@ def upgrade():
                 insert.execute(after=after)
                 link.execute(id_=id_, after=after)
  
-    raise NotImplementedError
-
 
 def downgrade():
     pass

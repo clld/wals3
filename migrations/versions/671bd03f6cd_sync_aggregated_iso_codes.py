@@ -1,16 +1,16 @@
 # coding=ascii
 """sync aggregated iso_codes
 
-Revision ID: 
-Revises: 
-Create Date: 
+Revision ID: 671bd03f6cd
+Revises: 2aa5ce3fe15
+Create Date: 2017-11-08 15:59:33.101000
 
 """
 from __future__ import unicode_literals
 
 # revision identifiers, used by Alembic.
-revision = ''
-down_revision = ''
+revision = '671bd03f6cd'
+down_revision = u'2aa5ce3fe15'
 
 import datetime
 
@@ -34,8 +34,6 @@ def upgrade():
         'WHERE iso_codes != (%s)' % (iso_codes, iso_codes))
 
     print(conn.execute(update_w).rowcount)
-    
-    raise NotImplementedError
 
 
 def downgrade():
