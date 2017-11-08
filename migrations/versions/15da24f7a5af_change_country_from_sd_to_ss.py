@@ -1,16 +1,16 @@
 # coding=ascii
 """change country from SD to SS
 
-Revision ID: 
-Revises: 
-Create Date: 
+Revision ID: 15da24f7a5af
+Revises: 39c1fbfc53ce
+Create Date: 2017-11-08 15:37:26.926000
 
 """
 from __future__ import unicode_literals
 
 # revision identifiers, used by Alembic.
-revision = ''
-down_revision = ''
+revision = '15da24f7a5af'
+down_revision = u'39c1fbfc53ce'
 
 import datetime
 
@@ -21,14 +21,14 @@ import sqlalchemy as sa
 IDS = [  # 27
     'acl',
     'aja',
-    'any',  # FIXME: not SD, link to SS?
+    'any',
     'avo',
     'bar',
     'bgo',
     'big',
     'bka',
     'blj',
-    'cai',  # FIXME: not SD, link to SS?
+    'cai',
     'did',
     'din',
     'jlu',
@@ -93,8 +93,6 @@ def upgrade():
     for id_ in IDS:
         unlink_country.execute(id_=id_, cc=BEFORE)
         link_country.execute(id_=id_, cc=AFTER)
-
-    raise NotImplementedError
 
 
 def downgrade():
