@@ -1,16 +1,16 @@
 # coding=ascii
 """reassign iso codes glottocodes and el names
 
-Revision ID: 
-Revises: 
-Create Date: 
+Revision ID: 299f89bc1fc1
+Revises: 15da24f7a5af
+Create Date: 2017-11-08 15:45:42.050000
 
 """
 from __future__ import unicode_literals
 
 # revision identifiers, used by Alembic.
-revision = ''
-down_revision = ''
+revision = '299f89bc1fc1'
+down_revision = u'15da24f7a5af'
 
 import string
 import datetime
@@ -309,8 +309,6 @@ def upgrade():
                     unlink.execute(id_=id_, before=tuple(before), after=after)
                 insert.execute(after=after)
                 link.execute(id_=id_, after=after)
-
-    raise NotImplementedError
 
 
 def downgrade():
