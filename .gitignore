@@ -1,3 +1,5 @@
+.cache
+geckodriver.log
 data
 *.py[cod]
 

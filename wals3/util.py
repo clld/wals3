@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 import codecs
 
 from sqlalchemy.orm import joinedload_all, joinedload
-from path import path
+from clldutils.path import Path
 from bs4 import BeautifulSoup as soup
 from pyramid.httpexceptions import HTTPFound
 
@@ -73,9 +73,9 @@ def contribution_detail_html(context=None, request=None, **kw):
     if context.id == 's4':
         raise HTTPFound(request.route_url('genealogy'))
 
-    p = path(wals3.__file__).dirname().joinpath(
+    p = Path(wals3.__file__).parent.joinpath(
         'static', 'descriptions', str(context.id), 'body.xhtml')
-    c = codecs.open(p, encoding='utf8').read()
+    c = codecs.open(p.as_posix(), encoding='utf8').read()
 
     adapter = get_adapter(IRepresentation, Feature(), request, ext='snippet.html')
 

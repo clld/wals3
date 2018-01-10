@@ -20,15 +20,25 @@ setup(
     zip_safe=False,
     test_suite='wals3',
     install_requires=[
-        'pycldf>=0.5.2',
-        'clld>=3.2.4',
-        'clldmpg>=2.0.0',
+        'clldutils~=2.0',
+        'clld~=4.0',
+        'clldmpg~=3.0.0',
         'BeautifulSoup4',
     ],
-    tests_require=[
-        'WebTest >= 1.3.1',  # py3 compat
-        'mock>=2.0',
-    ],
+    extras_require={
+        'dev': ['flake8', 'waitress', 'psycopg2'],
+        'test': [
+            'tox',
+            'mock',
+            'pytest>=3.1',
+            'pytest-clld',
+            'pytest-mock',
+            'pytest-cov',
+            'coverage>=4.2',
+            'selenium',
+            'zope.component>=3.11.0',
+        ],
+    },
     entry_points="""\
 [paste.app_factory]
 main = wals3:main

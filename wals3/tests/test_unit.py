@@ -1,86 +1,79 @@
 from collections import defaultdict
 from tempfile import mktemp
-from unittest import TestCase
 
-from mock import Mock, patch
 from pyramid.httpexceptions import HTTPFound
 
 from clldutils.path import Path, remove
-from clld.tests.util import TestWithEnv, WithDbMixin, WithDbAndDataMixin
 from clld.interfaces import IBlog
 from clld.db.models.common import ValueSet, Language
 from clld.db.meta import DBSession
 
-import wals3
+
+def test_migration(db):
+    from wals3.migration import Connection
+
+    conn = Connection(DBSession)
+    conn.insert(Language, id='zzz')
+    conn.update_iso('zzz', 'deu', eng='English')
+    conn.update_iso('zzz', 'eng', deu='German')
+    conn.update_genus('zzz', ('genus', u'Genus', ''), ('family', u'Family'))
+    conn.update_genus('zzz', ('othergenus', u'Other Genus', ''), 'family')
+    conn.update_genus('zzz', 'genus')
 
 
-class Tests2(TestCase, WithDbMixin):
-    def test_migration(self):
-        from wals3.migration import Connection
+def test_comment(env, request_factory, mocker):
+    from wals3.views import comment
 
-        conn = Connection(DBSession)
-        conn.insert(Language, id='zzz')
-        conn.update_iso('zzz', 'deu', eng='English')
-        conn.update_iso('zzz', 'eng', deu='German')
-        conn.update_genus('zzz', ('genus', u'Genus', ''), ('family', u'Family'))
-        conn.update_genus('zzz', ('othergenus', u'Other Genus', ''), 'family')
-        conn.update_genus('zzz', 'genus')
+    env['registry'].registerUtility(mocker.Mock(post_url=lambda *a, **kw: '/'), IBlog)
+    with request_factory(matchdict=dict(fid='51A', lid='esm')) as req:
+        assert isinstance(comment(req), HTTPFound)
 
 
-class Tests(TestWithEnv, WithDbAndDataMixin):
-    __cfg__ = Path(wals3.__file__).parent.joinpath('..', 'development.ini').resolve()
+def test_Blog(env, mocker):
+    from wals3.blog import Blog
 
-    def test_comment(self):
-        from wals3.views import comment
+    vs = ValueSet.first()
 
-        self.env['registry'].registerUtility(Mock(post_url=lambda *a, **kw: '/'), IBlog)
-        self.set_request_properties(matchdict=dict(fid='51A', lid='esm'))
-        self.assertIsInstance(comment(self.env['request']), HTTPFound)
+    class wp(object):
+        def __init__(self, cats=False):
+            if cats:
+                self.cats = [
+                    dict(id=1, name='Languages'),
+                    dict(id=2, name='Chapters'),
+                    dict(id=3, name=vs.parameter.chapter.area.name),
+                ]
+            else:
+                self.cats = []
 
-    def test_Blog(self):
-        from wals3.blog import Blog
+        def Client(self, *args, **kw):
+            return mocker.Mock(
+                get_categories=lambda: self.cats,
+                set_categories=lambda c: dict(n=1),
+                get_post_id_from_path=lambda p: None)
 
-        vs = ValueSet.first()
+    mocker.patch('wals3.blog.wordpress', wp())
+    blog = Blog(defaultdict(lambda: ''))
+    blog.post_url(vs, env['request'], create=True)
 
-        class wp(object):
-            def __init__(self, cats=False):
-                if cats:
-                    self.cats = [
-                        dict(id=1, name='Languages'),
-                        dict(id=2, name='Chapters'),
-                        dict(id=3, name=vs.parameter.chapter.area.name),
-                    ]
-                else:
-                    self.cats = []
+    mocker.patch('wals3.blog.wordpress', wp(cats=True))
+    blog = Blog(defaultdict(lambda: ''))
+    blog.post_url(vs, env['request'], create=True)
 
-            def Client(self, *args, **kw):
-                return Mock(
-                    get_categories=lambda: self.cats,
-                    set_categories=lambda c: dict(n=1),
-                    get_post_id_from_path=lambda p: None)
 
-        with patch('wals3.blog.wordpress', wp()):
-            blog = Blog(defaultdict(lambda: ''))
-            blog.post_url(vs, self.env['request'], create=True)
+def test_Matrix(env):
+    from wals3.adapters import Matrix
 
-        with patch('wals3.blog.wordpress', wp(cats=True)):
-            blog = Blog(defaultdict(lambda: ''))
-            blog.post_url(vs, self.env['request'], create=True)
+    p = Path(mktemp())
+    assert not p.exists()
 
-    def test_Matrix(self):
-        from wals3.adapters import Matrix
+    class TestMatrix(Matrix):
+        def abspath(self, req):
+            return p
 
-        p = Path(mktemp())
-        assert not p.exists()
+        def query(self, req):
+            return Matrix.query(self, req).filter(Language.pk < 100)
 
-        class TestMatrix(Matrix):
-            def abspath(self, req):
-                return p
-
-            def query(self, req):
-                return Matrix.query(self, req).filter(Language.pk < 100)
-
-        m = TestMatrix(Language, 'wals3', description="Feature values CSV")
-        m.create(self.env['request'], verbose=False)
-        assert p.exists()
-        remove(p)
+    m = TestMatrix(Language, 'wals3', description="Feature values CSV")
+    m.create(env['request'], verbose=False)
+    assert p.exists()
+    remove(p)

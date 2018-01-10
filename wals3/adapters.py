@@ -3,12 +3,11 @@ from itertools import groupby
 
 from sqlalchemy.orm import joinedload, joinedload_all, subqueryload_all
 
-from clldutils.misc import cached_property
+from clldutils.misc import lazyproperty
 from clld.interfaces import ILanguage, IParameter, IIndex, IContribution, ICldfDataset
 from clld.web.adapters.base import Index
 from clld.web.adapters.geojson import GeoJsonParameter, GeoJson
 from clld.web.adapters.download import CsvDump
-from clld.web.adapters.cldf import CldfDataset
 from clld.web.maps import SelectedLanguagesMap, Layer
 from clld.web.util.helpers import map_marker_img
 from clld.db.meta import DBSession
@@ -58,7 +57,7 @@ class Matrix(CsvDump):
     ]
     _fields = []
 
-    @cached_property()
+    @lazyproperty
     def _parameters(self):
         return DBSession.query(Parameter).order_by(Parameter.pk).all()
 
@@ -141,12 +140,7 @@ class LanguagesTab(Index):
         return '\n'.join('\t'.join(['%s' % l for l in line]) for line in lines)
 
 
-class CldfChapter(CldfDataset):
-    pass
-
-
 def includeme(config):
     config.register_adapter(GeoJsonFeature, IParameter)
     config.register_adapter(MapView, ILanguage, IIndex)
     config.register_adapter(LanguagesTab, ILanguage, IIndex)
-    config.register_adapter(CldfChapter, IContribution, ICldfDataset, name='cldf')
