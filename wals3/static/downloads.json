@@ -1,0 +1,38 @@
+{
+    "2014": {
+        "bitstreams": [
+            {
+                "last-modified": 1516630069402,
+                "checksum": "38ee1b888284c60128a26594d9586c93",
+                "created": 1516630069217,
+                "checksum-algorithm": "MD5",
+                "bitstreamid": "wals_dataset.cldf.zip",
+                "filesize": 7393012,
+                "content-type": "application/zip"
+            },
+            {
+                "last-modified": 1516630060087,
+                "checksum": "d74674469e43d346c0a8310c6ab652ee",
+                "created": 1516630057829,
+                "checksum-algorithm": "MD5",
+                "bitstreamid": "wals_language.csv.zip",
+                "filesize": 290903,
+                "content-type": "application/zip"
+            },
+            {
+                "last-modified": 1516630065650,
+                "checksum": "57915b37663e6396d3fd518796a2ced8",
+                "created": 1516630065601,
+                "checksum-algorithm": "MD5",
+                "bitstreamid": "wals_source.bib.zip",
+                "filesize": 555956,
+                "content-type": "application/zip"
+            }
+        ],
+        "oid": "EAEA0-28CA-1D0B-37B8-0",
+        "metadata": {
+            "title": "wals3 1.0 - downloads",
+            "creator": "pycdstar"
+        }
+    }
+}

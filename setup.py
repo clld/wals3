@@ -20,9 +20,7 @@ setup(
     zip_safe=False,
     test_suite='wals3',
     install_requires=[
-        'clldutils~=2.0',
-        'clld~=4.0',
-        'clldmpg~=3.0.0',
+        'clldmpg~=3.1',
         'BeautifulSoup4',
     ],
     extras_require={
