@@ -8,6 +8,7 @@ from clld.db.meta import DBSession
     "method,path",
     [
         ('get_html', '/'),
+        ('get_html', '/combinations/55A_89A'),
         ('get_html', '/feature-info/3A'),
         ('get_html', '/changes'),
         ('get_xml', '/refdb_oai?verb=Identify'),

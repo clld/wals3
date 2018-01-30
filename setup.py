@@ -21,6 +21,7 @@ setup(
     test_suite='wals3',
     install_requires=[
         'clldmpg~=3.1',
+        'clldutils~=2.0',
         'BeautifulSoup4',
     ],
     extras_require={
