@@ -4,7 +4,7 @@ from itertools import groupby
 from sqlalchemy.orm import joinedload, joinedload_all, subqueryload_all
 
 from clldutils.misc import lazyproperty
-from clld.interfaces import ILanguage, IParameter, IIndex, IContribution, ICldfDataset
+from clld.interfaces import ILanguage, IParameter, IIndex, IContribution
 from clld.web.adapters.base import Index
 from clld.web.adapters.geojson import GeoJsonParameter, GeoJson
 from clld.web.adapters.download import CsvDump
