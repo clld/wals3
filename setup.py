@@ -24,11 +24,16 @@ setup(
         'clldmpg~=3.1',
         'clldutils~=2.0',
         'BeautifulSoup4',
+        'sqlalchemy',
+        'waitress'
     ],
     extras_require={
-        'dev': ['flake8', 'waitress', 'psycopg2'],
-        'test': [
+        'dev': [
+            'flake8',
+            'psycopg2',
             'tox',
+        ],
+        'test': [
             'mock',
             'pytest>=3.1',
             'pytest-clld',
