@@ -20,8 +20,8 @@ setup(
     zip_safe=False,
     test_suite='wals3',
     install_requires=[
-        'clld~=4.2',
-        'clldmpg~=3.1',
+        'clld>=4.2.2',
+        'clldmpg>=3.3.1',
         'clldutils~=2.0',
         'BeautifulSoup4',
         'sqlalchemy',
@@ -30,12 +30,11 @@ setup(
     extras_require={
         'dev': [
             'flake8',
-            'psycopg2',
             'tox',
         ],
         'test': [
-            'psycopg2',
             'mock',
+            'psycopg2',
             'pytest>=3.1',
             'pytest-clld',
             'pytest-mock',
