@@ -10,10 +10,9 @@ from pyramid.config import Configurator
 from clldutils.path import Path
 from clld.interfaces import (
     IParameter, IMapMarker, IDomainElement, IValue, ILanguage,
-    ICtxFactoryQuery, IBlog, IIconList, ICldfConfig,
+    ICtxFactoryQuery, IBlog, IIconList,
 )
 from clld.web.adapters.download import Download
-from clld.web.adapters.cldf import CldfConfig
 from clld.web.icon import Icon
 from clld.web.app import CtxFactoryQuery
 from clld.db.models.common import (
@@ -34,10 +33,6 @@ _('Parameters')
 _('Parameter')
 _('ValueSets')
 _('Sentences')
-
-
-class WALSCldfConfig(CldfConfig):
-    module = 'StructureDataset'
 
 
 def map_marker(ctx, req):
@@ -156,7 +151,6 @@ def main(global_config, **settings):
         (map_marker, IMapMarker),
         (Blog(settings), IBlog),
         (icons, IIconList),
-        (WALSCldfConfig(), ICldfConfig),
     ]:
         config.registry.registerUtility(utility, interface)
 

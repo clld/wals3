@@ -4,8 +4,9 @@ from itertools import groupby
 from sqlalchemy.orm import joinedload, joinedload_all, subqueryload_all
 
 from clldutils.misc import lazyproperty
-from clld.interfaces import ILanguage, IParameter, IIndex, IContribution
+from clld.interfaces import ILanguage, IParameter, IIndex, ICldfConfig
 from clld.web.adapters.base import Index
+from clld.web.adapters.cldf import CldfConfig
 from clld.web.adapters.geojson import GeoJsonParameter, GeoJson
 from clld.web.adapters.download import CsvDump
 from clld.web.maps import SelectedLanguagesMap, Layer
@@ -140,7 +141,27 @@ class LanguagesTab(Index):
         return '\n'.join('\t'.join(['%s' % l for l in line]) for line in lines)
 
 
+class WalsCldfConfig(CldfConfig):
+    module = 'StructureDataset'
+
+    def custom_schema(self, req, ds):
+        ds.add_columns('LanguageTable', 'Genus')
+
+    def query(self, model):
+        q = CldfConfig.query(self, model)
+        if model == Language:
+            q = q.options(joinedload(WalsLanguage.genus))
+        return q
+
+    def convert(self, model, item, req):
+        res = CldfConfig.convert(self, model, item, req)
+        if model == Language:
+            res.update(Genus=item.genus.name)
+        return res
+
+
 def includeme(config):
+    config.registry.registerUtility(WalsCldfConfig(), ICldfConfig)
     config.register_adapter(GeoJsonFeature, IParameter)
     config.register_adapter(MapView, ILanguage, IIndex)
     config.register_adapter(LanguagesTab, ILanguage, IIndex)
