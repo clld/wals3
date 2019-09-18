@@ -20,10 +20,11 @@ setup(
     zip_safe=False,
     test_suite='wals3',
     install_requires=[
-        'clld>=4.2.2',
-        'clldmpg>=3.3.1',
-        'clldutils~=2.0',
+        'clldutils>=3.0.1',
+        'clldmpg>=3.4.0',
+        'clld>=5.0.0',
         'BeautifulSoup4',
+        'feedparser',
         'sqlalchemy',
         'waitress'
     ],
@@ -35,7 +36,7 @@ setup(
         'test': [
             'mock',
             'psycopg2',
-            'pytest>=3.1',
+            'pytest>=3.6',
             'pytest-clld',
             'pytest-mock',
             'pytest-cov',

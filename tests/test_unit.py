@@ -1,9 +1,9 @@
 from collections import defaultdict
 from tempfile import mktemp
+from pathlib import Path
 
 from pyramid.httpexceptions import HTTPFound
 
-from clldutils.path import Path, remove
 from clld.interfaces import IBlog
 from clld.db.models.common import ValueSet, Language
 from clld.db.meta import DBSession
@@ -76,4 +76,5 @@ def test_Matrix(env):
     m = TestMatrix(Language, 'wals3', description="Feature values CSV")
     m.create(env['request'], verbose=False)
     assert p.exists()
-    remove(p)
+    p.unlink()
+

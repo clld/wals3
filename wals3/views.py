@@ -1,6 +1,8 @@
 from datetime import datetime
 from itertools import groupby
 
+import feedparser
+import requests
 from requests.exceptions import ConnectionError
 from purl import URL
 from sqlalchemy import or_, and_
@@ -15,11 +17,35 @@ from clld.db.models.common import (
     Value, ValueSet, Source, Language, LanguageIdentifier, Identifier, Parameter,
 )
 from clld.db.util import icontains, get_alembic_version
-from clld.web.views import atom_feed
 from clld.web.views.olac import OlacConfig, olac_with_cfg, Participant, Institution
 
 from wals3.models import Family, Genus, Feature, WalsLanguage
 from wals3.util import LanguoidSelect
+
+
+def atom_feed(request, feed_url):
+    """
+    Proxy feeds so they can be accessed via XHR requests.
+
+    We also convert RSS to ATOM so that the javascript Feed component can read them.
+    """
+    ctx = {'url': feed_url, 'title': None, 'entries': []}
+    try:
+        res = requests.get(ctx['url'], timeout=(3.05, 1))
+    except Timeout:
+        res = None
+    if res and res.status_code == 200:
+        d = feedparser.parse(res.content.strip())
+        ctx['title'] = getattr(d.feed, 'title', None)
+        for e in d.entries:
+            ctx['entries'].append(dict(
+                title=e.title,
+                link=e.link,
+                updated=datetime.fromtimestamp(mktime(e.published_parsed)).isoformat(),
+                summary=summary(e.description)))
+    response = render_to_response('atom_feed.mako', ctx, request=request)
+    response.content_type = 'application/atom+xml'
+    return response
 
 
 @view_config(route_name='blog_feed')
