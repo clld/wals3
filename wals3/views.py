@@ -1,3 +1,4 @@
+import time
 from datetime import datetime
 from itertools import groupby
 
@@ -9,6 +10,7 @@ from sqlalchemy import or_, and_
 from sqlalchemy.orm import joinedload_all
 from sqlalchemy.inspection import inspect
 from pyramid.view import view_config
+from pyramid.renderers import render_to_response
 from pyramid.httpexceptions import HTTPFound, HTTPNotFound
 from pytz import utc
 
@@ -18,6 +20,7 @@ from clld.db.models.common import (
 )
 from clld.db.util import icontains, get_alembic_version
 from clld.web.views.olac import OlacConfig, olac_with_cfg, Participant, Institution
+from clld.util import summary
 
 from wals3.models import Family, Genus, Feature, WalsLanguage
 from wals3.util import LanguoidSelect
@@ -41,7 +44,7 @@ def atom_feed(request, feed_url):
             ctx['entries'].append(dict(
                 title=e.title,
                 link=e.link,
-                updated=datetime.fromtimestamp(mktime(e.published_parsed)).isoformat(),
+                updated=datetime.fromtimestamp(time.mktime(e.published_parsed)).isoformat(),
                 summary=summary(e.description)))
     response = render_to_response('atom_feed.mako', ctx, request=request)
     response.content_type = 'application/atom+xml'
@@ -145,6 +148,7 @@ def comment(request):
 
 @view_config(route_name='genealogy', renderer='genealogy.mako')
 def genealogy(request):
+    request.tm.abort()
     return dict(
         families=DBSession.query(Family).order_by(Family.id)
         .options(joinedload_all(Family.genera, Genus.languages)))
