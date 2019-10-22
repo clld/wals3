@@ -22,7 +22,7 @@ setup(
     install_requires=[
         'clldutils>=3.0.1',
         'clldmpg>=3.4.0',
-        'clld>=5.0.0',
+        'clld>=5.0.1',
         'BeautifulSoup4',
         'feedparser',
         'sqlalchemy',
