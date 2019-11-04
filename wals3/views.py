@@ -4,7 +4,7 @@ from itertools import groupby
 
 import feedparser
 import requests
-from requests.exceptions import ConnectionError
+from requests.exceptions import ConnectionError, Timeout
 from purl import URL
 from sqlalchemy import or_, and_
 from sqlalchemy.orm import joinedload_all
