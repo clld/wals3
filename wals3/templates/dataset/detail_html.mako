@@ -32,22 +32,23 @@
     The first version of WALS was published as a book with CD-ROM in 2005 by
     ${h.external_link('http://ukcatalogue.oup.com/product/9780199255917.do', label='Oxford University Press')}.
     The first online version was published in April 2008.
-    The second online version was published in April 2011.
 </p>
 <p>
   The 2013 edition of WALS corrects a number of coding errors especially in Chapters 1 and 3.
-  A full list of changes is available <a href="${request.route_url('changes')}">here</a>.
+  A full list of changes is available
+    ${h.external_link('https://github.com/cldf-datasets/wals/compare/v2011...v2013', label="here")}.
 </p>
 <p>
-  Starting with this edition of WALS, there will not be specific editions every two or three years, but we will be
-  updating it whenever corrections or additions are made. Changes in value assignment will be made transparent by
-  showing a history on the respective pages.
+    Starting with the 2013 edition of WALS, there will not be specific editions every two or three years, but we will be
+    updating it whenever corrections or additions are made. Changes in value assignment will be made transparent via the
+    ${h.external_link('https://github.com/cldf-datasets/wals/commits/master/cldf/values.csv', label="history of the CLDF values table")}
+    underlying the web application.
 </p>
 <p>
     WALS Online is a publication of the
-    ${h.external_link('http://www.eva.mpg.de', label='Max Planck Institute for Evolutionary Anthropology')}.
+    ${h.external_link('https://shh.mpg.de', label='Max Planck Institute for the Science of Human History')}.
     It is a separate publication, edited by
-    Dryer, Matthew S. & Haspelmath, Martin (Leipzig: Max Planck Institute for Evolutionary Anthropology, 2013)
+    Dryer, Matthew S. & Haspelmath, Martin (Jena: Max Planck Institute for the Science of Human History, 2013)
     The main programmer is Robert Forkel.
 </p>
 
@@ -95,16 +96,17 @@
     ${h.newline2br(citation.render(example_contribution, request))|n}
 </blockquote>
     </li>
+  </ul>
 
 <h3>Interactive Reference Tool (WALS program)</h3>
 <p>
     The World Atlas of Language Structures was published as a book with a CD-ROM in summer 2005.
     The CD-ROM contains the "Interactive Reference Tool (WALS program)" as a standalone application
     for Mac OSX, Mac OS9.2 and Windows 2000, XP written by
-    ${h.external_link('http://www.eva.mpg.de/lingua/staff/bibiko.php', label=u'Hans-Jörg Bibiko')}.
+    ${h.external_link('https://www.shh.mpg.de/employees/42541/25500', label='Hans-Jörg Bibiko')}.
     To download the
     "Interactive Reference Tool (WALS program)" please follow the link
-    ${h.external_link('http://www.eva.mpg.de/lingua/research/tool.php')}.
+    ${h.external_link('https://www.eva.mpg.de/lingua/research/tool.php')}.
 </p>
 <h3>Terms of use</h3>
 <p>

@@ -1,24 +1,18 @@
 import time
 from datetime import datetime
-from itertools import groupby
 
 import feedparser
 import requests
 from requests.exceptions import ConnectionError, Timeout
 from purl import URL
-from sqlalchemy import or_, and_
 from sqlalchemy.orm import joinedload_all
-from sqlalchemy.inspection import inspect
 from pyramid.view import view_config
 from pyramid.renderers import render_to_response
 from pyramid.httpexceptions import HTTPFound, HTTPNotFound
-from pytz import utc
 
 from clld.db.meta import DBSession
-from clld.db.models.common import (
-    Value, ValueSet, Source, Language, LanguageIdentifier, Identifier, Parameter,
-)
-from clld.db.util import icontains, get_alembic_version
+from clld.db.models.common import ValueSet, Source, Language, LanguageIdentifier, Identifier
+from clld.db.util import icontains
 from clld.web.views.olac import OlacConfig, olac_with_cfg, Participant, Institution
 from clld.util import summary
 
@@ -152,60 +146,6 @@ def genealogy(request):
     return dict(
         families=DBSession.query(Family).order_by(Family.id)
         .options(joinedload_all(Family.genera, Genus.languages)))
-
-
-def changes(request):
-    # changes in the 2011 edition: check values with an updated date after 2011 and
-    # before 2013
-    E2009 = utc.localize(datetime(2009, 1, 1))
-    E2012 = utc.localize(datetime(2012, 1, 1))
-    E2014 = utc.localize(datetime(2014, 6, 30))
-    E2015 = utc.localize(datetime(2015, 6, 30))
-
-    history = inspect(Value.__history_mapper__).class_
-    query = DBSession.query(Value)\
-        .outerjoin(history, Value.pk == history.pk)\
-        .join(ValueSet)\
-        .order_by(ValueSet.parameter_pk, ValueSet.language_pk)\
-        .options(joinedload_all(Value.valueset, ValueSet.language),
-                 joinedload_all(Value.valueset, ValueSet.parameter))
-
-    changes2011 = query.join(ValueSet.parameter)\
-        .filter(Parameter.id.contains('A'))\
-        .filter(Parameter.id != '143A')\
-        .filter(Parameter.id != '144A')\
-        .filter(or_(
-            and_(E2009 < Value.updated, Value.updated < E2012),
-            and_(history.updated != None,
-                 E2009 < history.updated, history.updated < E2012)))
-
-    changes2013 = query.filter(or_(
-        and_(E2012 < Value.updated, Value.updated < E2014),
-        and_(E2012 < history.updated, history.updated < E2014)))
-
-    changes2014 = query.filter(or_(
-        and_(E2014 < Value.updated, Value.updated < E2015),
-        and_(E2014 < history.updated, history.updated < E2015)))
-
-    #
-    # TODO:
-    #
-    # history = inspect(ValueSet.__history_mapper__).class_
-    # current = DBSession.query(ValueSet.pk).subquery()
-    # removals2013 = DBSession.query(Parameter.id, Parameter.name, count(history.pk))\
-    # .filter(Parameter.pk == history.parameter_pk)\
-    # .filter(not_(history.pk.in_(current)))\
-    # .group_by(Parameter.pk, Parameter.id, Parameter.name)\
-    # .order_by(Parameter.pk)
-
-    grouped = lambda changes: groupby([v.valueset for v in changes],
-                                      lambda vs: vs.parameter)
-    return {
-        'db_version': get_alembic_version(DBSession),
-        'changes2011': grouped(changes2011),
-        'changes2013': grouped(changes2013),
-        'changes2014': grouped(changes2014),
-        'removals2013': []}
 
 
 @view_config(route_name='sample', renderer='sample.mako')

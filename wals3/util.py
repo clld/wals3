@@ -1,8 +1,6 @@
-from __future__ import unicode_literals
-import codecs
+import re
 
-from sqlalchemy.orm import joinedload_all, joinedload
-from clldutils.path import Path
+from sqlalchemy.orm import joinedload
 from bs4 import BeautifulSoup as soup
 from pyramid.httpexceptions import HTTPFound
 
@@ -73,18 +71,17 @@ def contribution_detail_html(context=None, request=None, **kw):
     if context.id == 's4':
         raise HTTPFound(request.route_url('genealogy'))
 
-    p = Path(wals3.__file__).parent.joinpath(
-        'static', 'descriptions', str(context.id), 'body.xhtml')
-    c = codecs.open(p.as_posix(), encoding='utf8').read()
-
+    c = context.description
+    if '<body>' in c:
+        c = c.split('<body>')[1].split('</body>')[0]
     adapter = get_adapter(IRepresentation, Feature(), request, ext='snippet.html')
+    fids = [m.group('fid') for m in re.finditer('__values_(?P<fid>[0-9A-Z]+)__', c)]
 
     for feature in DBSession.query(Feature)\
-            .filter(Feature.contribution_pk == context.pk)\
-            .options(joinedload_all(Feature.domain, DomainElement.values)):
+            .filter(Feature.id.in_(fids))\
+            .options(joinedload(Feature.domain).joinedload(DomainElement.values)):
         table = soup(adapter.render(feature, request))
-        values = '\n'.join('%s' % table.find(tag).extract()
-                           for tag in ['thead', 'tbody'])
+        values = '\n'.join('%s' % table.find(tag).extract() for tag in ['thead', 'tbody'])
         c = c.replace('__values_%s__' % feature.id, values)
 
     return {'text': c.replace('http://wals.info', request.application_url)}
@@ -95,12 +92,12 @@ def _valuesets(parameter):
         .filter(ValueSet.parameter_pk == parameter.pk)\
         .options(
             joinedload(ValueSet.language),
-            joinedload_all(ValueSet.values, Value.domainelement))
+            joinedload(ValueSet.values).joinedload(Value.domainelement))
 
 
 def parameter_detail_tab(context=None, request=None, **kw):
-    query = _valuesets(context).options(joinedload_all(
-        ValueSet.language, WalsLanguage.genus, Genus.family))
+    query = _valuesets(context).options(
+        joinedload(ValueSet.language).joinedload(WalsLanguage.genus).joinedload(Genus.family))
     return dict(datapoints=query)
 
 

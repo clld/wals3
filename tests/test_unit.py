@@ -6,19 +6,6 @@ from pyramid.httpexceptions import HTTPFound
 
 from clld.interfaces import IBlog
 from clld.db.models.common import ValueSet, Language
-from clld.db.meta import DBSession
-
-
-def test_migration(db):
-    from wals3.migration import Connection
-
-    conn = Connection(DBSession)
-    conn.insert(Language, id='zzz')
-    conn.update_iso('zzz', 'deu', eng='English')
-    conn.update_iso('zzz', 'eng', deu='German')
-    conn.update_genus('zzz', ('genus', u'Genus', ''), ('family', u'Family'))
-    conn.update_genus('zzz', ('othergenus', u'Other Genus', ''), 'family')
-    conn.update_genus('zzz', 'genus')
 
 
 def test_comment(env, request_factory, mocker):

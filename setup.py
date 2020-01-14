@@ -20,9 +20,9 @@ setup(
     zip_safe=False,
     test_suite='wals3',
     install_requires=[
-        'clldutils>=3.0.1',
+        'clldutils>=3.5',
         'clldmpg>=3.4.0',
-        'clld>=5.1.0',
+        'clld>=5.2.0',
         'BeautifulSoup4',
         'feedparser',
         'sqlalchemy',
@@ -45,9 +45,12 @@ setup(
             'zope.component>=3.11.0',
         ],
     },
-    entry_points="""\
-[paste.app_factory]
-main = wals3:main
-[console_scripts]
-initialize_wals3_db = wals3.scripts.initializedb:main
-""")
+    entry_points={
+        'console_scripts': [
+            'wals-app=wals3.__main__:main',
+        ],
+        'paste.app_factory': [
+            'main = wals3:main',
+        ],
+    },
+)

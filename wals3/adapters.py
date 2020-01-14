@@ -1,7 +1,6 @@
-from __future__ import unicode_literals
 from itertools import groupby
 
-from sqlalchemy.orm import joinedload, joinedload_all, subqueryload_all
+from sqlalchemy.orm import joinedload, subqueryload
 
 from clldutils.misc import lazyproperty
 from clld.interfaces import ILanguage, IParameter, IIndex, ICldfConfig
@@ -24,7 +23,7 @@ class GeoJsonFeature(GeoJsonParameter):
         return DBSession.query(Value).join(DomainElement)\
             .filter(DomainElement.id == req.params.get('domainelement'))\
             .options(
-                joinedload_all(Value.valueset, ValueSet.language),
+                joinedload(Value.valueset).joinedload(ValueSet.language),
                 joinedload(Value.domainelement))
 
     def get_language(self, ctx, req, value):
@@ -67,10 +66,10 @@ class Matrix(CsvDump):
         return DBSession.query(Language)\
             .order_by(Language.id)\
             .options(
-                subqueryload_all('languageidentifier', 'identifier'),
-                subqueryload_all('countries'),
-                joinedload_all(Language.valuesets, ValueSet.values),
-                joinedload_all(WalsLanguage.genus, Genus.family))
+                subqueryload('languageidentifier').subqueryload('identifier'),
+                subqueryload('countries'),
+                joinedload(Language.valuesets).joinedload(ValueSet.values),
+                joinedload(WalsLanguage.genus).joinedload(Genus.family))
 
     def get_fields(self, req):  # pragma: no cover
         if not self._fields:
@@ -134,8 +133,8 @@ class LanguagesTab(Index):
         ]
         lines = [[f[0] for f in fields]]
         for lang in DBSession.query(Language).options(
-                joinedload_all(WalsLanguage.genus, Genus.family),
-                joinedload_all(Language.languageidentifier, LanguageIdentifier.identifier)
+            joinedload(WalsLanguage.genus).joinedload(Genus.family),
+            joinedload(Language.languageidentifier).joinedload(LanguageIdentifier.identifier)
         ):
             lines.append([f[1](lang) for f in fields])
         return '\n'.join('\t'.join(['%s' % l for l in line]) for line in lines)

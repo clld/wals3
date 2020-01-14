@@ -1,5 +1,4 @@
 from zope.interface import implementer
-from six import string_types
 
 from clld.interfaces import IBlog
 from clld.lib import wordpress
@@ -58,4 +57,4 @@ class Blog(object):
         return res
 
     def feed_path(self, obj, req):
-        return '%s/feed' % (obj if isinstance(obj, string_types) else obj.wp_slug,)
+        return '%s/feed' % (obj if isinstance(obj, str) else obj.wp_slug,)

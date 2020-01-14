@@ -1,13 +1,12 @@
-from __future__ import unicode_literals, absolute_import, division, print_function
-from string import ascii_uppercase
-import re
+import string
+import itertools
 
 from sqlalchemy import true
-from sqlalchemy.orm import joinedload_all
+from sqlalchemy.orm import joinedload
 from pyramid.httpexceptions import HTTPNotFound, HTTPMovedPermanently
 from pyramid.config import Configurator
 
-from clldutils.path import Path
+from clldutils import svg
 from clld.interfaces import (
     IParameter, IMapMarker, IDomainElement, IValue, ILanguage,
     ICtxFactoryQuery, IBlog, IIconList,
@@ -15,14 +14,17 @@ from clld.interfaces import (
 from clld.web.adapters.download import Download
 from clld.web.icon import Icon
 from clld.web.app import CtxFactoryQuery
-from clld.db.models.common import (
-    Contribution, ContributionReference, Parameter, Language, Source,
-)
+from clld.db.models.common import Contribution, ContributionReference, Parameter, Language, Source
 
 from wals3.blog import Blog
 from wals3.adapters import Matrix
 from wals3.models import Family, Country, WalsLanguage, Genus
 from wals3.interfaces import IFamily, ICountry, IGenus
+
+COLORS = [
+    '00d', '000', '6f3', '9ff', '090', '99f', '909', 'a00', 'ccc', 'd00', 'f6f', 'f40', 'f60',
+    'fc0', 'ff0', 'ffc', 'fff']
+SHAPES = list('cdfst')
 
 
 _ = lambda s: s
@@ -55,19 +57,18 @@ def map_marker(ctx, req):
         icon = req.params.get(ctx.id, ctx.icon)
 
     if icon:
-        if len(icon) == 7:
-            icon = ''.join([icon[i] for i in [0, 2, 4, 6]])
-        if icon in icon_map:
-            return icon_map[icon].url(req)
+        if len(icon) == 4:
+            icon = icon[0] + 2*icon[1] + 2*icon[2] + 2*icon[3]
+        return svg.data_url(svg.icon(icon))
 
 
 class WalsCtxFactoryQuery(CtxFactoryQuery):
     def refined_query(self, query, model, req):
         if model == Contribution:
-            return query.options(joinedload_all(
-                Contribution.references, ContributionReference.source))
+            return query.options(
+                joinedload(Contribution.references).joinedload(ContributionReference.source))
         if model == Parameter:
-            if req.matchdict['id'][-1] not in ascii_uppercase:
+            if req.matchdict['id'][-1] not in string.ascii_uppercase:
                 # route match for 2008-style URL: redirect!
                 raise HTTPMovedPermanently(
                     req.route_url('contribution', id=req.matchdict['id']))
@@ -96,7 +97,7 @@ def sample_factory(req):
     class Sample(object):
         name = '%s-language sample' % req.matchdict['count']
         languages = req.db.query(WalsLanguage).filter(col == true())\
-            .options(joinedload_all(WalsLanguage.genus, Genus.family))\
+            .options(joinedload(WalsLanguage.genus).joinedload(Genus.family))\
             .order_by(WalsLanguage.name)
 
         def __json__(self, req):
@@ -106,9 +107,8 @@ def sample_factory(req):
 
 
 class WalsIcon(Icon):
-    @property
-    def asset_spec(self):
-        return 'wals3:static/icons/%s.png' % self.name
+    def url(self, req):
+        return svg.data_url(svg.icon(self.name))
 
 
 def main(global_config, **settings):
@@ -135,14 +135,7 @@ def main(global_config, **settings):
         'olac': '/languoid/oai',
         'credits': '/about/credits',
     }
-    filename_pattern = re.compile('(?P<spec>(c|d|s|f|t)[0-9a-f]{3})\.png')
-    icons = []
-    for p in sorted(
-            Path(__file__).parent.joinpath('static', 'icons').iterdir(),
-            key=lambda p: p.name):
-        m = filename_pattern.match(p.name)
-        if m:
-            icons.append(WalsIcon(m.group('spec')))
+    icons = [WalsIcon(s + c) for s, c in itertools.product(SHAPES, COLORS)]
 
     config = Configurator(**dict(settings=settings))
     config.include('clldmpg')
@@ -216,7 +209,7 @@ def main(global_config, **settings):
     # with a single id.
     def datapoint(req):
         data = {k: v for k, v in req.matchdict.items()}
-        if data['fid'][-1] not in ascii_uppercase:
+        if data['fid'][-1] not in string.ascii_uppercase:
             data['fid'] += 'A'
         return req.route_url(
             'valueset', id='%(fid)s-%(lid)s' % data, _query=req.query_params)
