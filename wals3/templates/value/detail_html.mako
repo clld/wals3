@@ -41,15 +41,4 @@ $(document).ready(function() {
   ${h.JSFeed.init(dict(eid="comments", url="http://blog.wals.info/datapoint-"+ctx.valueset.parameter.id.lower()+"-wals_code_"+ctx.valueset.language.id+"/feed/", title="Comments"))|n}
 });
     </script>
-    <div class="well well-small">
-        <h3>History</h3>
-        <p>Current version from ${str(ctx.updated).split('.')[0]}.</p>
-        <ul>
-            % for v in ctx.history():
-            <li>
-                ${str(v.updated).split('.')[0]} ${h.models.DomainElement.get(v.domainelement_pk).name}
-            </li>
-            % endfor
-        </ul>
-    </div>
 </%def>

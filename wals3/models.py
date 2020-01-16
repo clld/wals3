@@ -12,7 +12,6 @@ from sqlalchemy.orm import relationship, backref
 
 from clld import interfaces
 from clld.db.meta import Base, CustomModelMixin
-from clld.db.versioned import Versioned
 from clld.db.models.common import (
     Language,
     Parameter,
@@ -63,7 +62,7 @@ class Area(Base, IdNameDescriptionMixin):
 # specialized common mapper classes
 # ----------------------------------------------------------------------------
 @implementer(interfaces.ILanguage)
-class WalsLanguage(CustomModelMixin, Language, Versioned):
+class WalsLanguage(CustomModelMixin, Language):
     pk = Column(Integer, ForeignKey('language.pk'), primary_key=True)
 
     ascii_name = Column(String)
@@ -84,7 +83,7 @@ class WalsLanguage(CustomModelMixin, Language, Versioned):
 
 
 @implementer(interfaces.IContribution)
-class Chapter(CustomModelMixin, Contribution, Versioned):
+class Chapter(CustomModelMixin, Contribution):
 
     """Contributions in WALS are chapters chapters.
 
@@ -103,7 +102,7 @@ class Chapter(CustomModelMixin, Contribution, Versioned):
 
 
 @implementer(interfaces.IParameter)
-class Feature(CustomModelMixin, Parameter, Versioned):
+class Feature(CustomModelMixin, Parameter):
 
     """Parameters in WALS are called feature. They are always related to one chapter."""
 

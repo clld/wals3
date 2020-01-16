@@ -58,6 +58,8 @@ def run(args):  # pragma: no cover
 
 
 def typed(r, t):  # pragma: no cover
+    if 'version' in r:
+        del r['version']
     for k in r:
         if k.endswith('_pk') or k == 'pk' or k.endswith('_int'):
             r[k] = int(r[k]) if r[k] != '' else None

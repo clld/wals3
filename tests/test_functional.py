@@ -36,6 +36,8 @@ from clld.db.meta import DBSession
         ('get_dt', '/values?language=eng&iSortingCols=1&iSortCol_0=4'),
         ('get_dt', '/values?language=eng&sSearch_1=noun&iSortingCols=1&iSortCol_0=1'),
         ('get_dt', '/values?language=eng&sSearch_4=phon'),
+        ('get_html', '/valuesets/98A-coo'),
+        ('get_html', '/values/98A-coo'),
     ])
 def test_pages(app, method, path):
     getattr(app, method)(path)
