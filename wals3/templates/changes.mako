@@ -16,6 +16,17 @@
     ${h.external_link('https://github.com/cldf-datasets/wals/issues', label='issues on GitHub')}.
 </p>
 
+<%util:section title="WALS Online 2013 (with minor corrections as of 2020)" id="e2020" level="${4}">
+    <p>
+        <a href="https://doi.org/10.5281/zenodo.3731125"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.3731125.svg" alt="DOI"></a>
+    </p>
+    <p>
+        See
+        ${h.external_link('https://github.com/cldf-datasets/wals/compare/v2014...v2020', label="the diff on GitHub")}
+        for details.
+    </p>
+</%util:section>
+
 <%util:section title="WALS Online 2013 (with minor corrections as of 2014)" id="e2014" level="${4}">
     <p>
         <a href="https://doi.org/10.5281/zenodo.3607439"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.3607439.svg" alt="DOI"></a>

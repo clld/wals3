@@ -39,16 +39,16 @@
     ${h.external_link('https://github.com/cldf-datasets/wals/compare/v2011...v2013', label="here")}.
 </p>
 <p>
-    Starting with the 2013 edition of WALS, there will not be specific editions every two or three years, but we will be
-    updating it whenever corrections or additions are made. Changes in value assignment will be made transparent via the
-    ${h.external_link('https://github.com/cldf-datasets/wals/commits/master/cldf/values.csv', label="history of the CLDF values table")}
-    underlying the web application.
+    Starting with the 2013 edition of WALS, we will release and publish sets of
+    corrections periodically. Thus, any citation of WALS Online 2013 should include
+    the particular version, as listed on
+    ${h.external_link('https://doi.org/10.5281/zenodo.3606197', label='Zenodo')}.
 </p>
 <p>
     WALS Online is a publication of the
     ${h.external_link('https://shh.mpg.de', label='Max Planck Institute for the Science of Human History')}.
     It is a separate publication, edited by
-    Dryer, Matthew S. & Haspelmath, Martin (Jena: Max Planck Institute for the Science of Human History, 2013)
+    Dryer, Matthew S. & Haspelmath, Martin (Jena: Max Planck Institute for the Science of Human History, 2013).
     The main programmer is Robert Forkel.
 </p>
 

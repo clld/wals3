@@ -8,7 +8,7 @@ import wals3.commands
 
 
 def main(args=None, catch_all=False, parsed_args=None, log=None):
-    parser, subparsers = get_parser_and_subparsers('concepticon')
+    parser, subparsers = get_parser_and_subparsers('wals-app')
     register_subcommands(subparsers, wals3.commands)
 
     args = parsed_args or parser.parse_args(args=args)
