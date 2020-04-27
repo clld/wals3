@@ -24,16 +24,3 @@
         on ZENODO as well.
     </p>
 </div>
-
-<p>
-    Some releases before the publication of the CLDF standard provided custom download formats which are
-    listed below.
-</p>
-
-${mpg.downloads(request)}
-
-<%def name="sidebar()">
-    <div class="well well-small">
-        ${mpg.downloads_legend()}
-    </div>
-</%def>

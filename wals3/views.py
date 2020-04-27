@@ -29,7 +29,7 @@ def atom_feed(request, feed_url):
     ctx = {'url': feed_url, 'title': None, 'entries': []}
     try:
         res = requests.get(ctx['url'], timeout=(3.05, 1))
-    except Timeout:
+    except Timeout:  # pragma: no cover
         res = None
     if res and res.status_code == 200:
         d = feedparser.parse(res.content.strip())
@@ -58,7 +58,7 @@ def blog_feed(request):
     assert not path.host()
     try:
         return atom_feed(request, request.blog.url(path.as_string()))
-    except ConnectionError:
+    except ConnectionError:  # pragma: no cover
         raise HTTPNotFound()
 
 
