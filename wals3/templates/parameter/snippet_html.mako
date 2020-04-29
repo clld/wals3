@@ -14,10 +14,10 @@
     <tbody>
         % for de in ctx.domain:
         <tr>
-            <% total += len(de.values) %>
+            <% total += ctx.counts[de.pk] if hasattr(ctx, 'counts') else len(de.values) %>
             <td>${h.map_marker_img(request, de)}</td>
             <td>${de.description or de.name}</td>
-            <td class="right">${len(de.values)}</td>
+            <td class="right">${ctx.counts[de.pk] if hasattr(ctx, 'counts') else len(de.values)}</td>
         </tr>
         % endfor
         <tr>

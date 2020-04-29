@@ -1,5 +1,6 @@
 import re
 
+from sqlalchemy import func
 from sqlalchemy.orm import joinedload
 from bs4 import BeautifulSoup as soup
 from pyramid.httpexceptions import HTTPFound
@@ -79,7 +80,11 @@ def contribution_detail_html(context=None, request=None, **kw):
 
     for feature in DBSession.query(Feature)\
             .filter(Feature.id.in_(fids))\
-            .options(joinedload(Feature.domain).joinedload(DomainElement.values)):
+            .options(joinedload(Feature.domain)):
+        counts = DBSession.query(Value.domainelement_pk, func.count(Value.pk))\
+            .filter(Value.domainelement_pk.in_([de.pk for de in feature.domain]))\
+            .group_by(Value.domainelement_pk)
+        feature.counts = dict(counts)
         table = soup(adapter.render(feature, request))
         values = '\n'.join('%s' % table.find(tag).extract() for tag in ['thead', 'tbody'])
         c = c.replace('__values_%s__' % feature.id, values)
