@@ -57,6 +57,8 @@ def map_marker(ctx, req):
         icon = req.params.get(ctx.id, ctx.icon)
 
     if icon:
+        if "'" in icon:
+            icon = icon.split("'")[0]
         if len(icon) == 4:
             icon = icon[0] + 2*icon[1] + 2*icon[2] + 2*icon[3]
         if icon.startswith('a'):
