@@ -65,7 +65,10 @@ def map_marker(ctx, req):
             icon = icon[0] + 2*icon[1] + 2*icon[2] + 2*icon[3]
         if icon.startswith('a'):
             return svg.data_url(svg.icon('c000000', opacity='0'))
-        return svg.data_url(svg.icon(icon))
+        try:
+            return svg.data_url(svg.icon(icon))
+        except KeyError:
+            raise HTTPNotFound()
 
 
 class WalsCtxFactoryQuery(CtxFactoryQuery):
