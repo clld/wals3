@@ -42,7 +42,6 @@ def map_marker(ctx, req):
 
     we have to look up a possible custom selection from the url params.
     """
-    icon_map = {i.name: i for i in req.registry.getUtility(IIconList)}
     icon = None
 
     if IValue.providedBy(ctx):
@@ -68,7 +67,7 @@ def map_marker(ctx, req):
         try:
             return svg.data_url(svg.icon(icon))
         except KeyError:
-            raise HTTPNotFound()
+            return ''
 
 
 class WalsCtxFactoryQuery(CtxFactoryQuery):
