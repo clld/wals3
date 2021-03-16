@@ -5,7 +5,7 @@ import feedparser
 import requests
 from requests.exceptions import ConnectionError, Timeout
 from purl import URL
-from sqlalchemy.orm import joinedload_all
+from sqlalchemy.orm import joinedload
 from pyramid.view import view_config
 from pyramid.renderers import render_to_response
 from pyramid.httpexceptions import HTTPFound, HTTPNotFound
@@ -145,7 +145,7 @@ def genealogy(request):
     request.tm.abort()
     return dict(
         families=DBSession.query(Family).order_by(Family.id)
-        .options(joinedload_all(Family.genera, Genus.languages)))
+        .options(joinedload(Family.genera, Genus.languages)))
 
 
 @view_config(route_name='sample', renderer='sample.mako')
