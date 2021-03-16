@@ -11,7 +11,6 @@ import transaction
 from clldutils import db
 from clldutils import clilib
 from clldutils.misc import data_url
-from clld.scripts.util import SessionContext, ExistingConfig, get_env_and_settings
 from clld.db.meta import DBSession
 from clld.db.models import common
 from clld.lib.bibtex import EntryType
@@ -26,35 +25,6 @@ PROJECT_DIR = PKG_DIR.parent
 # FIXME:
 # - source.bib - we should import source data from the bib file, because this can be easier
 #   maintained.
-
-
-def register(parser):  # pragma: no cover
-    parser.add_argument(
-        "--config-uri",
-        action=ExistingConfig,
-        help="ini file providing app config",
-        default=str(PROJECT_DIR / 'development.ini'))
-    parser.add_argument(
-        '--doi',
-        default=None,
-    )
-    parser.add_argument(
-        '--repos',
-        default=pathlib.Path(PROJECT_DIR.parent / 'wals-cldf'),
-        help='Clone of cldf-datasets/wals',
-        type=clilib.PathType(type='dir'),
-    )
-
-
-def run(args):  # pragma: no cover
-    args.env, settings = get_env_and_settings(args.config_uri)
-
-    with contextlib.ExitStack() as stack:
-        stack.enter_context(db.FreshDB.from_settings(settings, log=args.log))
-        stack.enter_context(SessionContext(settings))
-
-        with transaction.manager:
-            load(args.repos)
 
 
 def typed(r, t):  # pragma: no cover
@@ -86,7 +56,10 @@ def typed(r, t):  # pragma: no cover
     return r
 
 
-def load(repos):  # pragma: no cover
+def main(args):  # pragma: no cover
+
+    repos = args.cldf.directory.parent
+
     def iterrows(core, extended=False):
         res = collections.OrderedDict()
         for row in reader(repos / 'raw' / core, dicts=True):

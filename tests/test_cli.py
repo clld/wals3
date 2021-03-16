@@ -1,5 +1,5 @@
-from wals3.__main__ import main
+from wals3.scripts import initializedb
 
 
-def test_help(capsys):
-    main([])
+def test_init():
+    assert initializedb
