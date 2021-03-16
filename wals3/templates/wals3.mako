@@ -4,6 +4,7 @@
 ## define app-level blocks:
 ##
 
+<%block name="title">${_('Home')}</%block>
 <%block name="header">
 <div id="header">
     <a href="${request.resource_url(request.dataset)}">

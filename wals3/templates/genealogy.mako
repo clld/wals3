@@ -3,6 +3,7 @@
 <%namespace name="lib" file="lib.mako"/>
 
 <%! active_menu_item = "languages" %>
+<%block name="title">Genealogy</%block>
 
 <%def name="sidebar()">
     <%util:well>
