@@ -19,9 +19,6 @@ from csvw.dsv import reader
 import wals3
 from wals3 import models
 
-PKG_DIR = pathlib.Path(wals3.__file__).parent
-PROJECT_DIR = PKG_DIR.parent
-
 # FIXME:
 # - source.bib - we should import source data from the bib file, because this can be easier
 #   maintained.
