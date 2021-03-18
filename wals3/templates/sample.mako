@@ -2,6 +2,7 @@
 <%namespace name="util" file="util.mako"/>
 <%namespace name="lib" file="lib.mako"/>
 <%! active_menu_item = "languages" %>
+<%block name="title">Languages</%block>
 
 ${lib.languages_contextnav()}
 

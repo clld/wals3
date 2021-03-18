@@ -85,7 +85,7 @@ def contribution_detail_html(context=None, request=None, **kw):
             .filter(Value.domainelement_pk.in_([de.pk for de in feature.domain]))\
             .group_by(Value.domainelement_pk)
         feature.counts = dict(counts)
-        table = soup(adapter.render(feature, request))
+        table = soup(adapter.render(feature, request), features='html5lib')
         values = '\n'.join('%s' % table.find(tag).extract() for tag in ['thead', 'tbody'])
         c = c.replace('__values_%s__' % feature.id, values)
 
