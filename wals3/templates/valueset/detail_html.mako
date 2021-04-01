@@ -13,6 +13,11 @@ ${util.dl_table(('Language', h.link(request, ctx.language)), ('Feature', h.HTML.
 ${util.sentences(ctx.values[0])}
 % endif
 
+% if ctx.values[0].description:
+<h3>Notes</h3>
+${ctx.values[0].description|n}
+% endif
+
 % if ctx.references:
 <h3>References</h3>
 <ul>
