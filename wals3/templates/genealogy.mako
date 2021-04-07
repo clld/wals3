@@ -8,27 +8,30 @@
 <%def name="sidebar()">
     <%util:well>
       <p>
-        This section gives a list of the languages that appear on at least one map in the atlas,
-        organized according to their genealogical classification. The classification here does not include
-        many intermediate groupings that appear in Ethnologue (Grimes 2000) or Ruhlen (1987), restricting to
-        only two levels in the majority of cases, that of family, the highest level widely accepted by
-        specialists, and genus, explained presently. In some cases, we provide an intermediate level, that
-        of subfamily, where the subfamily is well-known.
+        This section gives a list of the languages that appear on at least one map in the atlas, organized
+        according to their genealogical classification. The classification here does not include many
+        intermediate groupings that appear in Ethnologue (<a class="Reference"
+        href="http://wals.info/refdb/record/Grimes-2000" title="view reference details">Grimes 2000</a>) or
+        <a class="Reference" href="http://wals.info/refdb/record/Ruhlen-1987" title="view reference
+        details">Ruhlen (1987)</a>, restricting to only two levels in the majority of cases, that of family,
+        the highest level widely accepted by specialists, and genus, explained presently. In some cases, we
+        provide an intermediate level, that of subfamily, where the subfamily is well-known.
       </p>
       <p>
-        The notion genus is explained in Dryer (1989). It is intended as a level of classification which is
-        comparable across the world, so that a genus in one family is intended to be comparable in time
-        depth to genera in other parts of the world. The choice of term is intended to match the general
-        idea of genus in biological classification, where a genus is a set of species that are clearly
-        closely related to each other (and where words in everyday language often correspond to genera
-        rather than species). In the genealogical classification of languages, a genus is a group of
-        languages whose relatedness is fairly obvious without systematic comparative analysis, and which
-        even the most conservative “splitter” would accept. Genealogical groups deeper than a genus are
-        often less obvious and in the absence of detailed comparative work are often not universally accepted.
-        If there is evidence of time depth of groups, the genus would not have a time depth greater than 3500
-        or 4000 years. A genus may have a time depth much less than this, but if the time of the split of one
-        group of languages from other languages in the family appears to be greater than 4000 years, then
-        this constitutes a reason to say that this group of languages is a separate genus. The standard
+        The notion genus is explained in <a class="Reference" href="http://wals.info/refdb/record/Dryer-1989"
+        title="view reference details">Dryer (1989)</a>. It is intended as a level of classification which is
+        comparable across the world, so that a genus in one family is intended to be comparable in time depth
+        to genera in other parts of the world. The choice of term is intended to match the general idea of
+        genus in biological classification, where a genus is a set of species that are clearly closely
+        related to each other (and where words in everyday language often correspond to genera rather than
+        species). In the genealogical classification of languages, a genus is a group of languages whose
+        relatedness is fairly obvious without systematic comparative analysis, and which even the most
+        conservative “splitter” would accept. Genealogical groups deeper than a genus are often less obvious
+        and in the absence of detailed comparative work are often not universally accepted. If there is
+        evidence of time depth of groups, the genus would not have a time depth greater than 3500 or 4000
+        years. A genus may have a time depth much less than this, but if the time of the split of one group
+        of languages from other languages in the family appears to be greater than 4000 years, then this
+        constitutes a reason to say that this group of languages is a separate genus. The standard
         subfamilies of
 
         Indo-European
@@ -43,19 +46,23 @@
         are encouraged to let me know.
       </p>
       <p>
-        The classification here generally follows the classification given in Grimes (2000), the 14th edition
-        of Ethnologue.  <!--Footnotes below indicate differences between the WALS classification and that in
-        Ethnologue.--> The classification deviates most strongly from that in Ethnologue in the classification
-        of the languages of
+        The classification here generally follows the classification given in <a class="Reference"
+        href="http://wals.info/refdb/record/Grimes-2000" title="view reference details">Grimes (2000)</a>,
+        the 14th edition of Ethnologue. <!--Footnotes below indicate differences between the WALS
+        classification and that in Ethnologue.--> The classification deviates most strongly from that in
+        Ethnologue in the classification of the languages of
 
         New Guinea.
 
-        The Ethnologue classification is a standard one, and is similar to
-        that in Ruhlen (1987), both being largely based on the classification in Wurm (1975, 1982). However,
-        most specialists are now skeptical of various components of the Wurm classification.  The
-        classification used here is considerably more conservative than the Wurm classification, positing a
-        much larger number of families, and reflects suggestions of William Foley, though I accept
-        responsibility for any misinterpretation of his ideas.
+        The Ethnologue classification is a standard one, and is similar to that in <a class="Reference"
+        href="http://wals.info/refdb/record/Ruhlen-1987" title="view reference details">Ruhlen (1987)</a>,
+        both being largely based on the classification in <a class="Reference"
+        href="http://wals.info/refdb/record/Wurm-1975" title="view reference details">Wurm (1975)</a> and <a
+        class="Reference" href="http://wals.info/refdb/record/Wurm-1982" title="view reference details">Wurm
+        (1982)</a>. However, most specialists are now skeptical of various components of the Wurm
+        classification. The classification used here is considerably more conservative than the Wurm
+        classification, positing a much larger number of families, and reflects suggestions of William Foley,
+        though I accept responsibility for any misinterpretation of his ideas.
       </p>
       <p>
         <!--Each family, subfamily, and genus in the classification below is assigned a numeric code consisting
