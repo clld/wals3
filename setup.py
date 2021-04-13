@@ -25,6 +25,7 @@ setup(
         'clld>=7.4.1',
         'csvw>=1.8.1',
         'BeautifulSoup4>=4.9.1',
+        'html5lib>=1.1',
         'feedparser>=6.0.2',
         'sqlalchemy>=1.3.20',
         'waitress'
