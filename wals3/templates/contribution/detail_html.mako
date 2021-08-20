@@ -16,7 +16,7 @@ ${text|n}
         ${util.stacked_links(sorted(ctx.features, key=lambda f: f.id))}
     </%util:well>
     % endif
-    <%util:feed title="Comments" url="${request.route_url('blog_feed', _query=dict(path=request.blog.feed_path(ctx, request)))}">
+    <%util:feed title="Comments" url="${request.route_url('blog_feed', _query=dict(path=u.blog(request).feed_path(ctx, request)))}">
         No comments have been posted.
     </%util:feed>
     <%util:well title="References">

@@ -9,7 +9,7 @@ from pyramid.config import Configurator
 from clldutils import svg
 from clld.interfaces import (
     IParameter, IMapMarker, IDomainElement, IValue, ILanguage,
-    ICtxFactoryQuery, IBlog, IIconList,
+    ICtxFactoryQuery, IIconList,
 )
 from clld.web.adapters.download import Download
 from clld.web.icon import Icon
@@ -19,7 +19,7 @@ from clld.db.models.common import Contribution, ContributionReference, Parameter
 from wals3.blog import Blog
 from wals3.adapters import Matrix
 from wals3.models import Family, Country, WalsLanguage, Genus
-from wals3.interfaces import IFamily, ICountry, IGenus
+from wals3.interfaces import IFamily, ICountry, IGenus, IBlog
 
 COLORS = [
     '00d', '000', '6f3', '9ff', '090', '99f', '909', 'a00', 'ccc', 'd00', 'f6f', 'f40', 'f60',
@@ -124,23 +124,23 @@ class WalsIcon(Icon):
 def main(global_config, **settings):
     """return a Pyramid WSGI application."""
     settings['route_patterns'] = {
-        'languages': '/languoid',
-        'language': '/languoid/lect/wals_code_{id:[^/\.]+}',
-        'source': '/refdb/record/{id:[^/\.]+}',
+        'languages': r'/languoid',
+        'language': r'/languoid/lect/wals_code_{id:[^/\.]+}',
+        'source': r'/refdb/record/{id:[^/\.]+}',
         'sources': '/refdb',
         'familys': '/languoid/family',
-        'family': '/languoid/family/{id:[^/\.]+}',
-        'genus': '/languoid/genus/{id:[^/\.]+}',
+        'family': r'/languoid/family/{id:[^/\.]+}',
+        'genus': r'/languoid/genus/{id:[^/\.]+}',
         'parameters': '/feature',
-        'parameter': '/feature/{id:[^/\.]+}',
+        'parameter': r'/feature/{id:[^/\.]+}',
         'sentences': '/example',
-        'sentence': '/example/{id:[^/\.]+}',
+        'sentence': r'/example/{id:[^/\.]+}',
         'contributions': '/chapter',
-        'contribution': '/chapter/{id:[^/\.]+}',
+        'contribution': r'/chapter/{id:[^/\.]+}',
         'countrys': '/country',
-        'country': '/country/{id:[^/\.]+}',
+        'country': r'/country/{id:[^/\.]+}',
         'contributors': '/author',
-        'contributor': '/author/{id:[^/\.]+}',
+        'contributor': r'/author/{id:[^/\.]+}',
         'legal': '/about/legal',
         'olac': '/languoid/oai',
         'credits': '/about/credits',

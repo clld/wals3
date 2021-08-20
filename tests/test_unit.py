@@ -4,8 +4,8 @@ from pathlib import Path
 
 from pyramid.httpexceptions import HTTPFound
 
-from clld.interfaces import IBlog
 from clld.db.models.common import ValueSet, Language
+from wals3.interfaces import IBlog
 
 
 def test_comment(env, request_factory, mocker):

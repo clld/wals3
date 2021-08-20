@@ -39,7 +39,7 @@ ${ctx.values[0].description|n}
         ${u.comment_button(request, ctx.parameter, ctx.language)}
     </div>
     <% value = ctx.values[0] %>
-    <%util:feed title="Comments" url="${request.route_url('blog_feed', _query=dict(path=request.blog.feed_path(ctx, request)))}">
+    <%util:feed title="Comments" url="${request.route_url('blog_feed', _query=dict(path=u.blog(request).feed_path(ctx, request)))}">
         No comments have been posted.
     </%util:feed>
 </%def>

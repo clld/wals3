@@ -17,6 +17,11 @@ from clld.web.icon import ICON_MAP
 
 import wals3
 from wals3.models import Feature, WalsLanguage, Genus
+from wals3.interfaces import IBlog
+
+
+def blog(req):
+    return req.registry.queryUtility(IBlog)
 
 
 def comment_button(req, feature, language, class_=''):

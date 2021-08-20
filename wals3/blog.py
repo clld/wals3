@@ -1,7 +1,7 @@
 from zope.interface import implementer
 
-from clld.interfaces import IBlog
-from clld.lib import wordpress
+from wals3.interfaces import IBlog
+from . import wordpress
 
 
 @implementer(IBlog)

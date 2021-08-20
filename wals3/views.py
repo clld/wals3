@@ -17,7 +17,7 @@ from clld.web.views.olac import OlacConfig, olac_with_cfg, Participant, Institut
 from clld.util import summary
 
 from wals3.models import Family, Genus, Feature, WalsLanguage
-from wals3.util import LanguoidSelect
+from wals3.util import LanguoidSelect, blog
 
 
 def atom_feed(request, feed_url):
@@ -57,7 +57,7 @@ def blog_feed(request):
     path = URL(request.params['path'])
     assert not path.host()
     try:
-        return atom_feed(request, request.blog.url(path.as_string()))
+        return atom_feed(request, blog(request).url(path.as_string()))
     except ConnectionError:  # pragma: no cover
         raise HTTPNotFound()
 
@@ -137,7 +137,7 @@ def comment(request):
     if not, create one and redirect there.
     """
     vs = ValueSet.get('%(fid)s-%(lid)s' % request.matchdict)
-    return HTTPFound(request.blog.post_url(vs, request, create=True) + '#comment')
+    return HTTPFound(blog(request).post_url(vs, request, create=True) + '#comment')
 
 
 @view_config(route_name='genealogy', renderer='genealogy.mako')

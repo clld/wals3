@@ -17,7 +17,7 @@
   </script>
   <gcse:search></gcse:search>
   </div>
-  ${util.feed('Latest Comments', request.route_url('blog_feed', _query=dict(path=request.blog.feed_path('comments', request))), eid='comments')}
+  ${util.feed('Latest Comments', request.route_url('blog_feed', _query=dict(path=u.blog(request).feed_path('comments', request))), eid='comments')}
 </%def>
 
 <h2>Welcome to WALS Online</h2>
