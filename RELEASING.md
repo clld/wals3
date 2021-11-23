@@ -4,11 +4,13 @@ The data served by [WALS Online](https://wals.info) is curated in the GitHub
 repository [cldf-datasets/wals](https://github.com/cldf-datasets/wals).
 Thus, a release of WALS Online is always bound to a release of this repository.
 
-So, assuming `cldf-datasets/wals` has been released on Zenodo, with DOI `<DOI>`
-assigned to it, we
+To create the database With the cldf-datasets/wals repository located
+in `./wals-data`, run
 
-- recreate the web application's database running
-  ```shell script
-  wals-app initdb --doi <DOI> --repos ../../cldf/wals
-  ```
+```shell script
+clld initdb --cldf ./wals-data/cldf/StructureDataset-metadata.json development.ini
+```
+
+- run tests with `pytest .`
+
 - deploy the app running `fab deploy:production` via `appconfig`.
