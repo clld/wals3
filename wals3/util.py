@@ -9,26 +9,13 @@ from clld import RESOURCES
 from clld.interfaces import IRepresentation
 from clld.web.adapters import get_adapter
 from clld.db.meta import DBSession
-from clld.db.models.common import DomainElement, Contribution, ValueSet, Value
-from clld.web.util.helpers import button, icon, get_referents, JS
+from clld.db.models.common import Contribution, ValueSet, Value
+from clld.web.util.helpers import get_referents, JS
 from clld.web.util.multiselect import MultiSelect, CombinationMultiSelect
-from clld.web.util.htmllib import HTML
 from clld.web.icon import ICON_MAP
 
 import wals3
 from wals3.models import Feature, WalsLanguage, Genus
-
-
-def comment_button(req, feature, language, class_=''):
-    #
-    # Replace with Glottolog-like comment-by-mail button!
-    #
-    return HTML.form(
-        button(icon('comment'), type='submit', class_=class_, title='comment'),
-        class_='inline',
-        method='POST',
-        action=req.route_url('datapoint', fid=feature.id, lid=language.id),
-    )
 
 
 class LanguoidSelect(MultiSelect):

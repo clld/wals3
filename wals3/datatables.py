@@ -6,11 +6,10 @@ from clld.web.datatables.value import ValueNameCol
 from clld.db.meta import DBSession
 from clld.db.models import common
 from clld.db.util import get_distinct_values, icontains
-from clld.web.util.helpers import linked_contributors, link
+from clld.web.util.helpers import linked_contributors, link, contactmail
 from clld.web.util.htmllib import HTML
 
 from wals3.models import WalsLanguage, Genus, Family, Chapter, Feature, Area, Country
-from wals3.util import comment_button
 
 
 class FeatureIdCol(LinkCol):
@@ -52,10 +51,8 @@ class CommentCol(Col):
     __kw__ = {'bSortable': False, 'bSearchable': False, 'sTitle': ''}
 
     def format(self, item):
-        l = self.dt.language or item.valueset.language
-        f = self.dt.parameter or item.valueset.parameter
-        return comment_button(
-            self.dt.req, f, l, class_='btn-mini' if self.dt.language else '')
+        return contactmail(
+            self.dt.req, item.valueset, title="suggest changes")
 
 
 class Datapoints(datatables.Values):
