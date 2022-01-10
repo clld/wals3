@@ -17,14 +17,12 @@ from clld.web.icon import ICON_MAP
 
 import wals3
 from wals3.models import Feature, WalsLanguage, Genus
-from wals3.interfaces import IBlog
-
-
-def blog(req):
-    return req.registry.queryUtility(IBlog)
 
 
 def comment_button(req, feature, language, class_=''):
+    #
+    # Replace with Glottolog-like comment-by-mail button!
+    #
     return HTML.form(
         button(icon('comment'), type='submit', class_=class_, title='comment'),
         class_='inline',

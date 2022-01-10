@@ -38,7 +38,6 @@ from clld.db.meta import DBSession
         ('get_dt', '/values?language=eng&sSearch_4=phon'),
         ('get_html', '/valuesets/98A-coo'),
         ('get_html', '/values/98A-coo'),
-        ('get', '/blog?path=comments%2Ffeed'),
     ])
 def test_pages(app, method, path):
     getattr(app, method)(path)
@@ -114,9 +113,3 @@ def test_olac(app):
     app.get_xml(p + 'GetRecord&identifier=oai:wals.info:languoid:cea' + md)
     app.get_xml(p + 'ListRecords&until=3000-01-01' + md)
     app.get_xml(p + 'Identify')
-
-
-def test_blog_feed(app, mocker):
-    app.get('/blog', status=404)
-    mocker.patch('wals3.views.atom_feed', mocker.Mock(return_value=Response('test')))
-    assert 'test' in app.get('/blog?path=test')

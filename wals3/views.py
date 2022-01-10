@@ -1,13 +1,5 @@
-import time
-from datetime import datetime
-
-import feedparser
-import requests
-from requests.exceptions import ConnectionError, Timeout
-from purl import URL
 from sqlalchemy.orm import joinedload
 from pyramid.view import view_config
-from pyramid.renderers import render_to_response
 from pyramid.httpexceptions import HTTPFound, HTTPNotFound
 
 from clld.db.meta import DBSession
@@ -17,49 +9,7 @@ from clld.web.views.olac import OlacConfig, olac_with_cfg, Participant, Institut
 from clld.util import summary
 
 from wals3.models import Family, Genus, Feature, WalsLanguage
-from wals3.util import LanguoidSelect, blog
-
-
-def atom_feed(request, feed_url):
-    """
-    Proxy feeds so they can be accessed via XHR requests.
-
-    We also convert RSS to ATOM so that the javascript Feed component can read them.
-    """
-    ctx = {'url': feed_url, 'title': None, 'entries': []}
-    try:
-        res = requests.get(ctx['url'], timeout=(3.05, 1))
-    except Timeout:  # pragma: no cover
-        res = None
-    if res and res.status_code == 200:
-        d = feedparser.parse(res.content.strip())
-        ctx['title'] = getattr(d.feed, 'title', None)
-        for e in d.entries:
-            ctx['entries'].append(dict(
-                title=e.title,
-                link=e.link,
-                updated=datetime.fromtimestamp(time.mktime(e.published_parsed)).isoformat(),
-                summary=summary(e.description)))
-    response = render_to_response('atom_feed.mako', ctx, request=request)
-    response.content_type = 'application/atom+xml'
-    return response
-
-
-@view_config(route_name='blog_feed')
-def blog_feed(request):
-    """
-    Proxy feeds from the blog, so they can be accessed via XHR requests.
-
-    We also convert RSS to ATOM so that clld's javascript Feed component can read them.
-    """
-    if not request.params.get('path'):
-        raise HTTPNotFound()
-    path = URL(request.params['path'])
-    assert not path.host()
-    try:
-        return atom_feed(request, blog(request).url(path.as_string()))
-    except ConnectionError:  # pragma: no cover
-        raise HTTPNotFound()
+from wals3.util import LanguoidSelect
 
 
 @view_config(route_name='languoids', renderer='json')

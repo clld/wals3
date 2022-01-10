@@ -16,10 +16,9 @@ from clld.web.icon import Icon
 from clld.web.app import CtxFactoryQuery
 from clld.db.models.common import Contribution, ContributionReference, Parameter, Language, Source
 
-from wals3.blog import Blog
 from wals3.adapters import Matrix
 from wals3.models import Family, Country, WalsLanguage, Genus
-from wals3.interfaces import IFamily, ICountry, IGenus, IBlog
+from wals3.interfaces import IFamily, ICountry, IGenus
 
 COLORS = [
     '00d', '000', '6f3', '9ff', '090', '99f', '909', 'a00', 'ccc', 'd00', 'f6f', 'f40', 'f60',
@@ -152,7 +151,6 @@ def main(global_config, **settings):
     for utility, interface in [
         (WalsCtxFactoryQuery(), ICtxFactoryQuery),
         (map_marker, IMapMarker),
-        (Blog(settings), IBlog),
         (icons, IIconList),
     ]:
         config.registry.registerUtility(utility, interface)
@@ -265,7 +263,6 @@ def main(global_config, **settings):
 
     config.add_route('olac.source', '/refdb_oai')
     config.add_route('languoids', '/languoids')
-    config.add_route('blog_feed', '/blog')
 
     config.register_download(
         Matrix(Language, 'wals3', description="Feature values CSV"))

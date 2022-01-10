@@ -1,24 +1,6 @@
 <%inherit file="../home_comp.mako"/>
 <%namespace name="util" file="../util.mako"/>
 
-<%def name="sidebar()">
-  <div id="wals_search">
-  <script>
-  (function() {
-    var cx = '012093784907070887713:a7i_0y3rwgs';
-    var gcse = document.createElement('script');
-    gcse.type = 'text/javascript';
-    gcse.async = true;
-    gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
-        '//www.google.com/cse/cse.js?cx=' + cx;
-    var s = document.getElementsByTagName('script')[0];
-    s.parentNode.insertBefore(gcse, s);
-  })();
-  </script>
-  <gcse:search></gcse:search>
-  </div>
-  ${util.feed('Latest Comments', request.route_url('blog_feed', _query=dict(path=u.blog(request).feed_path('comments', request))), eid='comments')}
-</%def>
 
 <h2>Welcome to WALS Online</h2>
 
