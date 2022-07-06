@@ -1,13 +1,9 @@
 import re
-import json
 import collections
 import datetime
 
 from bs4 import BeautifulSoup
 from tqdm import tqdm
-
-import transaction
-import pycldf
 
 from clld.cliutil import Data, slug, bibtex2source, add_language_codes
 from clld.db.meta import DBSession
@@ -19,11 +15,9 @@ from wals3 import models
 
 
 def main(args):  # pragma: no cover
-
-    repos = args.cldf.directory.parent
-    cldf_dir = repos / 'cldf'
     args.log.info('Loading dataset')
-    ds = list(pycldf.iter_datasets(cldf_dir))[0]
+    ds = args.cldf
+    cldf_dir = ds.directory
     data = Data()
 
     dataset = common.Dataset(
