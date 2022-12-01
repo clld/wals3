@@ -212,6 +212,7 @@ def main(global_config, **settings):
         '/example/all/wals_code_{lid}',
         lambda req: req.route_url(
             'sentences', _query=dict(language=req.matchdict['lid'])))
+    config.add_301('/changes', 'https://github.com/cldf-datasets/wals/blob/master/CHANGES.md')
 
     # we redirect legacy urls for datapoints because they could not be expressed
     # with a single id.

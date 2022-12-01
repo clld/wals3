@@ -10,7 +10,6 @@ from clld.db.meta import DBSession
         ('get_html', '/'),
         ('get_html', '/combinations/55A_89A'),
         ('get_html', '/feature-info/3A'),
-        ('get_html', '/changes'),
         ('get_xml', '/refdb_oai?verb=Identify'),
         ('get_html', '/languoid/genealogy'),
         ('get_html', '/languoid/samples/100'),
@@ -41,6 +40,10 @@ from clld.db.meta import DBSession
     ])
 def test_pages(app, method, path):
     getattr(app, method)(path)
+
+
+def test_changes(app):
+    app.get('/changes', status=301)
 
 
 def test_samples(app):
