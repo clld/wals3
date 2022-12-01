@@ -19,14 +19,13 @@
     <a href="${request.route_url('contributors')}">${stats['contributor']} authors</a>.
 </p>
 <p>
-    The first version of WALS was published as a book with CD-ROM in 2005 by
-    ${h.external_link('http://ukcatalogue.oup.com/product/9780199255917.do', label='Oxford University Press')}.
+    The first version of WALS was published as a book with CD-ROM in 2005 by Oxford University Press.
     The first online version was published in April 2008.
 </p>
 <p>
   The 2013 edition of WALS corrects a number of coding errors especially in Chapters 1 and 3.
   A full list of changes is available
-    ${h.external_link('https://github.com/cldf-datasets/wals/compare/v2011...v2013', label="here")}.
+    ${h.external_link('https://github.com/cldf-datasets/wals/blob/master/CHANGES.md', label="here")}.
 </p>
 <p>
     Starting with the 2013 edition of WALS, we will release and publish sets of
@@ -36,9 +35,9 @@
 </p>
 <p>
     WALS Online is a publication of the
-    ${h.external_link('https://shh.mpg.de', label='Max Planck Institute for the Science of Human History')}.
+    ${h.external_link('https://www.eva.mpg.de', label='Max Planck Institute for Evolutionary Anthropology')}.
     It is a separate publication, edited by
-    Dryer, Matthew S. & Haspelmath, Martin (Jena: Max Planck Institute for the Science of Human History, 2013).
+    Dryer, Matthew S. & Haspelmath, Martin (Leipzig: Max Planck Institute for Evolutionary Anthropology, 2013).
     The main programmer is Robert Forkel.
 </p>
 
@@ -57,10 +56,6 @@
     You can search for references through the item "References", and once you have
     navigated to a particular feature, you see a second navigation bar with citation
     information and various export options.
-</p>
-<p>
-  A description of changes from previous editions is available through the item
-  "Changes".
 </p>
 
 <h3>How to cite WALS Online</h3>
@@ -93,7 +88,7 @@
     The World Atlas of Language Structures was published as a book with a CD-ROM in summer 2005.
     The CD-ROM contains the "Interactive Reference Tool (WALS program)" as a standalone application
     for Mac OSX, Mac OS9.2 and Windows 2000, XP written by
-    ${h.external_link('https://www.shh.mpg.de/employees/42541/25500', label='Hans-Jörg Bibiko')}.
+    ${h.external_link('https://www.eva.mpg.de/linguistic-and-cultural-evolution/staff/hans-joerg-bibiko/', label='Hans-Jörg Bibiko')}.
     To download the
     "Interactive Reference Tool (WALS program)" please follow the link
     ${h.external_link('https://www.eva.mpg.de/lingua/research/tool.php')}.
