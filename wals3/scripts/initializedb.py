@@ -1,6 +1,6 @@
 import re
-import collections
 import datetime
+import collections
 
 from bs4 import BeautifulSoup
 from tqdm import tqdm
@@ -88,9 +88,9 @@ def main(args):  # pragma: no cover
                      ord=row['Editor_Ord'])
     DBSession.flush()
 
-    for row in ds.iter_rows('chapters.csv'):
+    for row in ds.iter_rows('ContributionTable'):
         desc, area_pk = None, None
-        descr_path = cldf_dir / ds.get_row_url('chapters.csv', row)
+        descr_path = cldf_dir / ds.get_row_url('ContributionTable', row)
         if descr_path.exists():
             desc = open(descr_path).read()
         if row['Area_ID'] in data['Area']:
@@ -143,37 +143,26 @@ def main(args):  # pragma: no cover
 
     lrefs = collections.defaultdict(list)
     gl_value = common.IdentifierType.get('glottolog').value
-    for row in tqdm(ds.iter_rows('LanguageTable'), desc='Processing languages'):
-        fam, gen = None, None
-        if row['Family']:
-            try:
-                fam = data['Family'][slug(row['Family'])]
-            except KeyError:
-                fam = data.add(models.Family, slug(row['Family']), id=slug(row['Family']), name=row['Family'])
-            if row['Genus']:
-                try:
-                    gen = data['Genus'][slug(row['Genus'])]
-                except KeyError:
-                    gen = data.add(models.Genus, slug(row['Genus']),
-                                   id=slug(row['Genus']),
-                                   name=row['Genus'],
-                                   subfamily=row['Subfamily'],
-                                   icon=row['GenusIcon'],
-                                   family=fam)
-        if fam is None and gen is None:  # Isolate
-            n = slug(row['Name'])
-            try:
-                fam = data['Family'][n]
-            except KeyError:
-                fam = data.add(models.Family, n, id=n, name=row['Name'])
-            try:
-                gen = data['Genus'][n]
-            except KeyError:
-                gen = data.add(models.Genus, n,
-                               id=n,
-                               name=row['Name'],
-                               icon=row['GenusIcon'],
-                               family=fam)
+
+    langs = list(ds.iter_rows('LanguageTable'))
+    genus_icons = {r['ID']: r['GenusIcon'] for r in langs if r['GenusIcon']}
+
+    for row in tqdm(langs, desc='Processing languages'):
+        if '-' in row['ID']:
+            continue
+        try:
+            fam = data['Family'][slug(row['Family'])]
+        except KeyError:
+            fam = data.add(models.Family, slug(row['Family']), id=slug(row['Family']), name=row['Family'])
+        try:
+            gen = data['Genus'][slug(row['Genus'])]
+        except KeyError:
+            gen = data.add(models.Genus, slug(row['Genus']),
+                           id=slug(row['Genus']),
+                           name=row['Genus'],
+                           subfamily=row['Subfamily'],
+                           icon=genus_icons[row['Parent_ID']],
+                           family=fam)
         d = data.add(models.WalsLanguage, row['ID'],
                      id=row['ID'],
                      name=row['Name'],
@@ -227,15 +216,15 @@ def main(args):  # pragma: no cover
 
     for row in ds.iter_rows('ExampleTable'):
         data.add(common.Sentence, row['ID'],
-                 id=row['ID'],
-                 name=row['Primary_Text'],
-                 description=row['Translated_Text'],
-                 analyzed='\t'.join(row['Analyzed_Word']),
-                 gloss='\t'.join(row['Gloss']),
-                 language_pk=data['WalsLanguage'][row['Language_ID']].pk)
+            id=row['ID'],
+            name=row['Primary_Text'],
+            description=row['Translated_Text'],
+            analyzed='\t'.join(row['Analyzed_Word']),
+            gloss='\t'.join(row['Gloss']),
+            language_pk=data['WalsLanguage'][row['Language_ID']].pk)
     DBSession.flush()
 
-    srcdescr = re.compile(r'^(.*?)\[(.*?)\]$')
+    srcdescr = re.compile(r'^(.*?)\[(.*?)]$')
     flush_cnt = 0
     for row in tqdm(ds.iter_rows('ValueTable'), desc='Processing values'):
         lpk = data['WalsLanguage'][row['Language_ID']].pk
