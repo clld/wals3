@@ -16,6 +16,9 @@ class FeatureIdCol(LinkCol):
     def get_attrs(self, item):
         return {'label': item.id}
 
+    def search(self, qs):
+        return LinkCol.search(self, (qs or '').strip())
+
     def order(self):
         return Feature.contribution_pk, Feature.ordinal_qualifier
 
