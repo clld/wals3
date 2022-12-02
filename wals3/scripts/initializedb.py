@@ -29,7 +29,7 @@ def main(args):  # pragma: no cover
         publisher_place="Leipzig",
         publisher_url="https://www.eva.mpg.de",
         license=ds.properties['dc:license'],
-        contact='wals@shh.mpg.de',
+        contact='wals@eva.mpg.de',
         jsondata={
             'license_icon': 'cc-by.png',
             'license_name':
