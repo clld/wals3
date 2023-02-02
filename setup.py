@@ -21,7 +21,7 @@ setup(
     test_suite='wals3',
     install_requires=[
         'tqdm',
-        'clld>=9.2.2',
+        'clld>=10.0',
         'clldutils>=3.6',
         'clldmpg>=4.0.0',
         'csvw>=1.8.1',
