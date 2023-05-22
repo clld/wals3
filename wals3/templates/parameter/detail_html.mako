@@ -1,11 +1,13 @@
 <%inherit file="../${context.get('request').registry.settings.get('clld.app_template', 'app.mako')}"/>
 <%namespace name="util" file="../util.mako"/>
 <%! active_menu_item = "parameters" %>
+<%! from clldutils import svg %>
 <%block name="title">Feature ${ctx.id}: ${ctx.name}</%block>
 
 <%block name="head">
     <link href="${request.static_url('clld:web/static/css/select2.css')}" rel="stylesheet">
     <script src="${request.static_url('clld:web/static/js/select2.js')}"></script>
+    ${util.head_coloris()|n}
 </%block>
 
 <div class="span4" style="float: right; margin-top: 1em;">
@@ -13,14 +15,15 @@
         <table class="table table-condensed">
             % for de in ctx.domain:
             <tr>
-                <%util:iconselect id="iconselect${str(de.number)}" param="v${str(de.number)}">
-                    ${h.map_marker_img(req, de)}
-                </%util:iconselect>
+                <td>
+                    ${util.coloris_icon_picker(u.icon_from_req(de, req))|n}
+                </td>
                 <td>${de}</td>
                 <td class="right">${len(de.values)}</td>
             </tr>
             % endfor
         </table>
+        ${util.parameter_map_reloader([u.icon_from_req(de, req) for de in ctx.domain])|n}
     </%util:well>
 </div>
 

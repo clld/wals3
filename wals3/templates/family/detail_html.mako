@@ -6,6 +6,10 @@
 <%! from sqlalchemy.orm import joinedload %>
 <%! from wals3.models import Genus %>
 
+<%block name="head">
+${util.head_coloris()|n}
+</%block>
+
 <ul class="nav nav-pills pull-right">
     <li><a href="#map-container">Map</a></li>
     <li><a href="#list-container">Genera</a></li>
@@ -15,9 +19,13 @@
 
 ${request.map.render()}
 
-<h3>Genera</h3>
+<% all_genera = h.DBSession.query(Genus).filter(Genus.family_pk == ctx.pk).order_by(Genus.name).options(joinedload(Genus.languages)).all() %>
+<h3>
+    Genera
+    ${util.parameter_map_reloader([u.icon_from_req(g, req) for g in filter(None, all_genera)])|n}
+</h3>
 <div id="list-container" class="row-fluid">
-    % for genera in h.partitioned(h.DBSession.query(Genus).filter(Genus.family_pk == ctx.pk).order_by(Genus.name).options(joinedload(Genus.languages)).all()):
+    % for genera in h.partitioned(all_genera):
     <div class="span4">
         % for genus in filter(None, genera):
         <h4>
@@ -25,9 +33,7 @@ ${request.map.render()}
                     type="button" class="btn btn-mini expand-collapse" data-toggle="collapse" data-target="#genus-${genus.pk}">
                 <i class="icon icon-plus"> </i>
             </button>
-            <%util:iconselect id="iconselect${genus.id}" param="${genus.id}" placement="right" tag="span">
-                <img height="20" width="20" src="${u.wals3.map_marker(genus, request)}" />
-            </%util:iconselect>
+            ${util.coloris_icon_picker(u.icon_from_req(genus, req))|n}
             ${h.link(request, genus)}
             (${str(len(genus.languages))})
         </h4>

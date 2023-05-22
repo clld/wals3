@@ -17,6 +17,7 @@ from clld.web.app import CtxFactoryQuery
 from clld.db.models.common import Contribution, ContributionReference, Parameter, Language, Source
 
 from wals3.adapters import Matrix
+from wals3.util import icon_from_req
 from wals3.models import Family, Country, WalsLanguage, Genus
 from wals3.interfaces import IFamily, ICountry, IGenus
 
@@ -43,32 +44,9 @@ def map_marker(ctx, req):
 
     we have to look up a possible custom selection from the url params.
     """
-    icon = None
-
-    if IValue.providedBy(ctx):
-        icon = req.params.get(
-            'v%s' % ctx.domainelement.number,
-            ctx.domainelement.jsondata['icon'])
-    elif IDomainElement.providedBy(ctx):
-        icon = req.params.get('v%s' % ctx.number, ctx.jsondata['icon'])
-    elif ILanguage.providedBy(ctx):
-        icon = req.params.get(ctx.genus.id, ctx.genus.icon)
-    elif isinstance(ctx, Genus):
-        icon = req.params.get(ctx.id, ctx.icon)
-
-    if icon:
-        if "'" in icon:
-            icon = icon.split("'")[0]
-        if len(icon) > 4 and len(icon) != 7:
-            icon = icon[:4]
-        if len(icon) == 4:
-            icon = icon[0] + 2*icon[1] + 2*icon[2] + 2*icon[3]
-        if icon.startswith('a'):
-            return svg.data_url(svg.icon('c000000', opacity='0'))
-        try:
-            return svg.data_url(svg.icon(icon))
-        except KeyError:
-            return ''
+    res = icon_from_req(ctx, req)
+    assert res
+    return res.url(req)
 
 
 class WalsCtxFactoryQuery(CtxFactoryQuery):

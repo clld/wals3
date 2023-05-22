@@ -5,17 +5,29 @@ from sqlalchemy.orm import joinedload
 from bs4 import BeautifulSoup as soup
 from pyramid.httpexceptions import HTTPFound
 
+from clldutils import svg
 from clld import RESOURCES
-from clld.interfaces import IRepresentation
+from clld.interfaces import IRepresentation, IValue, IDomainElement, ILanguage
 from clld.web.adapters import get_adapter
 from clld.db.meta import DBSession
 from clld.db.models.common import Contribution, ValueSet, Value
 from clld.web.util.helpers import get_referents, JS
 from clld.web.util.multiselect import MultiSelect, CombinationMultiSelect
-from clld.web.icon import ICON_MAP
+from clld.web.icon import ICON_MAP, Icon
 
 import wals3
 from wals3.models import Feature, WalsLanguage, Genus
+
+
+def icon_spec_factory(ctx, req):
+    if isinstance(ctx, Genus):
+        return req.params.get(ctx.id, ctx.icon), ctx.id
+    if ILanguage.providedBy(ctx):
+        return req.params.get(ctx.genus.id, ctx.genus.icon), ctx.genus.id
+
+
+def icon_from_req(ctx, req):
+    return Icon.from_req(ctx, req, icon_spec_factory=icon_spec_factory)
 
 
 class LanguoidSelect(MultiSelect):
@@ -114,12 +126,4 @@ def parameter_detail_html(context=None, request=None, **kw):
 
 def combination_detail_html(context=None, request=None, **kw):
     """feature combination view."""
-    convert = lambda spec: ''.join(c if i == 0 else c + c for i, c in enumerate(spec))
-    for i, de in enumerate(context.domain):
-        param = 'v%s' % i
-        if param in request.params:
-            name = convert(request.params[param])
-            if name in ICON_MAP:
-                de.icon = ICON_MAP[name]
-
     return dict(iconselect=True)
