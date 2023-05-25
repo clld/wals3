@@ -8,8 +8,7 @@ from pyramid.config import Configurator
 
 from clldutils import svg
 from clld.interfaces import (
-    IParameter, IMapMarker, IDomainElement, IValue, ILanguage,
-    ICtxFactoryQuery, IIconList,
+    IParameter, IMapMarker, IDomainElement, IValue, ILanguage, ICtxFactoryQuery,
 )
 from clld.web.adapters.download import Download
 from clld.web.icon import Icon
@@ -129,7 +128,6 @@ def main(global_config, **settings):
     for utility, interface in [
         (WalsCtxFactoryQuery(), ICtxFactoryQuery),
         (map_marker, IMapMarker),
-        (icons, IIconList),
     ]:
         config.registry.registerUtility(utility, interface)
 
