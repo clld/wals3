@@ -27,7 +27,12 @@ def icon_spec_factory(ctx, req):
 
 
 def icon_from_req(ctx, req):
-    return Icon.from_req(ctx, req, icon_spec_factory=icon_spec_factory)
+    res = Icon.from_req(ctx, req, icon_spec_factory=icon_spec_factory)
+    if not res:
+        return Icon('cFF6600', opacity=0.6)
+    if res.name.startswith('a000'):
+        return Icon('cFFFFFF', opacity=0.1)
+    return res
 
 
 class LanguoidSelect(MultiSelect):
