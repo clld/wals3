@@ -121,8 +121,6 @@ def main(global_config, **settings):
         'olac': '/languoid/oai',
         'credits': '/about/credits',
     }
-    icons = [WalsIcon(s + c) for s, c in itertools.product(SHAPES, COLORS)]
-
     config = Configurator(**dict(settings=settings))
     config.include('clldmpg')
     for utility, interface in [

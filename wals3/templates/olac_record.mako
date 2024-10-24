@@ -1,3 +1,4 @@
+<%! import xml.sax.saxutils %>
 <%def name="record(obj)">
   <olac:olac xmlns:olac="http://www.language-archives.org/OLAC/1.1/"
            xmlns:dc="http://purl.org/dc/elements/1.1/"
@@ -12,7 +13,7 @@
     % if isinstance(obj, h.models.Source):
     <dc:title>${obj.description}</dc:title>
     <dcterms:bibliographicCitation>
-      ${obj.bibtex().text()|n}
+      ${xml.sax.saxutils.escape(obj.bibtex().text())|n}
     </dcterms:bibliographicCitation>
     <dc:creator>${obj.author}</dc:creator>
 
