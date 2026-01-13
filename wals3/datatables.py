@@ -6,7 +6,7 @@ from clld.web.datatables.value import ValueNameCol
 from clld.db.meta import DBSession
 from clld.db.models import common
 from clld.db.util import get_distinct_values, icontains
-from clld.web.util.helpers import linked_contributors, link, contactmail
+from clld.web.util.helpers import linked_contributors, link
 from clld.web.util.htmllib import HTML
 
 from wals3.models import WalsLanguage, Genus, Family, Chapter, Feature, Area, Country
@@ -50,14 +50,6 @@ class _WalsValueNameCol(ValueNameCol):
         return icontains(common.DomainElement.name, qs)
 
 
-class CommentCol(Col):
-    __kw__ = {'bSortable': False, 'bSearchable': False, 'sTitle': ''}
-
-    def format(self, item):
-        return contactmail(
-            self.dt.req, item.valueset, title="suggest changes")
-
-
 class Datapoints(datatables.Values):
     def base_query(self, query):
         query = super(Datapoints, self).base_query(query)
@@ -81,7 +73,6 @@ class Datapoints(datatables.Values):
                 FeatureIdCol2(self, 'fid', sClass='right', bSearchable=False),
                 _WalsValueNameCol(self, 'value'),
             ] + cols[1:] + [AreaCol(self, 'area', bSearchable=False)]
-        cols.append(CommentCol(self, 'c'))
         return cols
 
     def get_options(self):

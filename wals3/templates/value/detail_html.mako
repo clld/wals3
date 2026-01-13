@@ -32,13 +32,5 @@
 
 <%def name="sidebar()">
     <div class="well well-small">
-        <div id="comments">
-            No comments have been posted.
-        </div>
     </div>
-    <script>
-$(document).ready(function() {
-  ${h.JSFeed.init(dict(eid="comments", url="http://blog.wals.info/datapoint-"+ctx.valueset.parameter.id.lower()+"-wals_code_"+ctx.valueset.language.id+"/feed/", title="Comments"))|n}
-});
-    </script>
 </%def>

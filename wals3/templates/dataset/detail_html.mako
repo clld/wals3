@@ -3,9 +3,7 @@
 
 <%def name="sidebar()">
     <div class="alert alert-info">
-        The functionality to comment on WALS Online data via an associated blog has been
-        replaced with mailto links. See also the
-        <a href="${request.route_url('contact')}">contact page</a> for information on how to get in contact with us.
+        <strong>WALS is a finished project. This website will no longer be updated.</strong>
     </div>
 </%def>
 

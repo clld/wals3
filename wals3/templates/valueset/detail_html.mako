@@ -36,7 +36,6 @@ ${ctx.values[0].description|n}
         <form class="inline">
             ${h.button('cite', onclick=h.JSModal.show(ctx.parameter.name, request.resource_url(ctx.parameter.chapter, ext='md.html')))}
         </form>
-        ${h.contactmail(request, ctx, title="suggest changes")}
     </div>
     <% value = ctx.values[0] %>
 </%def>

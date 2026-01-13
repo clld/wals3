@@ -1,12 +1,17 @@
 <%inherit file="home_comp.mako"/>
 
-<h3>${_('Contact')} ${h.contactmail(req)}</h3>
+<h3>${_('Contact')}</h3>
 <div class="well">
-    <p>${_('You can contact us via email at')} <a href="mailto:${request.contact_email_address}">${request.contact_email_address}</a>.</p>
+    <p><strong>WALS is a finished project and this website will no longer be updated.</strong></p>
+
+    <p>The underlying data is curated in a repository on GitHub, though, and the associated issue page may serve
+    as a list of (suggested) errata.</p>
+
     % if request.registry.settings.get('clld.github_repos') and request.registry.settings.get('clld.github_repos_data'):
     <% srepo = request.registry.settings['clld.github_repos'] %>
     <% drepo = request.registry.settings['clld.github_repos_data'] %>
-    <p><a href="https://github.com">GitHub</a> users can also create and discuss bug reports using the following <strong>issue trackers</strong>:</p>
+    <p><a href="https://github.com">GitHub</a> users may create and discuss bug reports using the following
+        <strong>issue trackers</strong>:</p>
         <ul>
             <li><a href="https://github.com/${drepo}/issues">${drepo}/issues</a> for errata regarding the site content</li>
             <li><a href="https://github.com/${srepo}/issues">${srepo}/issues</a> for problems with the site software</li>
