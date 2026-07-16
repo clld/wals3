@@ -1,8 +1,8 @@
+import functools
 from itertools import groupby
 
 from sqlalchemy.orm import joinedload, subqueryload
 
-from clldutils.misc import lazyproperty
 from clld.interfaces import ILanguage, IParameter, IIndex
 from clld.web.adapters.base import Index
 from clld.web.adapters.geojson import GeoJsonParameter, GeoJson
@@ -56,7 +56,7 @@ class Matrix(CsvDump):
     ]
     _fields = []
 
-    @lazyproperty
+    @functools.cached_property
     def _parameters(self):
         return DBSession.query(Parameter).order_by(Parameter.pk).all()
 
