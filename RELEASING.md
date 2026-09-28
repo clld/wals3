@@ -22,3 +22,13 @@ Thus, a release of WALS Online is always bound to a release of this repository.
 - commit and push.
 - deploy the app.
 
+- Store the tested requirements:
+  ```shell
+  pip freeze > requirements.txt
+  ```
+
+- Store a db dump:
+  ```shell
+  pg_dump -xO wals3 > wals3.sql
+  ```
+
