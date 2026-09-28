@@ -10,13 +10,18 @@ from clld import RESOURCES
 from clld.interfaces import IRepresentation, IValue, IDomainElement, ILanguage
 from clld.web.adapters import get_adapter
 from clld.db.meta import DBSession
-from clld.db.models.common import Contribution, ValueSet, Value
+from clld.db.models.common import Contribution, ValueSet, Value, Config
 from clld.web.util.helpers import get_referents, JS
 from clld.web.util.multiselect import MultiSelect, CombinationMultiSelect
 from clld.web.icon import ICON_MAP, Icon
 
 import wals3
 from wals3.models import Feature, WalsLanguage, Genus
+
+
+def credits(*args, **kw):
+    return {
+        'text': DBSession.query(Config).filter(Config.key=='credits').first().value}
 
 
 def icon_spec_factory(ctx, req):

@@ -129,6 +129,7 @@ def main(global_config, **settings):
     ]:
         config.registry.registerUtility(utility, interface)
 
+    config.include('clld_markdown_plugin')
     config.register_resource('family', Family, IFamily, with_index=True)
     config.register_resource('genus', Genus, IGenus, with_index=True)
     config.register_resource('country', Country, ICountry)

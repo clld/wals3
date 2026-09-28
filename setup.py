@@ -28,7 +28,8 @@ setup(
         'BeautifulSoup4>=4.9.1',
         'html5lib>=1.1',
         'sqlalchemy>=1.3.20',
-        'waitress'
+        'waitress',
+        'clld-markdown-plugin',
     ],
     extras_require={
         'dev': [

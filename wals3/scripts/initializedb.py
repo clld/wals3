@@ -4,6 +4,7 @@ import collections
 
 from bs4 import BeautifulSoup
 from tqdm import tqdm
+from markdown import markdown
 
 from clld.cliutil import Data, slug, bibtex2source, add_language_codes
 from clld.db.meta import DBSession
@@ -140,6 +141,9 @@ def main(args):  # pragma: no cover
         data['GlossAbbreviation'][abbr.contents[0]] = new
         DBSession.add(new)
     DBSession.flush()
+
+    DBSession.add(common.Config(key='credits', value='##' + cldf_dir.joinpath('docs', 'credits.md').read_text(encoding='utf8').strip()))
+    DBSession.add(common.Config(key='genealogy', value='##' + cldf_dir.joinpath('docs', 'genealogy.md').read_text(encoding='utf8').strip()))
 
     lrefs = collections.defaultdict(list)
     gl_value = common.IdentifierType.get('glottolog').value

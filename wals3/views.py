@@ -3,7 +3,7 @@ from pyramid.view import view_config
 from pyramid.httpexceptions import HTTPFound, HTTPNotFound
 
 from clld.db.meta import DBSession
-from clld.db.models.common import ValueSet, Source, Language, LanguageIdentifier, Identifier
+from clld.db.models.common import ValueSet, Source, Language, LanguageIdentifier, Identifier, Config
 from clld.db.util import icontains
 from clld.web.views.olac import OlacConfig, olac_with_cfg, Participant, Institution
 from clld.util import summary
@@ -94,6 +94,7 @@ def comment(request):
 def genealogy(request):
     request.tm.abort()
     return dict(
+        text=DBSession.query(Config).filter(Config.key=='genealogy').first().value,
         families=DBSession.query(Family).order_by(Family.id)
         .options(joinedload(Family.genera, Genus.languages)))
 
