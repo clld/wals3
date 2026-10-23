@@ -23,7 +23,7 @@ setup(
         'tqdm',
         'clld>=11.3.1',
         'clldutils>=3.6',
-        'clldmpg>=4.0.0',
+        'clldmpg>=4.5.0',
         'csvw>=1.8.1',
         'BeautifulSoup4>=4.9.1',
         'html5lib>=1.1',
