@@ -77,7 +77,7 @@ rfc3986==1.5.0
 rpds-py==2026.6.3
 segments==2.4.0
 selenium==4.49.0
-setuptools==80.10.2
+setuptools==83.0.0
 simplepybtex==0.1.0
 six==1.17.0
 smmap==5.0.3
