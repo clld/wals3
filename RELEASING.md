@@ -1,6 +1,7 @@
 # Releasing WALS Online
 
 ```shell
+git clone --branch v2020.6 --depth 1 https://github.com/cldf-datasets/wals
 git clone https://github.com/clld/wals3
 cd wals3
 pip install -e .[test]
@@ -29,6 +30,6 @@ Thus, a release of WALS Online is always bound to a release of this repository.
 
 - Store a db dump:
   ```shell
-  pg_dump -xO wals3 > wals3.sql
+  pg_dump -xO --compress gzip:9 wals3 > wals3.sql.gz
   ```
 
